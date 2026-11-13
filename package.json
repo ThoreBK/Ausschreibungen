@@ -1,0 +1,11 @@
+{
+  "name": "tender-research-agent-tooling",
+  "private": true,
+  "description": "Lokales Backlog.md-Werkzeug; keine JavaScript-Anwendung",
+  "scripts": {
+    "backlog": "backlog"
+  },
+  "devDependencies": {
+    "backlog.md": "1.55.3"
+  }
+}

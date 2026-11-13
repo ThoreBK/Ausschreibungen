@@ -1,0 +1,31 @@
+# Local tools, environments and caches
+.tools/
+.venv/
+node_modules/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# Secrets and machine-local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+.npmrc
+
+# Temporary files and generated research outputs
+tmp/
+downloads/
+reports/
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
