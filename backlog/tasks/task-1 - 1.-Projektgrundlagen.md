@@ -1,10 +1,10 @@
 ---
 id: TASK-1
 title: 1. Projektgrundlagen
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-11-13T17:25:00Z'
-updated_date: '2026-11-13T17:30:00Z'
+updated_date: '2026-11-13T17:44:00Z'
 labels:
   - roadmap
 dependencies: []
@@ -19,5 +19,11 @@ Eine kleine lokal startbare Entwicklungsgrundlage schaffen; noch keine fachliche
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Python-Start, Pytest und Ruff funktionieren; Git, Backlog und Arbeitsanweisungen sind vorhanden.
+- [x] #1 Python-Start, Pytest und Ruff funktionieren; Git, Backlog und Arbeitsanweisungen sind vorhanden.
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Minimales Python-Projekt mit uv, Pytest und Ruff eingerichtet. Git, deutsche README, AGENTS.md und sieben grobe Roadmap-Tickets vorhanden. Verifiziert: uv run main.py erfolgreich; pytest: 1 Test bestanden; Ruff-Lint und Formatpruefung erfolgreich; Backlog-Webserver HTTP 200. Abschluss vom Nutzer freigegeben. Keine fachlichen Agentenfunktionen implementiert.
+<!-- SECTION:FINAL_SUMMARY:END -->
