@@ -4,6 +4,7 @@ title: 1. Projektgrundlagen
 status: To Do
 assignee: []
 created_date: '2026-11-13T17:25:00Z'
+updated_date: '2026-11-13T17:30:00Z'
 labels:
   - roadmap
 dependencies: []

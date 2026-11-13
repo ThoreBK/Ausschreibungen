@@ -7,6 +7,8 @@
 - Lies vor Aenderungen relevante Projektdateien und bestehende Entscheidungen.
 - Halte die Architektur einfach. Erstelle Struktur, Module und Dokumentation erst,
   wenn sie fuer eine konkrete Funktion benoetigt werden.
+- Vermeide Overhead wo möglich und stimme deiner meinung nach Sinnvolle
+  Erweiterungen mit dem Nutzer ab.
 - Ergaenze Dependencies nur bei tatsaechlichem Bedarf.
 - Verwende Type Hints und schreibe Tests fuer neue Funktionalitaet.
 - Fuehre relevante Tests sowie `uv run ruff check .` und
@@ -28,8 +30,6 @@
   keine Freigabe fuer eine Ticket-Aenderung.
 - Neue Tickets nur im beauftragten Umfang anlegen; detaillierte Tickets erst zu
   Beginn der jeweiligen Entwicklungsphase mit dem Nutzer abstimmen.
-- Diese Abstimmungsregel hat Vorrang vor automatischen Statuswechseln oder
-  Aktualisierungen aus den nachfolgenden Backlog-Workflow-Anweisungen.
 
 ## Lokale Befehle
 
