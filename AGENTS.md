@@ -5,6 +5,8 @@
 
 - Arbeite in kleinen, nachvollziehbaren Schritten.
 - Lies vor Aenderungen relevante Projektdateien und bestehende Entscheidungen.
+- Lies vor Entwicklungsaufgaben [PROJECT.md](PROJECT.md) und beruecksichtige das
+  dort beschriebene fachliche Ziel und die fachlichen Leitplanken.
 - Halte die Architektur einfach. Erstelle Struktur, Module und Dokumentation erst,
   wenn sie fuer eine konkrete Funktion benoetigt werden.
 - Vermeide Overhead wo möglich und stimme deiner meinung nach Sinnvolle
