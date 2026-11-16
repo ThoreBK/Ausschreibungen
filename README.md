@@ -1,8 +1,9 @@
 # Ausschreibungen suchen
 
 Der Agent sucht öffentliche Ausschreibungen auf TED anhand eigener Suchbegriffe.
-Aktuell verfügbar: Suche mit Titeln, Links und JSON-Ausgabe. Die automatische
-Analyse, Bewertung und PDF-Berichte sind noch in Entwicklung.
+Die Suche speichert vollständige TED-Bekanntmachungen samt Herkunft in getrennten
+Läufen. Eine lokale HTML-Übersicht und Lesekopien machen die Ergebnisse prüfbar.
+Die fachliche Analyse, Bewertung und PDF-Berichte sind noch in Entwicklung.
 
 ## Einrichten und starten
 
@@ -76,14 +77,109 @@ festlegen. Alle Optionen zeigt `uv run main.py --help`.
 
 ## Ergebnisse
 
-Titel und Links erscheinen im Terminal. Zusätzlich enthält
-`reports/ted-results.json` die Treffer, verwendeten Einstellungen und TED-Rohantworten.
-**Eine erfolgreiche Suche überschreibt diese Datei**; frühere Ergebnisse bei Bedarf
-vorher sichern oder `--output` verwenden. Bei Abruffehlern bleibt die bisherige Datei erhalten.
+Titel, Links, Abrufstatus und der Pfad zur Übersicht erscheinen im Terminal.
+**Zum Prüfen die dort genannte `overview.html` im Browser öffnen.** Das geht auch
+nach Programmende und ohne Internet. Die Übersicht zeigt Suchprofil, Grenzen,
+Suchgruppen sowie für jeden Kandidaten Herkunft und Abrufstatus.
+
+Jeder Lauf erhält einen eigenen Ordner unter `reports/runs/<Laufkennung>/`:
+
+| Datei | Inhalt |
+| --- | --- |
+| `overview.html` | Lesbare Übersicht; Links zu Originalen und lokalen Lesekopien. |
+| `profile.toml` | Kopie der für diesen Lauf verwendeten Konfigurationsdatei. |
+| `results.json` | Einstellungen, tatsächliche Anfragen, TED-Rohantworten, Treffer und Fehler. |
+| `documents/<Nummer>.xml` | Unveränderte vollständige Bekanntmachung. |
+| `documents/<Nummer>.html` | Lesekopie der XML-Textwerte mit Fundstellen, ohne fachliche Interpretation. |
+| `documents/<Nummer>.response` | Erhaltene, aber bei der Dokumentprüfung verworfene Antwort, sofern vorhanden. |
+
+Frühere Laufordner werden nicht überschrieben. Erfolgreiche Suchgruppen und
+Dokumentabrufe bleiben auch erhalten, wenn andere Abrufe scheitern. Nach jeder
+Suchgruppe und jedem Dokument wird ein Zwischenstand gespeichert. Bei einem harten
+Prozessabbruch kann die letzte Anfrage fehlen; der letzte gespeicherte Stand bleibt
+als nicht abgeschlossener Lauf erkennbar.
+
+`reports/ted-results.json` bleibt als zusätzliche aktuelle Ergebniskopie erhalten.
+Sie wird nur aktualisiert, wenn alle Suchgruppen erfolgreich waren; sie kann trotzdem
+Dokumentfehler enthalten. `run_directory` verweist auf den zugehörigen Laufordner.
+Mit `--output reports/meine-ergebnisse.json` ändern sich Name und übergeordneter
+Ordner dieser Kopie; die Laufordner liegen jeweils im benachbarten Unterordner `runs`.
+
+Ein leerer erfolgreicher Lauf heißt `empty`, ein Lauf mit vollständig abgerufenen
+Kandidaten `complete`. `incomplete` kennzeichnet Such-/Dokumentfehler, fehlende
+XML-Links oder ungeklärte abweichende Suchangaben. Das Trefferlimit wird separat
+angezeigt: Auch `complete` verspricht keine vollständige Marktabdeckung.
+Bei Such- oder Dokumentabruffehlern endet der Befehl mit Rückgabecode 1. Fehlende
+Links und ungeklärte Angaben werden im Laufstatus angezeigt; sie sind keine
+technischen Abruffehler und führen allein nicht zu einem Fehlercode.
 
 Die neuesten Bekanntmachungen stehen zuerst; bei erreichtem Trefferlimit ist die
-Liste nur eine Auswahl. Fachliche Eignung, Angebotsfristen und vollständige
-Vergabeunterlagen müssen selbst geprüft werden.
+Liste nur eine Auswahl. Gleiche Veröffentlichungsnummern werden zusammengeführt;
+Suchherkünfte und abweichende Angaben bleiben erhalten. Verschiedene Bekanntmachungen
+eines Verfahrens bleiben getrennt. Fachliche Eignung und offene Teilnahme sind
+ungeprüft; auch Ergebnisbekanntmachungen können Kandidaten sein.
+
+Zusätzliche Vergabeunterlagen werden **nicht heruntergeladen und nicht ausgewertet**.
+Strukturierte Unterlagenlinks aus der Bekanntmachung bleiben mit ihren Losbezügen
+erhalten. Sonstige Verweise, etwa im Freitext, bleiben im Original und der Lesekopie
+sichtbar; eine umfassende fachliche Extraktion folgt in TASK-4.
+
+## Aufbau und bewusste Grenzen
+
+`ted.py` liest das Profil und sucht Kandidaten. `notices.py` lädt und prüft
+Bekanntmachungen. `research.py` speichert Läufe und erzeugt die lokale Übersicht;
+`main.py` verbindet diese Schritte. Es gibt keine zusätzlichen Laufzeitabhängigkeiten.
+
+Die Dokumentprüfung unterstützt eForms-XML für `ContractNotice`,
+`ContractAwardNotice` und `PriorInformationNotice`. Sie prüft Lesbarkeit, Dokumentart
+und die Veröffentlichungsnummer der eigenen Bekanntmachung; sie ist keine vollständige
+XML-Schema- oder Inhaltsprüfung. Andere Formate, fehlende Identität und abweichende
+Nummern werden sichtbar zurückgewiesen. Die erhaltenen Antwortbytes bleiben gespeichert.
+Historische TED-Schemaformulare werden noch nicht erschlossen. XML-DTDs werden nicht
+verarbeitet; externe Inhalte werden in den HTML-Lesekopien nur als Text dargestellt.
+
+Originaldateien, SHA-256-Prüfsummen, Abrufzeit, Quell-/Zieladresse sowie vorhandene
+Verfahrens-, Los- und Versionskennungen stehen je Dokument in `results.json`.
+Nur aktuelle Versionen laut TED-Suche werden angefragt; frühere Verfahrensstände
+werden nicht automatisch nachgeladen. Ein erneuter Live-Lauf kann andere Treffer liefern.
+
+## Öffentlicher TED-Zugang und Nutzung
+
+Geprüft am 16.11.2026 für P-01/P-10:
+
+- Die [offizielle Search-API-Dokumentation](https://docs.ted.europa.eu/api/latest/search.html)
+  erlaubt den anonymen Abruf veröffentlichter Bekanntmachungen zur Analyse und Wiederverwendung.
+  Verwendet wird ausschließlich `POST https://api.ted.europa.eu/v3/notices/search`.
+- Die [TED-Dokumentation für Datennutzer](https://ted.europa.eu/en/simap/developers-corner-for-reusers)
+  beschreibt den öffentlichen XML-Direktdownload. Das Tool ruft nur die zu den Kandidaten
+  gehörenden TED-XML-Adressen ab und lehnt Weiterleitungen auf fremde Hosts ab.
+  Die dort genannten Grenzen sind 600 Ansichten/Downloads in sechs Minuten und
+  700 HTTP-Anfragen pro Minute. Anfragen laufen seriell mit mindestens 0,65 Sekunden
+  Pause; mehrere parallel gestartete Prozesse teilen sich diese Begrenzung nicht.
+- Laut [TED-Nutzungshinweisen](https://ted.europa.eu/en/legal-notice) dürfen veröffentlichte
+  Bekanntmachungen grundsätzlich kommerziell und nichtkommerziell wiederverwendet werden,
+  sofern nichts anderes angegeben ist. Rechte Dritter und besondere Hinweise bleiben
+  zu beachten. Die Übersicht nennt TED als Quelle und unterscheidet unveränderte
+  Originale von erzeugten Lesekopien. Dies erteilt keine Rechte an zusätzlichen Unterlagen.
+
+Es werden keine Zugangsdaten benötigt oder gespeichert. Laufdaten bleiben lokal unter
+dem bereits von Git ausgeschlossenen Ordner `reports`. Pro Dokument gilt ein Limit
+von 20 MiB; Überschreitungen und HTTP-Fehler werden gemeldet, nicht automatisch umgangen.
+
+## Tests und Nachweise für Task 2
+
+Der mit dem Nutzer vereinbarte Testkatalog T2-01 bis T2-08 steht verbindlich in TASK-2.
+`tests/test_research.py` setzt diese Fälle mit festen Netzwerkantworten um; Suche,
+Auswahl, Prüfung und Speicherung laufen dabei tatsächlich. T2-08 startet einen eigenen
+Programmprozess und prüft danach Übersicht, Lesekopie, Original und lokale Links.
+Die ursprünglichen Tests bleiben unverändert. Änderungen an den vereinbarten
+Testfällen oder Erwartungen erfordern vorherige Nutzerfreigabe.
+
+Die Live-Abnahme vom 16.11.2026 lieferte mit dem Standardprofil 20 gespeicherte
+Bekanntmachungen. Ein separates Profil mit `Copilot UND Schulung`, 30 Tagen und
+höchstens drei Treffern lieferte eine Bekanntmachung. Die konkreten Laufdaten
+liegen lokal unter `reports/runs`; sie sind keine fest eingebauten Anwendungstreffer.
+Die Auswertung von Pflichtangaben und fachlicher Passung folgt erst in TASK-4.
 
 ## Häufige Probleme
 

@@ -6,6 +6,7 @@ keine Zusammenführung verschiedener Bekanntmachungen eines Verfahrens.
 
 import json
 import re
+import time
 import tomllib
 from collections.abc import Callable
 from dataclasses import asdict, dataclass
@@ -134,6 +135,7 @@ def fetch(body: dict[str, Any], timeout: int) -> dict[str, Any]:
         method="POST",
     )
     try:
+        time.sleep(0.65)  # Auch bei sehr vielen Suchblöcken unter TED-Fair-Use bleiben.
         with urlopen(request, timeout=timeout) as response:
             result = json.load(response)
     except HTTPError as error:
@@ -157,10 +159,32 @@ def search(
     *,
     today: date | None = None,
     transport: Callable[[dict[str, Any], int], dict[str, Any]] = fetch,
+    continue_on_error: bool = False,
+    on_progress: Callable[[dict[str, Any]], None] | None = None,
 ) -> dict[str, Any]:
     today = today or date.today()
     runs: list[dict[str, Any]] = []
     notices: dict[str, dict[str, Any]] = {}
+
+    def snapshot() -> dict[str, Any]:
+        ordered = sorted(
+            notices.values(),
+            key=lambda item: (item["publication_date"] or "", item["publication_number"]),
+            reverse=True,
+        )
+        return {
+            "source": "TED",
+            "endpoint": ENDPOINT,
+            "as_of": today.isoformat(),
+            "profile": asdict(profile),
+            "queries": runs,
+            "unique_retrieved": len(ordered),
+            "limited": len(ordered) > profile.max_results
+            or any(run.get("limited", False) for run in runs),
+            "search_incomplete": any(run["status"] == "error" for run in runs),
+            "notices": ordered[: profile.max_results],
+        }
+
     for query in profile.queries:
         body = {
             "query": build_query(profile, query, today),
@@ -171,30 +195,41 @@ def search(
             "paginationMode": "PAGE_NUMBER",
             "onlyLatestVersions": True,
         }
-        response = transport(body, profile.timeout_seconds)
-        rows, total = response.get("notices"), response.get("totalNoticeCount")
-        if response.get("timedOut"):
-            raise SearchError(f"TED-Zeitlimit bei Suchgruppe {query.name}.")
-        if not isinstance(rows, list) or type(total) is not int or total < len(rows):
-            raise SearchError("Unvollständige oder ungültige TED-Antwort.")
-        if total and not rows:
-            raise SearchError("TED meldet Treffer, liefert aber keine Bekanntmachungen.")
         run = {
             "name": query.name,
             "request": body,
-            "retrieved_at": datetime.now(UTC).isoformat(),
-            "total": total,
-            "returned": len(rows),
-            "limited": total > len(rows),
-            "response": response,
+            "started_at": datetime.now(UTC).isoformat(),
+            "status": "running",
         }
         runs.append(run)
+        try:
+            response = transport(body, profile.timeout_seconds)
+            run["response"] = response
+            run["retrieved_at"] = datetime.now(UTC).isoformat()
+            rows, total = response.get("notices"), response.get("totalNoticeCount")
+            if response.get("timedOut"):
+                raise SearchError(f"TED-Zeitlimit bei Suchgruppe {query.name}.")
+            if not isinstance(rows, list) or type(total) is not int or total < len(rows):
+                raise SearchError("Unvollständige oder ungültige TED-Antwort.")
+            if total and not rows:
+                raise SearchError("TED meldet Treffer, liefert aber keine Bekanntmachungen.")
+            for raw in rows:
+                if not isinstance(raw, dict):
+                    raise SearchError("Ungültige Bekanntmachung.")
+                number = raw.get("publication-number")
+                if not isinstance(number, str) or not re.fullmatch(r"\d+-\d{4}", number):
+                    raise SearchError("Bekanntmachung ohne gültige Veröffentlichungsnummer.")
+            run.update(status="ok", total=total, returned=len(rows), limited=total > len(rows))
+        except SearchError as error:
+            run.update(status="error", error=str(error), finished_at=datetime.now(UTC).isoformat())
+            if on_progress:
+                on_progress(snapshot())
+            if not continue_on_error:
+                raise
+            continue
         for raw in rows:
-            if not isinstance(raw, dict):
-                raise SearchError("Ungültige Bekanntmachung.")
-            number = raw.get("publication-number")
-            if not isinstance(number, str) or not re.fullmatch(r"\d+-\d{4}", number):
-                raise SearchError("Bekanntmachung ohne gültige Veröffentlichungsnummer.")
+            serial, year = raw["publication-number"].split("-")
+            number = f"{int(serial)}-{year}"
             if number not in notices:
                 notices[number] = {
                     "publication_number": number,
@@ -205,21 +240,24 @@ def search(
                     "deadlines": raw.get("deadline-receipt-tender-date-lot"),
                     "links": raw.get("links"),
                     "matched_queries": [],
+                    "occurrences": [],
+                    "conflicts": [],
                 }
-            if query.name not in notices[number]["matched_queries"]:
-                notices[number]["matched_queries"].append(query.name)
-    ordered = sorted(
-        notices.values(),
-        key=lambda item: (item["publication_date"] or "", item["publication_number"]),
-        reverse=True,
-    )
-    return {
-        "source": "TED",
-        "endpoint": ENDPOINT,
-        "as_of": today.isoformat(),
-        "profile": asdict(profile),
-        "queries": runs,
-        "unique_retrieved": len(ordered),
-        "limited": len(ordered) > profile.max_results or any(run["limited"] for run in runs),
-        "notices": ordered[: profile.max_results],
-    }
+            notice = notices[number]
+            for occurrence in notice["occurrences"]:
+                previous = occurrence["raw"]
+                for field in previous.keys() & raw.keys() - {"publication-number"}:
+                    if (
+                        previous[field] is not None
+                        and raw[field] is not None
+                        and previous[field] != raw[field]
+                        and field not in notice["conflicts"]
+                    ):
+                        notice["conflicts"].append(field)
+            notice["conflicts"].sort()
+            notice["occurrences"].append({"query": query.name, "raw": raw})
+            if query.name not in notice["matched_queries"]:
+                notice["matched_queries"].append(query.name)
+        if on_progress:
+            on_progress(snapshot())
+    return snapshot()
