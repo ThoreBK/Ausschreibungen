@@ -1,0 +1,64 @@
+# Alle fachlichen Suchkriterien können hier ohne Codeänderung angepasst werden.
+# Fachlicher Hintergrund und Grundlage für die spätere KI-Auswertung:
+# siehe PROJECT.md, Abschnitt „Fachliches Suchprofil“.
+# Beratung für KI und Microsoft 365, Schulungen, Entwicklung von
+# KI-Assistenten und Agenten sowie Automatisierung von Abläufen.
+name = "KI- und Microsoft-365-Beratung"
+# Dreistellige TED-Ländercodes; [] sucht ohne Länderfilter.
+countries = ["DEU"]
+# buyer-country = Sitz des Auftraggebers; place-of-performance = Leistungsort.
+country_field = "buyer-country"
+days_back = 90
+# Maximal 250; gilt je Suchgruppe UND für die zusammengeführte Ausgabe.
+max_results = 20
+# ACTIVE = laut TED aktiv, ALL = einschließlich historischer Bekanntmachungen.
+scope = "ACTIVE"
+language = "deu"
+timeout_seconds = 30
+# Optionaler zusätzlicher CPV-Filter (exakte achtstellige Codes), leer = keiner.
+cpv_codes = []
+
+# So funktionieren die Suchgruppen:
+# term_groups enthält eine oder mehrere nichtleere Begriffsgruppen.
+# Innerhalb jeder Begriffsgruppe reicht EIN Begriff (ODER).
+# Aus JEDER Begriffsgruppe muss mindestens ein Begriff vorkommen (UND).
+#
+# Beispiel:
+# term_groups = [
+#     ["Microsoft 365", "Copilot"],
+#     ["Beratung", "Schulung"],
+# ]
+# Bedeutet: (Microsoft 365 ODER Copilot) UND (Beratung ODER Schulung).
+# Für eine weitere Pflichtbedingung eine weitere Begriffsgruppe ergänzen.
+# Soll ein Themenbegriff allein genügen, nur eine Begriffsgruppe verwenden.
+# Die Begriffe dürfen an unterschiedlichen Stellen der Bekanntmachung stehen.
+# Pro Suche wird eine Anfrage gestellt, nicht eine je Begriffskombination.
+#
+# Jede [[queries]]-Suche ist eine Alternative. Ein Treffer muss nur zu EINER
+# Suche passen; Treffer mehrerer Suchen werden zusammengeführt.
+[[queries]]
+name = "KI-Beratung"
+term_groups = [
+    ["künstliche Intelligenz", "artificial intelligence", "generative KI", "generative AI"],
+    ["Beratung", "consulting", "Strategie", "strategy", "Einführung"],
+]
+
+[[queries]]
+name = "Microsoft 365"
+term_groups = [
+    ["Microsoft 365", "Office 365", "Microsoft Copilot", "SharePoint", "Microsoft Teams"],
+    ["Beratung", "consulting", "Schulung", "training", "Einführung", "Entwicklung", "Automatisierung"],
+]
+
+[[queries]]
+name = "Schulungen"
+term_groups = [
+    ["künstliche Intelligenz", "artificial intelligence", "Copilot", "Microsoft 365", "KI-Kompetenz"],
+    ["Schulung", "training", "Workshop", "Weiterbildung", "Seminar"],
+]
+
+[[queries]]
+name = "Assistenten und Automatisierung"
+term_groups = [
+    ["KI-Assistent", "KI-Agent", "AI assistant", "AI agent", "Chatbot", "Power Automate", "Power Platform", "Prozessautomatisierung", "process automation"],
+]

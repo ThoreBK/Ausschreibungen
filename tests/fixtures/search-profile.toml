@@ -1,0 +1,18 @@
+# Festes Testprofil, unabhaengig vom editierbaren Unternehmensprofil.
+name = "Testprofil"
+countries = ["DEU"]
+country_field = "buyer-country"
+days_back = 90
+max_results = 20
+scope = "ACTIVE"
+language = "deu"
+timeout_seconds = 30
+cpv_codes = []
+
+[[queries]]
+name = "KI-Beratung"
+term_groups = [["künstliche Intelligenz", "artificial intelligence"], ["Beratung", "consulting"]]
+
+[[queries]]
+name = "Schulungen"
+term_groups = [["Copilot"], ["Schulung"]]

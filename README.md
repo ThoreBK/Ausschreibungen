@@ -1,72 +1,96 @@
-# Tender Research Agent
+# Ausschreibungen suchen
 
-Lokale Demo eines KI-gestützten Ausschreibungs-Recherche-Agenten. Langfristig:
-öffentliche Quellen recherchieren, Dokumente verarbeiten, Angaben mit Fundstellen
-extrahieren, Ergebnisse bewerten und PDF-Berichte erstellen. Aktuell existiert nur
-das Entwicklungsgrundgerüst; es benötigt keinen API-Key und verursacht keine API-Kosten.
+Der Agent sucht öffentliche Ausschreibungen auf TED anhand eigener Suchbegriffe.
+Aktuell verfügbar: Suche mit Titeln, Links und JSON-Ausgabe. Die automatische
+Analyse, Bewertung und PDF-Berichte sind noch in Entwicklung.
 
-## Voraussetzungen und Einrichtung
+## Einrichten und starten
 
-Python 3.12+, uv und Git. Node.js LTS/npm werden ausschließlich für Backlog.md
-benötigt. Auf diesem Rechner liegen uv, Python und Node unter `.tools/`;
-Systeminstallationen werden nicht ersetzt. In PowerShell im Projektordner:
+Voraussetzung: Projektdateien, [uv](https://docs.astral.sh/uv/getting-started/installation/)
+und eine Internetverbindung. Python wird bei Bedarf von `uv` heruntergeladen.
+Ein API-Schlüssel oder eine `.env`-Datei ist derzeit nicht nötig.
+
+PowerShell im Projektordner öffnen und ausführen:
 
 ```powershell
 . .\dev.ps1
 uv sync --locked
-npm.cmd ci
+uv run main.py --search
 ```
 
-`dev.ps1` setzt Toolpfade und Cache-Verzeichnisse nur für das aktuelle Terminal.
-Bei einem frischen Clone zuerst [uv](https://docs.astral.sh/uv/getting-started/installation/)
-und [Node.js LTS](https://nodejs.org/en/download) installieren. Danach funktionieren
-dieselben Befehle; uv lädt Python bei Bedarf gemäß `.python-version` herunter.
-Eine Aktivierung der virtuellen Umgebung ist für `uv run` nicht erforderlich.
-`.env.example` dokumentiert spätere Konfiguration; aktuell ist keine `.env` nötig.
+`uv sync --locked` richtet die Abhängigkeiten ein. Für weitere Suchen genügt
+`uv run main.py --search`; in einem neuen PowerShell-Fenster zuerst wieder
+`. .\dev.ps1` laden. Ohne `--search` erscheint nur die Befehlsübersicht.
 
-## Start und Prüfungen
+## Suche konfigurieren
+
+[search-profile.toml](search-profile.toml) im Texteditor bearbeiten, speichern und
+die Suche erneut starten. Standard: KI- und Microsoft-365-Themen, Auftraggeber
+in Deutschland, letzte 90 Kalendertage, höchstens 20 Treffer.
+
+Die allgemeinen Einstellungen stehen vor dem ersten `[[queries]]`-Block:
+
+| Einstellung | Bedeutung / Beispiel |
+| --- | --- |
+| `name` | Frei wählbarer Name des Suchprofils. |
+| `countries = ["DEU"]` | Ländercodes, z. B. `["DEU", "AUT"]`; `[]` für alle Länder. |
+| `country_field = "buyer-country"` | Land des Auftraggebers; `"place-of-performance"` für den Leistungsort. |
+| `days_back = 90` | Zeitraum in Kalendertagen einschließlich heute. |
+| `max_results = 20` | 1–250 Treffer; begrenzt jede Suche und die gemeinsame Ergebnisliste. |
+| `scope = "ACTIVE"` | Laut TED aktive Bekanntmachungen; `"ALL"` einschließlich historischer, `"LATEST"` nur aktuelle Amtsblattausgabe. |
+| `language = "deu"` | Bevorzugte Sprache für Ergebnisse und Links; kein Sprachfilter und keine Übersetzung. |
+| `cpv_codes = []` | Optionaler Filter mit exakten achtstelligen CPV-Codes (Auftragskategorien). |
+| `timeout_seconds = 30` | Maximale Wartezeit je TED-Anfrage in Sekunden. |
+
+### Suchbegriffe
+
+Jeder `[[queries]]`-Block ist eine eigene Suche mit eindeutigem Namen:
+
+```toml
+[[queries]]
+name = "Microsoft-Beratung und Schulung"
+term_groups = [
+    ["Microsoft 365", "Copilot"],
+    ["Beratung", "Schulung"],
+]
+```
+
+**Innerhalb einer Gruppe gilt ODER, zwischen den Gruppen UND.** Das Beispiel
+findet also etwa „Copilot“ zusammen mit „Schulung“. Soll „Copilot“ allein genügen,
+die zweite Gruppe entfernen. Alternative und englische Begriffe bei Bedarf ergänzen.
+
+Mehrere Suchblöcke sind Alternativen; ihre Treffer werden zusammengeführt.
+Die vier mitgelieferten Blöcke ersetzen oder entfernen, wenn nur eigene Themen
+gewünscht sind. Mindestens ein Block mit einer nichtleeren Begriffsgruppe muss bleiben.
+Anführungszeichen, Kommas und Klammern wie im Beispiel beibehalten; Suchbegriffe
+dürfen keine zusätzlichen Anführungszeichen, Rückwärts-Schrägstriche oder Zeilenumbrüche enthalten.
+
+### Andere Konfigurations- oder Ergebnisdatei verwenden
 
 ```powershell
-uv run main.py
-uv run pytest
-uv run ruff check .
-uv run ruff format --check .
-# Formatierung anwenden:
-uv run ruff format .
+uv run main.py --search --config meine-suche.toml --output reports/meine-ergebnisse.json
 ```
 
-Python-Konfiguration: `pyproject.toml`; reproduzierbare Abhängigkeiten: `uv.lock`.
-Es gibt keine Laufzeitabhängigkeiten, nur Pytest und Ruff als Entwicklungswerkzeuge.
-Der Smoke-Test startet den tatsächlichen Programmeinstieg als separaten Prozess.
+Mit `--as-of 2026-11-15` lässt sich optional der Stichtag für den Suchzeitraum
+festlegen. Alle Optionen zeigt `uv run main.py --help`.
 
-## Backlog.md
+## Ergebnisse
 
-Nach `. .\dev.ps1`:
+Titel und Links erscheinen im Terminal. Zusätzlich enthält
+`reports/ted-results.json` die Treffer, verwendeten Einstellungen und TED-Rohantworten.
+**Eine erfolgreiche Suche überschreibt diese Datei**; frühere Ergebnisse bei Bedarf
+vorher sichern oder `--output` verwenden. Bei Abruffehlern bleibt die bisherige Datei erhalten.
 
-```powershell
-backlog.cmd browser
-backlog.cmd board
-backlog.cmd task list --plain
-backlog.cmd task view task-1 --plain
-```
+Die neuesten Bekanntmachungen stehen zuerst; bei erreichtem Trefferlimit ist die
+Liste nur eine Auswahl. Fachliche Eignung, Angebotsfristen und vollständige
+Vergabeunterlagen müssen selbst geprüft werden.
 
-Das Web-Kanban öffnet sich unter <http://127.0.0.1:6420>; mit `Ctrl+C` beenden.
-Tickets liegen als versionierbare Markdown-Dateien unter `backlog/tasks/`.
-Die CLI ist in `package.json` und `package-lock.json` festgehalten.
-Codex verwendet die CLI-Integration in `AGENTS.md`; MCP ist nicht erforderlich.
-CLI-Referenz: [Backlog.md](https://github.com/MrLesk/Backlog.md/blob/main/CLI-INSTRUCTIONS.md).
+## Häufige Probleme
 
-Die sieben Roadmap-Tickets bilden nur die beauftragten Entwicklungsphasen ab,
-jeweils mit einem groben Abnahmekriterium und Abhängigkeit zur vorherigen Phase.
-Detailtickets werden zum Phasenbeginn abgestimmt. **Codex darf Ticket-Inhalte und
-Status nur nach ausdrücklicher Abstimmung mit dem Nutzer ändern.** Deshalb bleibt
-auch das technisch erledigte Grundlagen-Ticket bis zur Freigabe auf „To Do“.
+- **`uv` nicht gefunden:** `. .\dev.ps1` laden; auf einem neuen Rechner `uv` installieren.
+- **Datei nicht gefunden:** PowerShell im Projektordner mit `main.py` und `search-profile.toml` öffnen.
+- **Konfigurationsfehler:** Genannte Einstellung sowie Anführungszeichen, Kommas und Klammern prüfen.
+- **TED-/HTTP-Fehler:** Internetverbindung prüfen und später erneut versuchen.
+- **Keine Treffer:** Weniger Pflichtgruppen, mehr alternative Begriffe oder einen längeren Zeitraum verwenden.
 
-## Entscheidungen zum Setup
-
-- Ein Einstiegspunkt `main.py` und `tests/` reichen zunächst aus; keine vorgezogene
-  Modularchitektur und kein Build-Framework.
-- Python 3.12 ist als lokale Basis gepinnt; das Projekt erlaubt Python ab 3.12.
-- Backlog.md ist ein lokales Entwicklungswerkzeug, kein Teil der Python-Laufzeit.
-- `.gitignore` schließt lokale Tools, Umgebungen, Secrets und erzeugte Ausgaben
-  aus. Dokumentation, Backlog und Lockdateien werden versioniert.
+Das fachliche Ziel und den geplanten Ablauf beschreibt [PROJECT.md](PROJECT.md).
