@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from email.message import Message
 from html import escape
+from http.client import HTTPException
 from typing import IO, Any
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
@@ -69,7 +70,7 @@ def download_document(url: str, timeout: int) -> Download:
             )
     except HTTPError as error:
         raise SearchError(f"TED-Dokumentabruf: HTTP {error.code}.") from error
-    except (URLError, OSError) as error:
+    except (URLError, OSError, HTTPException) as error:
         raise SearchError(f"TED-Dokumentabruf fehlgeschlagen: {error}") from error
 
 

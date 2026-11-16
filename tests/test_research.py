@@ -1,7 +1,4 @@
-"""Vereinbarte T2-01 bis T2-08: nur Netzgrenzen simulieren, Erwartungen explizit.
-
-Der verbindliche Katalog steht in TASK-2; Änderungen daran brauchen Nutzerfreigabe.
-"""
+"""T2-01 bis T2-09: Recherche mit kontrollierten Netzwerkantworten und HTTP-Abbrüchen."""
 
 import hashlib
 import json
@@ -11,8 +8,11 @@ from dataclasses import replace
 from datetime import date, datetime
 from functools import partial
 from html.parser import HTMLParser
+from http.client import HTTPResponse
+from io import BytesIO
 from pathlib import Path
 from typing import Any
+from urllib.request import Request
 
 import pytest
 
@@ -387,6 +387,81 @@ sys.exit(main.main())
         FIXTURES / "notice.xml"
     ).read_bytes()
     assert "zwölf Workshops" in (directory / "documents/100-2026.html").read_text("utf-8")
+
+
+def test_t2_09_truncated_http_response_keeps_other_documents(
+    tmp_path: Path,
+    profile_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    # Echte HTTP-Dekodierung: Der zweite Body endet mitten in einem angekündigten Chunk.
+    class Socket:
+        def __init__(self, wire: bytes) -> None:
+            self.wire = wire
+
+        def makefile(self, mode: str) -> BytesIO:
+            return BytesIO(self.wire)
+
+    requested: list[str] = []
+
+    class Opener:
+        def open(self, request: Request, *, timeout: int) -> HTTPResponse:
+            requested.append(request.full_url)
+            if request.full_url.endswith("/200-2026/xml"):
+                wire = (
+                    b"HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n"
+                    b"Content-Type: application/xml\r\n\r\n64\r\n<ContractNotice"
+                )
+            else:
+                payload = xml(100 if request.full_url.endswith("/100-2026/xml") else 300)
+                wire = (
+                    b"HTTP/1.1 200 OK\r\nContent-Type: application/xml\r\nContent-Length: "
+                    + str(len(payload)).encode()
+                    + b"\r\n\r\n"
+                    + payload
+                )
+            answer = HTTPResponse(Socket(wire))
+            answer.url = request.full_url
+            answer.begin()
+            return answer
+
+    search_response = response(row(100, 15), row(200, 14), row(300, 13))
+    monkeypatch.setattr(
+        "ted.urlopen", lambda *args, **kwargs: BytesIO(json.dumps(search_response).encode())
+    )
+    monkeypatch.setattr("notices.build_opener", lambda *args: Opener())
+    monkeypatch.setattr("notices.time.sleep", lambda _: None)
+    output = tmp_path / "latest.json"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["main.py", "--search", "--config", str(profile_path), "--output", str(output)],
+    )
+
+    assert main.main() == 1
+    assert requested == [
+        "https://ted.europa.eu/en/notice/100-2026/xml",
+        "https://ted.europa.eu/en/notice/200-2026/xml",
+        "https://ted.europa.eu/en/notice/300-2026/xml",
+    ]
+    directory = next((tmp_path / "runs").iterdir())
+    stored = json.loads((directory / "results.json").read_text("utf-8"))
+    assert json.loads(output.read_text("utf-8")) == stored
+    assert stored["status"] == "incomplete"
+    assert stored["stage"] == "finished"
+    assert datetime.fromisoformat(stored["finished_at"]).utcoffset() is not None
+    assert [n["document"]["status"] for n in stored["notices"]] == ["ok", "error", "ok"]
+    error = stored["notices"][1]["document"]["error"]
+    assert "TED-Dokumentabruf fehlgeschlagen" in error
+    assert "IncompleteRead" in error
+    assert (directory / "documents/100-2026.xml").read_bytes() == xml(100)
+    assert (directory / "documents/300-2026.xml").read_bytes() == xml(300)
+    assert not (directory / "documents/200-2026.xml").exists()
+    page = (directory / "overview.html").read_text("utf-8")
+    assert "Lauf unvollständig / offene Prüfpunkte" in page
+    assert error in page
+    assert "Abruffehler" in capsys.readouterr().err
 
 
 def test_external_markup_is_text_and_dtd_is_rejected() -> None:
