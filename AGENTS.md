@@ -7,12 +7,24 @@
 - Lies vor Aenderungen relevante Projektdateien und bestehende Entscheidungen.
 - Lies vor Entwicklungsaufgaben [PROJECT.md](PROJECT.md) und beruecksichtige das
   dort beschriebene fachliche Ziel und die fachlichen Leitplanken.
+- Nutze bei Umsetzung und Review die Anforderungskennungen P-01 bis P-16 in
+  PROJECT.md und die dort getrennt festgehaltenen Projektentscheidungen.
+  Pruefe die fuer das Ticket relevanten Anforderungen mit konkreten Nachweisen.
+  Empfehlungen sind keine zusaetzlichen technischen Vorgaben; nicht festgelegte
+  Umsetzungsdetails bleiben dem umsetzenden Agenten offen.
 - Halte die Architektur einfach. Erstelle Struktur, Module und Dokumentation erst,
   wenn sie fuer eine konkrete Funktion benoetigt werden.
-- Vermeide Overhead wo möglich und stimme deiner meinung nach Sinnvolle
+- Vermeide Overhead, wo moeglich, und stimme aus deiner Sicht sinnvolle
   Erweiterungen mit dem Nutzer ab.
 - Ergaenze Dependencies nur bei tatsaechlichem Bedarf.
 - Verwende Type Hints und schreibe Tests fuer neue Funktionalitaet.
+- Nutze bei beauftragten Reviews den Skill `$review-project`, sofern verfuegbar.
+  Die folgende Testfrage gilt auch ohne installierten Skill.
+- Pruefe bei Reviews fuer jeden betrachteten Test: Welcher plausible Fehler
+  wuerde diesen Test scheitern lassen, und prueft die Erwartung unabhaengig vom
+  Implementierungscode das richtige Ergebnis? Benenne konkrete Luecken, wenn
+  wichtige Fehler unentdeckt bleiben oder der Test nur die Implementierung
+  nachbildet.
 - Fuehre relevante Tests sowie `uv run ruff check .` und
   `uv run ruff format --check .` vor Abschluss einer Aufgabe aus.
 - Dokumentiere wichtige Architekturentscheidungen knapp im passenden Kontext.
@@ -37,8 +49,16 @@
 
 In PowerShell zuerst `. .\dev.ps1` laden. Dadurch stehen die projektlokalen Tools
 zur Verfuegung. Verwende `backlog.cmd` und `npm.cmd`, falls PowerShell die
-gleichnamigen `.ps1`-Wrapper blockiert. Start: `uv run main.py`.
-Tests: `uv run pytest`. Siehe README.md fuer Einrichtung und Board.
+gleichnamigen `.ps1`-Wrapper blockiert.
+
+- Python-Abhaengigkeiten einrichten: `uv sync --locked`.
+- Suche starten: `uv run main.py --search`.
+- Tests: `uv run pytest`.
+- Code pruefen: `uv run ruff check .` und `uv run ruff format --check .`.
+- Backlog einrichten (Node.js mit npm erforderlich): `npm.cmd ci`.
+- Aufgabenboard starten: `backlog.cmd browser`; mit `Ctrl+C` beenden.
+
+Einrichtung und Bedienung der Suche stehen in [README.md](README.md).
 
 <!-- BACKLOG.MD GUIDELINES START -->
 <!-- backlog.md-instructions-version: 1.55.3 -->
