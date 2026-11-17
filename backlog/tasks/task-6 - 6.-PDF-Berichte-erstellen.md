@@ -4,7 +4,7 @@ title: 4. Ersten vollstaendigen Lauf bis zum PDF ermoeglichen
 status: To Do
 assignee: []
 created_date: '2026-11-13T17:25:00Z'
-updated_date: '2026-11-16T12:55:00Z'
+updated_date: '2026-11-17T17:52:00Z'
 labels:
   - roadmap
 dependencies:
@@ -27,4 +27,11 @@ Den ersten manuell startbaren Durchlauf vom konfigurierten Profil ueber eine ech
 - [ ] #3 Je Treffer sind Passungsbegruendung, Belege, Informationsluecken und offene Pruefpunkte verstaendlich sichtbar. Fehlende Angaben heissen nicht angegeben; Unsicherheit, Widersprueche und Verarbeitungsfehler werden davon unterschieden. Fachliche Passung und Informationsqualitaet sind getrennt erkennbar.
 - [ ] #4 Suchprofil, Recherchezeitpunkt, Quellenabdeckung und Recherchegrenzen sind angegeben. Vollstaendige TED-Bekanntmachungen sind als Analysegrundlage benannt. Links auf zusaetzliche Unterlagen tragen den Hinweis in dieser Version nicht abgerufen und nicht ausgewertet; diese Umfangsgrenze gilt nicht als Abruffehler oder erfolgte Pruefung.
 - [ ] #5 Erzeugte PDFs sind visuell auf Lesbarkeit, Vollstaendigkeit und brauchbare Belegverweise geprueft, auch bei langen Inhalten und mehreren Treffern. Eine leere Trefferliste und unvollstaendige Laeufe werden ehrlich dargestellt; ein fehlgeschlagener Abruf erscheint nicht als erfolgreiche Suche ohne Treffer.
+- [ ] #6 Die automatisch erzeugte Übersicht stellt Passung, Teilnahmestand und Teilnahmevoraussetzungen getrennt und verständlich dar.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Das einmalige Python-Skript für reports/ki-analyse-5-20261117-f3d2e93e/passung.html war eine temporäre Hilfslösung und gehört nicht zum regulären Berichtsgenerator.
+<!-- SECTION:NOTES:END -->
