@@ -140,9 +140,8 @@ Nutzungsguthaben gelten weiterhin. Es werden keine Guthaben gekauft.
 Je Bekanntmachung erfolgen eine gemeinsame Analyse aller Lose und, bei prüfpflichtigen
 Aussagen, eine gemeinsame Gegenprüfung. Ergebnisse und Belege bleiben je Los getrennt.
 Kurze Quellenkennungen werden lokal in Originalzitate und XML-Fundstellen aufgelöst.
-Die Gegenprüfung wiederholt keine abgeleiteten Ergebnisfelder. Freie Begründungen und
-strittige Angaben erhalten vorsorglich alle Originalquellen; die tatsächliche
-Quellenauswahl steht im Modellprotokoll und unter `verification_context` in `analysis.json`.
+Die Gegenprüfung erhält alle Originalquellen und die prüfpflichtigen Aussagen.
+Die bereits daraus abgeleiteten Ergebnisfelder werden nur in der Erstanalyse übergeben.
 Das tatsächliche Modell, die Anmeldeart und der
 Tokenverbrauch stehen in `analysis.json`; unbekannter Verbrauch bleibt gekennzeichnet.
 `model = "default"` verwendet das für dein Konto angebotene Standardmodell.

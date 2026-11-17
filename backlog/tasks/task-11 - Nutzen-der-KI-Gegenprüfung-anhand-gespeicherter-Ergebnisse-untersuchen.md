@@ -4,13 +4,14 @@ title: KI-Gegenprüfung verbessern und Anfrageumfang reduzieren
 status: To Do
 assignee: []
 created_date: '2026-11-17T17:09:00Z'
-updated_date: '2026-11-17T18:36:00Z'
+updated_date: '2026-11-17T23:00:00Z'
 labels: []
 dependencies: []
 references:
   - reports/acceptance/
   - reports/full-check-988aaffb/
   - reports/ki-analyse-5-20261117-f3d2e93e/
+  - reports/gegenpruefung-nutzen-69d7996-offline/vergleich.json
 documentation:
   - PROJECT.md
 type: enhancement
@@ -59,4 +60,6 @@ Die Originale liegen jeweils im documents/-Verzeichnis des zugehörigen Laufs.
 Kostenbasis: reports/ki-analyse-5-20261117-f3d2e93e/analyses/20261117T163659-c8a8a3bd/analysis.json und model/. 18 Aufrufe, 774.079 Eingabe- und 54.221 Ausgabetokens, Gesamtlaufzeit rund 20:17 Minuten. Gegenprüfung: 403.038 Eingabe- und 2.507 Ausgabetokens, rund 49 Prozent aller Tokens; protokollierte Antwortspannen zusammen rund 97 Sekunden, ohne vollständige Aufrufnebenzeiten. Keine Ablehnungen in diesem Lauf. structured_fields machen rund 38 Prozent der JSON-Nutzdatenbytes beider Stufen aus; dies ist keine gemessene Tokenersparnis. Verbrauch betrifft ChatGPT-Kontingent, keine zusätzliche API-Abrechnung. Einsparpotenziale nicht ungeprüft addieren oder proportional in Laufzeit umrechnen.
 
 Bisherige Prüfung: 124 Offline-Tests bestanden, 6 Live-Tests übersprungen; Ruff und Formatprüfung erfolgreich. Gemockte Prüfurteile belegen ihre Verarbeitung, nicht die fachliche Urteilsgüte. Für die Untersuchung wurden keine neuen Modellaufrufe ausgeführt und keine Codeänderungen vorgenommen.
+
+Stand 18.11.2026 nach Freigabe von Umsetzung und Losbündelung. Ein Prüfpunkt darf mit eigenem Losanker eine Vergleichsstelle aus einem anderen Los zitieren. Bei Pfalzwerke 798622-2026 erreichen dadurch der widersprüchliche Dateiverweis in Los 3 und der CPV-Vergleich die Gegenprüfung. Bei AOK 794059-2026 bleiben Eignungsblöcke mit eindeutig abweichender Losüberschrift als Prüfpunkte erhalten. Gegenbelege behalten den relevanten Wortlaut. Ein widerlegter Zusatz entwertet keine unabhängig belegte Frist. Der Live-Lauf vor dem Fix umfasste 105 Modellurteile. Vier von fünf Bekanntmachungen ließen sich nach dem Fix mit beiden gespeicherten Antworten verarbeiten. Für die beiden neu zugelassenen Pfalzwerke-Prüfpunkte fehlt ein echtes Modellurteil. 167 Offline-Tests bestanden, acht Live-Tests übersprungen, beide Ruff-Prüfungen erfolgreich.
 <!-- SECTION:NOTES:END -->

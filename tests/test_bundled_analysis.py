@@ -15,7 +15,7 @@ from tests.test_analysis import FIXTURES, NOW, PROFILE, lot, original_path, xml
 from tests.test_verification import Answers, decision
 
 
-def test_real_foreign_lot_text_is_not_a_rule_checked_duplicate() -> None:
+def test_real_foreign_lot_criterion_stays_out_of_structured_and_ai_facts() -> None:
     content = (FIXTURES / "real/794059-2026.xml").read_bytes()
     provenance = json.loads((FIXTURES / "real/provenance.json").read_text("utf-8"))
     assert hashlib.sha256(content).hexdigest() == provenance["documents"]["794059-2026"]["sha256"]
@@ -46,14 +46,15 @@ def test_real_foreign_lot_text_is_not_a_rule_checked_duplicate() -> None:
         {"claims": [decision("facts:0", claim, "widerlegt")]},
     )
     interpret(doc, load_analysis_profile(PROFILE), model)
-    assert len(model.requests) == 2
-    assert [c["claim_id"] for c in model.requests[1]["claims"]] == ["u0/facts:0"]
+    assert len(model.requests) == 1
     unit = doc["units"][0]
-    assert unit["claim_reviews"][0]["local_check"]["status"] == "valid"
-    assert unit["claim_reviews"][0]["model_check"]["status"] == "widerlegt"
-    assert unit["fields"]["selection_criteria"]["status"] == "uncertain"
-    assert unit["checkpoints"][0]["claim"]["value"] == quote
-    assert unit["checkpoints"][0]["evidence"][0]["path"] == path
+    assert unit["claim_reviews"][0]["local_check"]["status"] == "invalid"
+    criterion_path = path.rsplit("/", 1)[0]
+    values = unit["fields"]["selection_criteria"]["values"]
+    assert all(not v["evidence"][0]["path"].startswith(criterion_path + "/") for v in values)
+    assert any(v["value"].startswith("Referenzen Los 1:") for v in values)
+    assert any("(Lose 1 bis 3)" in v["value"] for v in values)
+    assert any(c["evidence"][0]["path"] == path for c in unit["checkpoints"])
 
 
 class LotAnswers:
@@ -189,7 +190,10 @@ def test_shared_sources_do_not_authorize_foreign_lot_citations(failure: str) -> 
         assert b["checkpoints"][0]["claim"]["reason"] == "Bauarbeiten werden beauftragt."
 
 
-def test_real_bundled_response_keeps_foreign_comparison_sources_out_of_lot_facts() -> None:
+@pytest.mark.parametrize("comparison_in_proposal", [False, True])
+def test_real_bundled_response_keeps_foreign_comparison_sources_out_of_lot_facts(
+    comparison_in_proposal: bool,
+) -> None:
     # Gespeicherte echte Modellantworten des kleinen Kontrolllaufs; kein neuer Live-Aufruf.
     doc = extract_notice((FIXTURES / "real/798622-2026.xml").read_bytes(), "798622-2026", now=NOW)
     original_fields = [deepcopy(u["fields"]) for u in doc["units"]]
@@ -197,6 +201,12 @@ def test_real_bundled_response_keeps_foreign_comparison_sources_out_of_lot_facts
         json.loads((FIXTURES / "real" / f"bundled-798622-{stage}.json").read_text("utf-8"))
         for stage in ("proposal", "verification")
     ]
+
+    if comparison_in_proposal:
+        # Regression aus dem Fünferlauf: Analyse und Prüfer nennen beide Lose.
+        proposal = next(u for u in replies[0]["units"] if u["unit_id"] == "u2")
+        comparison = next(c for c in replies[1]["claims"] if c["claim_id"] == "u2/checkpoints:0")
+        proposal["checkpoints"][0]["evidence"] = deepcopy(comparison["evidence"])
 
     def model(instructions: str, payload: dict[str, Any], schema: dict[str, Any]) -> Any:
         return replies.pop(0)
@@ -217,8 +227,17 @@ def test_real_bundled_response_keeps_foreign_comparison_sources_out_of_lot_facts
     assert len(comparisons) == 1
     review = comparisons[0]
     assert review["model_check"]["status"] == "bestätigt"
-    assert review["claim"]["evidence"][0]["path"] == (
-        "/ContractNotice/cac:ProcurementProjectLot[3]/cac:ProcurementProject[1]/cbc:Description[1]"
+    assert any(
+        e["path"]
+        == (
+            "/ContractNotice/cac:ProcurementProjectLot[3]/cac:ProcurementProject[1]/cbc:Description[1]"
+        )
+        and "Los 2" in e["quote"]
+        for e in review["claim"]["evidence"]
     )
-    assert "Los 2" in review["claim"]["evidence"][0]["quote"]
+    if comparison_in_proposal:
+        assert {e["lot_id"] for e in third["checkpoints"][0]["evidence"]} == {
+            "LOT-0002",
+            "LOT-0003",
+        }
     assert {e["lot_id"] for e in review["model_check"]["evidence"]} == {"LOT-0002", "LOT-0003"}

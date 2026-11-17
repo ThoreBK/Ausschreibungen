@@ -77,6 +77,7 @@ Antwortbelege sind ausschließlich {source: record-id}. XML-Pfade und Originalzi
 werden lokal ergänzt; wiederhole sie nicht. Nur facts.value enthält das neu extrahierte
 wörtliche Zitat (ein Ausschnitt aus einer der referenzierten Quellen).
 Die unit_id bezeichnet genau ein Los (lot_id) oder das Verfahren ohne Losaufteilung.
+Bei losübergreifenden Prüfpunkten belege das eigene Los und die Vergleichsstellen.
 Die XML-Ablage allein beweist keine fachliche Losgeltung: Freitext kann ihr widersprechen.
 """
 INSTRUCTIONS = """Analysiere die vollständige Bekanntmachung auf Deutsch für das Profil.
@@ -147,8 +148,7 @@ Plattformbetrieb oder spezielle Partnernachweise verlangt werden. Diese bleiben 
 context beschreibt die Quellenabdeckung. Suche unabhängig von den Vorschlagsbelegen in
 allen übergebenen Quellen nach Gegenbelegen, Einschränkungen und abweichender Losgeltung.
 Die Erstanalyse ist kein Beweis. Ohne ausreichende Quellen ist das Urteil nicht entscheidbar.
-Fehlende Angaben niemals aus ausgelassenen Quellen ableiten; bei unvollständiger Abdeckung
-ist eine behauptete Abwesenheit nicht bestätigt. Zusätzliche Unterlagen bleiben unausgewertet.
+Zusätzliche Unterlagen bleiben unausgewertet.
 Etwaige structured_fields sind abgeleitete Angaben, keine unabhängigen Belege.
 """
 Model = Callable[[str, dict[str, Any], dict[str, Any]], dict[str, Any]]
@@ -329,9 +329,6 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
                 "./cac:ProcurementProject/cac:PlannedPeriod/cbc:*",
                 "./cac:ProcurementProject/cac:ContractExtension//cbc:*",
             ],
-            "selection_criteria": [
-                ".//efac:SelectionCriteria//cbc:*",
-            ],
             "award_criteria": [
                 "./cac:TenderingTerms/cac:AwardingTerms/cac:AwardingCriterion//cbc:*",
                 "./cac:TenderingTerms/cac:AwardingTerms/cac:AwardingCriterion//efbc:*",
@@ -342,6 +339,36 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
             ],
         }.items():
             fields[key]["values"] = [item for path in paths for item in found(lot, path)]
+        scope_checks = []
+        internal_ids = found(lot, "./cac:ProcurementProject/cbc:ID[@schemeName='internalID']")
+        number_in_notice = internal_ids[0]["value"] if len(internal_ids) == 1 else ""
+        for criterion in lot.findall(".//efac:SelectionCriteria", NS):
+            descriptions = criterion.findall("./cbc:Description", NS)
+            foreign = []
+            for description in descriptions:
+                heading = nodes[description]["value"].partition(":")[0].strip()
+                label = re.search(r"(?:^Referenzen Los (\d+)|\(Los (\d+)\))$", heading, re.I)
+                if (
+                    label
+                    and lot_id
+                    and number_in_notice.isdecimal()
+                    and len(re.findall(r"\bLos(?:e)?\b", heading, re.I)) == 1
+                ):
+                    number_in_heading = label[1] or label[2]
+                    if number_in_heading.lstrip("0") != number_in_notice.lstrip("0"):
+                        foreign.append(fact(nodes[description])["evidence"][0])
+            if foreign:
+                scope_checks.append(
+                    {
+                        "reason": "Die Überschrift nennt ein anderes Los als der XML-Abschnitt. "
+                        "Geltung des Eignungskriteriums manuell prüfen.",
+                        "method": "xml_lot_scope",
+                        "criterion_path": nodes[criterion]["path"],
+                        "evidence": foreign + internal_ids[0]["evidence"],
+                    }
+                )
+            else:
+                fields["selection_criteria"]["values"].extend(found(criterion, ".//cbc:*"))
         # Nachforderungs-/Unterlagenquellencodes sind keine Eignungsanforderungen.
         for base in [root, lot] if lot is not root else [root]:
             for requirement in base.findall(
@@ -402,6 +429,8 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
                     value["status"] = "uncertain"
         if len({v["value"] for v in fields["procedure"]["values"]}) > 1:
             fields["procedure"]["status"] = "conflict"
+        if scope_checks and not fields["selection_criteria"]["values"]:
+            fields["selection_criteria"].update(status="uncertain", display="Losgeltung ungeklärt")
         unit = {
             "lot_id": lot_id,
             "fields": fields,
@@ -416,7 +445,7 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
                 "unbekannt gilt nicht als erfüllt.",
                 "field": "selection_criteria",
             },
-            "checkpoints": [],
+            "checkpoints": scope_checks,
             "rejected_claims": [],
             "claim_reviews": [],
             "processing_errors": [],
@@ -493,8 +522,18 @@ def participation(document: dict[str, Any], unit: dict[str, Any], now: datetime)
     return answer
 
 
+def checkpoint_anchors(claim: dict[str, Any]) -> set[str] | None:
+    if "field" in claim or "status" in claim:
+        return None
+    return {e["path"] for e in claim["evidence"]}
+
+
 def checked_evidence(
-    citations: list[dict[str, str]], records: list[dict[str, Any]], lot_id: str | None
+    citations: list[dict[str, str]],
+    records: list[dict[str, Any]],
+    lot_id: str | None,
+    *,
+    comparison_anchors: set[str] | None = None,
 ) -> list[dict[str, Any]]:
     index = {r["path"]: r for r in records}
     checked = []
@@ -504,7 +543,7 @@ def checked_evidence(
             not record
             or not citation["quote"].strip()
             or citation["quote"] not in record["value"]
-            or record["lot_id"] not in (None, lot_id)
+            or (comparison_anchors is None and record["lot_id"] not in (None, lot_id))
         ):
             raise ModelError(
                 "KI-Fundstelle existiert nicht, passt nicht zum Zitat oder gehört zu anderem Los."
@@ -512,6 +551,9 @@ def checked_evidence(
         checked.append({**citation, "lot_id": record["lot_id"]})
     if not checked:
         raise ModelError("KI-Aussage ohne Beleg.")
+    if comparison_anchors is not None and any(e["lot_id"] not in (None, lot_id) for e in checked):
+        if not any(e["lot_id"] == lot_id and e["path"] in comparison_anchors for e in checked):
+            raise ModelError("Losvergleich ohne eigenen Beleg am ursprünglichen Prüfpunkt.")
     return checked
 
 
@@ -625,103 +667,16 @@ def source_span(source: dict[str, Any], text: str) -> dict[str, Any]:
 
 def verification_payload(
     payload: dict[str, Any],
-    sources: dict[str, dict[str, Any]],
     claims: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    """Alle Freitexte/unkannten Stellen unabhängig von Analysezitaten erhalten.
-
-    Nur bekannte skalare Felder sind abwählbar. Freie Begründungen können beliebige
-    Feldgrenzen überschreiten und benötigen deshalb den vollständigen Quellenbestand.
-    Die abgeleiteten structured_fields liefern keine zusätzliche Originalinformation.
-    """
-    cited: set[str] = set()
-
-    def references(value: Any) -> None:
-        if isinstance(value, dict):
-            if "source" in value:
-                cited.add(value["source"])
-            for item in value.values():
-                references(item)
-        elif isinstance(value, list):
-            for item in value:
-                references(item)
-
-    references(claims)
-    unrestricted = any("reason" in c["claim"] for c in claims)
-    uncertain = any(c["claim"].get("state", "present") != "present" for c in claims)
-    full = unrestricted or uncertain
-    fields = {c["claim"]["field"] for c in claims if "field" in c["claim"]}
-    excluded = set()
-    if not full:
-        for source in sources.values():
-            # Globale Angaben, alle Lose und unbekannte XML-Formen konservativ
-            # berücksichtigen. Kein Keyword-Ranking, keine Top-k-Abschneidung.
-            if source["id"] in cited or source["lot_id"] is None:
-                continue
-            path = source["path"]
-            scalar_field = None
-            if (
-                re.fullmatch(
-                    r"/\w+/cac:ProcurementProjectLot\[\d+\]/cac:TenderingProcess\[\d+\]/"
-                    r"cac:(?:TenderSubmissionDeadlinePeriod|ParticipationRequestReceptionPeriod|"
-                    r"AdditionalInformationRequestPeriod)\[\d+\]/cbc:End(?:Date|Time)\[\d+\]",
-                    path,
-                )
-                and not source["attributes"]
-                and re.fullmatch(r"[0-9TZ:+.\-]+", source["value"])
-            ):
-                scalar_field = "deadlines"
-            elif (
-                re.fullmatch(
-                    r"/\w+/cac:ProcurementProjectLot\[\d+\]/cac:ProcurementProject\[\d+\]/"
-                    r"cac:PlannedPeriod\[\d+\]/cbc:DurationMeasure\[\d+\]",
-                    path,
-                )
-                and source["attributes"]
-                in ({}, {"unitCode": "MON"}, {"unitCode": "YEAR"}, {"unitCode": "DAY"})
-                and re.fullmatch(r"\d+(?:\.\d+)?", source["value"])
-            ):
-                scalar_field = "duration"
-            if scalar_field and not fields.intersection({"deadlines", "duration"}):
-                excluded.add(source["id"])
-    selected = [r for r in payload["records"] if r["id"] not in excluded]
-    text_ids = {r["text_id"] for r in selected}
-    path_ids: set[str] = set()
-
-    def include_path(path: str) -> None:
-        if path.startswith("/"):
-            return
-        key = path.split("/", 1)[0]
-        if key not in path_ids:
-            path_ids.add(key)
-            include_path(payload["paths"][key])
-
-    for record in selected:
-        include_path(record["path"])
     return {
         **payload,
         "stage": "verification",
-        "records": selected,
-        "texts": {k: v for k, v in payload["texts"].items() if k in text_ids},
-        "paths": {k: v for k, v in payload["paths"].items() if k in path_ids},
         "units": [{"unit_id": u["unit_id"], "lot_id": u["lot_id"]} for u in payload["units"]],
         "claims": claims,
         "context": {
-            "policy": "conservative_sources_v1",
             "source_count": len(payload["records"]),
-            "selected_source_count": len(selected),
-            "excluded_sources": sorted(excluded),
-            "complete_sources": not excluded,
-            "fallback": "unrestricted_reason"
-            if unrestricted
-            else "uncertain_fact"
-            if uncertain
-            else None,
-            "selection": "Alle Freitexte, globalen Angaben, fachlichen Codes und unbekannten "
-            "XML-Stellen aller Lose, unabhängig von Analysezitaten. Nur unzitierte skalare "
-            "Frist-/Laufzeitfelder außerhalb der geprüften Felder entfallen. Freie "
-            "Begründungen und unsichere/strittige Fakten erhalten sämtliche Quellen. "
-            "structured_fields werden nicht wiederholt.",
+            "complete_sources": True,
         },
     }
 
@@ -762,11 +717,13 @@ def expand_claim(item: dict[str, Any], sources: dict[str, dict[str, Any]]) -> di
         source = sources.get(ref["source"])
         if source is None:
             raise ModelError("KI-Antwort verweist auf eine unbekannte Quellenkennung.")
-        quote = item.get("value", source["value"])
+        quote = source["value"]
+        if len(item["evidence"]) == 1 and "value" in item and item["value"] in quote:
+            quote = item["value"]
         evidence.append(
             {
                 "path": source["path"],
-                "quote": quote if quote in source["value"] else source["value"],
+                "quote": quote,
             }
         )
     return {**item, "evidence": evidence}
@@ -795,11 +752,26 @@ def retain_unconfirmed(unit: dict[str, Any], item: dict[str, Any], review: dict[
     if "field" in item:
         field = unit["fields"][item["field"]]
         field.setdefault("unconfirmed_values", []).append({**item, "verification": verdict})
-        if field["status"] != "conflict":
+        # Ein strittiger XML-Freitext bleibt als Quellenbeleg erhalten. Seine
+        # Wiederholung darf nicht zugleich als gesicherter Feldwert erscheinen.
+        matching_paths = {e["path"] for e in item["evidence"]}
+        disputed_values = [
+            v
+            for v in field["values"]
+            if verdict["evidence"]
+            and item["state"] == "present"
+            and v.get("method") == "xml"
+            and v.get("value") == item["value"]
+            and any(e["path"] in matching_paths for e in v["evidence"])
+        ]
+        if disputed_values:
+            field["values"] = [v for v in field["values"] if v not in disputed_values]
+        disputed = bool(disputed_values) or verdict["status"] != "widerlegt" or not field["values"]
+        if disputed and field["status"] != "conflict":
             field["status"] = "uncertain"
         if not field["values"]:
             field["display"] = "unbestätigt – manuell prüfen"
-        if item["field"] in {"deadlines", "procedure"}:
+        if disputed and item["field"] in {"deadlines", "procedure"}:
             unit["participation"].update(
                 status="ungeklärt",
                 reason="Unbestätigte Angabe zur Teilnahmefrist oder Verfahrensart.",
@@ -816,7 +788,9 @@ def retain_unconfirmed(unit: dict[str, Any], item: dict[str, Any], review: dict[
 def apply_verified(
     unit: dict[str, Any], item: dict[str, Any], records: list[dict[str, Any]]
 ) -> None:
-    evidence = checked_evidence(item["evidence"], records, unit["lot_id"])
+    evidence = checked_evidence(
+        item["evidence"], records, unit["lot_id"], comparison_anchors=checkpoint_anchors(item)
+    )
     if "field" in item:
         field = unit["fields"][item["field"]]
         value = {"value": item["value"], "evidence": evidence, "method": "ai_quote_verified"}
@@ -869,14 +843,28 @@ def interpret(document: dict[str, Any], profile: dict[str, Any], model: Model) -
             "fit": answer["fit"],
             **{f"checkpoints:{i}": item for i, item in enumerate(answer["checkpoints"])},
         }
+        foreign_criteria = tuple(
+            c["criterion_path"] + "/"
+            for c in unit["checkpoints"]
+            if c.get("method") == "xml_lot_scope"
+        )
         for claim_id, raw in candidates.items():
             review = {"claim_id": claim_id, "claim": raw, "model_check": None}
             unit["claim_reviews"].append(review)
             try:
                 item = expand_claim(raw, by_id)
                 review["claim"] = item
-                evidence = checked_evidence(item["evidence"], records, unit["lot_id"])
-                if "value" in item and not any(item["value"] == e["quote"] for e in evidence):
+                evidence = checked_evidence(
+                    item["evidence"],
+                    records,
+                    unit["lot_id"],
+                    comparison_anchors=checkpoint_anchors(item),
+                )
+                if "field" in item and any(
+                    e["path"].startswith(foreign_criteria) for e in evidence
+                ):
+                    raise ModelError("Eignungskriterium mit abweichender Losangabe im Original.")
+                if "value" in item and not any(item["value"] in e["quote"] for e in evidence):
                     raise ModelError("Zusätzliche Sachangabe ist kein belegtes Originalzitat.")
                 if "status" in item and not any(
                     re.search(r"/cac:ProcurementProject\[\d+\]/cbc:Description\[\d+\]$", e["path"])
@@ -908,7 +896,6 @@ def interpret(document: dict[str, Any], profile: dict[str, Any], model: Model) -
     try:
         check_payload = verification_payload(
             payload,
-            sources,
             [
                 {
                     "claim_id": key,
@@ -929,35 +916,18 @@ def interpret(document: dict[str, Any], profile: dict[str, Any], model: Model) -
         if len(ids) != len(pending) or set(ids) != set(pending):
             raise ModelError("KI-Belegprüfung enthält fehlende, doppelte oder fremde Aussagen.")
         # Die gesamte Antwort vor der Übernahme prüfen, einschließlich der Losbezüge.
-        selected_ids = {r["id"] for r in check_payload["records"]}
-        selected_sources = {key: value for key, value in by_id.items() if key in selected_ids}
-        decisions = [expand_claim(v, selected_sources) for v in verdict["claims"]]
-        record_lots = {r["path"]: r["lot_id"] for r in records}
+        decisions = [expand_claim(v, by_id) for v in verdict["claims"]]
         for decision in decisions:
             unit, review = pending[decision["claim_id"]]
-            claim = review["claim"]
-            foreign = any(
-                record_lots[e["path"]] not in (None, unit["lot_id"]) for e in decision["evidence"]
+            decision["evidence"] = checked_evidence(
+                decision["evidence"],
+                records,
+                unit["lot_id"],
+                comparison_anchors=checkpoint_anchors(review["claim"]),
             )
-            if "field" in claim or "status" in claim or not foreign:
-                decision["evidence"] = checked_evidence(
-                    decision["evidence"], records, unit["lot_id"]
-                )
-            else:
-                # Ein Prüfpunkt darf Vergleichsquellen anderer Lose erhalten,
-                # benötigt aber weiterhin einen Beleg an seiner eigenen Fundstelle.
-                # Diese Kontextbelege werden niemals als Fakten des Loses übernommen.
-                paths = {e["path"] for e in claim["evidence"]}
-                checked_evidence(
-                    [e for e in decision["evidence"] if e["path"] in paths],
-                    records,
-                    unit["lot_id"],
-                )
-                decision["evidence"] = [
-                    checked_evidence([e], records, record_lots[e["path"]])[0]
-                    for e in decision["evidence"]
-                ]
-        for decision in decisions:
+        # Erst alle bestätigten Werte übernehmen: Die Reihenfolge der Modellantwort
+        # darf nicht entscheiden, ob ein unabhängiger gesicherter Feldwert existiert.
+        for decision in sorted(decisions, key=lambda d: d["status"] != "bestätigt"):
             unit, review = pending.pop(decision["claim_id"])
             review["model_check"] = {**decision, "claim_id": review["claim_id"]}
             if decision["status"] != "bestätigt":

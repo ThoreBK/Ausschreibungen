@@ -12,6 +12,7 @@ from ausschreibungen.analysis import (
     PROPOSAL,
     VERIFICATION,
     analyze_run,
+    expand_claim,
     extract,
     interpret,
     load_analysis_profile,
@@ -175,7 +176,11 @@ def test_reference_sources_and_fixed_judgments(case: dict[str, Any]) -> None:
     else:
         field = unit["fields"][claim["field"]]
         assert claim["value"] not in [v.get("value", v.get("original")) for v in field["values"]]
-        assert field["status"] == "uncertain"
+        if case["case"] == "appeal_not_submission_deadline":
+            assert field["status"] == "present"
+            assert unit["participation"]["status"] == "Frist offen"
+        else:
+            assert field["status"] == "uncertain"
         assert field["unconfirmed_values"][0]["value"] == claim["value"]
         checkpoint = unit["checkpoints"][0]
         assert checkpoint["verification"]["status"] == "widerlegt"
@@ -243,7 +248,7 @@ def test_reordered_mixed_verdicts_are_assigned_by_id_and_keep_unicode_quotes() -
     field = unit["fields"]["submission"]
     assert [v["value"] for v in field["values"]] == ["Einreichungsform: per E-Mail."]
     assert field["unconfirmed_values"][0]["value"] == "Vorzulegende Unterlagen: Anschreiben."
-    assert field["status"] == "uncertain"
+    assert field["status"] == "present"
     assert unit["fit"]["status"] == "passend"
     payload = model.requests[1]
     assert resolve_span(payload["claims"][0]["claim"]["value"], payload) == (
@@ -362,3 +367,16 @@ def test_controlled_live_budget_prevents_further_model_calls(limit: str, tmp_pat
         budget.run(client, "", {}, {})
     assert client.calls == []
     assert not client.directory.exists()
+
+
+def test_numeric_fact_preserves_qualifier_in_comparison_quote() -> None:
+    correction = "Für Los 3 sind maximal 3 anstelle von 8 Bewerbern vorgesehen."
+    item = {"value": "8", "evidence": [{"source": "note"}, {"source": "limit"}]}
+    sources = {
+        "note": {"path": "/note", "value": correction},
+        "limit": {"path": "/limit", "value": "8"},
+    }
+    assert expand_claim(item, sources)["evidence"] == [
+        {"path": "/note", "quote": correction},
+        {"path": "/limit", "quote": "8"},
+    ]

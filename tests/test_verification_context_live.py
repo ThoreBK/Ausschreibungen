@@ -29,7 +29,7 @@ from tests.test_verification_live import Budget
 
 
 def full_verification_payload(
-    payload: dict[str, Any], sources: dict[str, dict[str, Any]], claims: list[dict[str, Any]]
+    payload: dict[str, Any], claims: list[dict[str, Any]]
 ) -> dict[str, Any]:
     return {
         **payload,
@@ -145,7 +145,7 @@ def test_same_saved_proposals_with_full_and_reduced_context(
         },
         "limitations": "Zwei Bekanntmachungen, je Variante ein Versuch; keine Fehlerquote. "
         "Offline-Tests und ältere Replays sind keine frischen Modellmessungen. "
-        "Freie Begründungen erhalten alle Quellen; abgeleitete Felder entfallen.",
+        "Beide Varianten erhalten alle Quellen; nur die Referenz enthält abgeleitete Felder.",
         "runs": [],
     }
     failures = []
