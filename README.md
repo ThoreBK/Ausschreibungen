@@ -171,4 +171,8 @@ einzuhalten.
   Originale bleiben erhalten. Bei erschöpftem Kontingent später erneut starten.
 - **Keine Treffer:** Weniger Pflichtgruppen, mehr alternative Begriffe oder einen längeren Zeitraum verwenden.
 
+Der Programmcode liegt in `ausschreibungen/`, der Einstieg bleibt `main.py`.
+`tests/` enthält Tests und feste Beispieldaten, `reports/` die lokal erzeugten
+Ergebnisse und `tmp/` temporäre Arbeits- und Review-Dateien.
+
 Das fachliche Ziel und den geplanten Ablauf beschreibt [PROJECT.md](PROJECT.md).

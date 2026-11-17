@@ -13,9 +13,9 @@ from typing import Any
 from uuid import uuid4
 from zoneinfo import ZoneInfo
 
-from llm import CodexModel, ModelError, object_schema, validate
-from notices import NS, NoDoctype, html_page, inspect_document, short_tag
-from research import save_json
+from ausschreibungen.llm import CodexModel, ModelError, object_schema, validate
+from ausschreibungen.notices import NS, NoDoctype, html_page, inspect_document, short_tag
+from ausschreibungen.research import save_json
 
 FIELDS = (
     "buyer",

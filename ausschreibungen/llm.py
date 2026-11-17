@@ -10,7 +10,7 @@ from typing import Any
 
 from openai_codex import ApprovalMode, Codex, CodexConfig, CodexError, ExternalMessage, Sandbox
 
-from research import save_json
+from ausschreibungen.research import save_json
 
 MAX_MODEL_INPUT_BYTES = 300_000
 

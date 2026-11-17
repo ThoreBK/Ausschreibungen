@@ -9,8 +9,14 @@ import pytest
 from openai_codex import ApprovalMode, ExternalMessage, Sandbox
 from openai_codex.types import GetAccountResponse, ThreadTokenUsage, TurnStatus
 
-from analysis import analyze_run, estimate_cost, extract
-from llm import MAX_MODEL_INPUT_BYTES, CodexModel, ModelError, object_schema, runtime_overrides
+from ausschreibungen.analysis import analyze_run, estimate_cost, extract
+from ausschreibungen.llm import (
+    MAX_MODEL_INPUT_BYTES,
+    CodexModel,
+    ModelError,
+    object_schema,
+    runtime_overrides,
+)
 from tests.test_analysis import NOW, PROFILE, lot, proposal, saved_run, xml
 
 
@@ -81,9 +87,11 @@ def transport(
                 raise result
             return result
 
-    monkeypatch.setattr("llm.Codex", FakeCodex)
+    monkeypatch.setattr("ausschreibungen.llm.Codex", FakeCodex)
     # Keine echte persönliche Konfiguration beim isolierten Vertragstest auslesen.
-    monkeypatch.setattr("llm.runtime_overrides", lambda: ('forced_login_method="chatgpt"',))
+    monkeypatch.setattr(
+        "ausschreibungen.llm.runtime_overrides", lambda: ('forced_login_method="chatgpt"',)
+    )
     return log
 
 
@@ -173,7 +181,7 @@ def test_process_only_tool_locks_preserve_personal_configuration(
 ) -> None:
     # Nur den Leseort substituieren; CODEX_HOME wird nicht verändert.
     monkeypatch.delenv("CODEX_HOME", raising=False)
-    monkeypatch.setattr("llm.Path.home", lambda: tmp_path)
+    monkeypatch.setattr("ausschreibungen.llm.Path.home", lambda: tmp_path)
     config_dir = tmp_path / ".codex"
     config_dir.mkdir()
     original = (

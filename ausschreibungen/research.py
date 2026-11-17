@@ -11,8 +11,8 @@ from typing import Any
 from urllib.parse import urlsplit
 from uuid import uuid4
 
-from notices import Download, download_document, html_page, inspect_document
-from ted import ENDPOINT, Profile, SearchError, search
+from ausschreibungen.notices import Download, download_document, html_page, inspect_document
+from ausschreibungen.ted import ENDPOINT, Profile, SearchError, search
 
 
 def save_json(path: Path, value: dict[str, Any]) -> None:

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from ted import Profile, load_profile
+from ausschreibungen.ted import Profile, load_profile
 
 
 @pytest.fixture

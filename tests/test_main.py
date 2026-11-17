@@ -10,7 +10,7 @@ from urllib.request import Request
 import pytest
 
 import main
-from ted import SearchError
+from ausschreibungen.ted import SearchError
 
 
 def test_entrypoint() -> None:
@@ -88,7 +88,7 @@ def test_successful_search_writes_results_and_displays_notices(
         requests.append(request)
         return BytesIO(json.dumps(response, ensure_ascii=False).encode("utf-8"))
 
-    monkeypatch.setattr("ted.urlopen", respond)
+    monkeypatch.setattr("ausschreibungen.ted.urlopen", respond)
     assert main.main() == 0
     result = json.loads(output.read_text("utf-8"))
     assert result["as_of"] == "2026-11-15"

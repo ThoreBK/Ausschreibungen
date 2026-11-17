@@ -10,7 +10,7 @@ from typing import Any
 
 import pytest
 
-from analysis import (
+from ausschreibungen.analysis import (
     PROPOSAL,
     VERIFICATION,
     analyze_run,
@@ -20,8 +20,8 @@ from analysis import (
     interpret,
     load_analysis_profile,
 )
-from llm import ModelError
-from notices import NS
+from ausschreibungen.llm import ModelError
+from ausschreibungen.notices import NS
 
 NOW = datetime(2026, 11, 17, 14, tzinfo=UTC)
 FIXTURES = Path(__file__).parent / "fixtures"

@@ -11,7 +11,7 @@ from urllib.request import Request
 
 import pytest
 
-from ted import Profile, SearchError, build_query, fetch, load_profile, search
+from ausschreibungen.ted import Profile, SearchError, build_query, fetch, load_profile, search
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -205,7 +205,7 @@ def test_fetch_posts_json_and_decodes_response(monkeypatch: pytest.MonkeyPatch) 
         requests.append((request, timeout))
         return BytesIO(json.dumps(response, ensure_ascii=False).encode("utf-8"))
 
-    monkeypatch.setattr("ted.urlopen", respond)
+    monkeypatch.setattr("ausschreibungen.ted.urlopen", respond)
     assert fetch(body, 17) == response
     assert len(requests) == 1
     request, timeout = requests[0]
@@ -275,6 +275,6 @@ def test_network_errors(monkeypatch: pytest.MonkeyPatch, error: Exception) -> No
     def fail(*args: Any, **kwargs: Any) -> None:
         raise error
 
-    monkeypatch.setattr("ted.urlopen", fail)
+    monkeypatch.setattr("ausschreibungen.ted.urlopen", fail)
     with pytest.raises(SearchError):
         fetch({}, 1)

@@ -17,9 +17,9 @@ from urllib.request import Request
 import pytest
 
 import main
-from notices import Download, inspect_document
-from research import collect
-from ted import Profile, SearchError, load_profile, search
+from ausschreibungen.notices import Download, inspect_document
+from ausschreibungen.research import collect
+from ausschreibungen.ted import Profile, SearchError, load_profile, search
 
 FIXTURES = Path(__file__).parent / "fixtures"
 AS_OF = date(2026, 11, 16)
@@ -316,7 +316,8 @@ from pathlib import Path
 from urllib.error import HTTPError
 sys.path.insert(0, sys.argv.pop(1))
 fixture = Path(sys.argv.pop(1)).read_bytes()
-import ted, notices, main
+import main
+from ausschreibungen import notices, ted
 rows = [{"publication-number": f"{n}-2026", "notice-title": {"deu": title},
          "links": {"xml": {"MUL": f"https://ted.europa.eu/en/notice/{n}-2026/xml"}}}
         for n, title in [(100, "Offline-Schulung"), (200, None)]]
@@ -428,10 +429,11 @@ def test_t2_09_truncated_http_response_keeps_other_documents(
 
     search_response = response(row(100, 15), row(200, 14), row(300, 13))
     monkeypatch.setattr(
-        "ted.urlopen", lambda *args, **kwargs: BytesIO(json.dumps(search_response).encode())
+        "ausschreibungen.ted.urlopen",
+        lambda *args, **kwargs: BytesIO(json.dumps(search_response).encode()),
     )
-    monkeypatch.setattr("notices.build_opener", lambda *args: Opener())
-    monkeypatch.setattr("notices.time.sleep", lambda _: None)
+    monkeypatch.setattr("ausschreibungen.notices.build_opener", lambda *args: Opener())
+    monkeypatch.setattr("ausschreibungen.notices.time.sleep", lambda _: None)
     output = tmp_path / "latest.json"
     monkeypatch.setattr(
         sys,

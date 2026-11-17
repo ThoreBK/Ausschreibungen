@@ -13,9 +13,9 @@ from uuid import uuid4
 
 import pytest
 
-from analysis import analyze_run
-from notices import NS
-from research import save_json
+from ausschreibungen.analysis import analyze_run
+from ausschreibungen.notices import NS
+from ausschreibungen.research import save_json
 from tests.test_analysis import FIXTURES, NOW, PROFILE
 
 pytestmark = pytest.mark.skipif(

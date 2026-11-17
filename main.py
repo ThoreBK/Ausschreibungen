@@ -6,9 +6,9 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from analysis import analyze_run
-from research import collect, save_json
-from ted import SearchError, load_profile, search
+from ausschreibungen.analysis import analyze_run
+from ausschreibungen.research import collect, save_json
+from ausschreibungen.ted import SearchError, load_profile, search
 
 
 def main() -> int:
