@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><PriorInformationNotice xmlns="urn:oasis:names:specification:ubl:schema:xsd:PriorInformationNotice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ccts-cct="urn:un:unece:uncefact:data:specification:CoreComponentTypeSchemaModule:2" xmlns:efac="http://data.europa.eu/p27/eforms-ubl-extension-aggregate-components/1" xmlns:efbc="http://data.europa.eu/p27/eforms-ubl-extension-basic-components/1" xmlns:efext="http://data.europa.eu/p27/eforms-ubl-extensions/1" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2" xmlns:qdt="urn:oasis:names:specification:ubl:schema:xsd:QualifiedDataTypes-2" xmlns:udt="urn:oasis:names:specification:bdndr:schema:xsd:UnqualifiedDataTypes-1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<ext:UBLExtensions>
+		<ext:UBLExtension>
+			<ext:ExtensionContent>
+				<efext:EformsExtension>
+					<efac:NoticeSubType>
+						<cbc:SubTypeCode listName="notice-subtype">4</cbc:SubTypeCode>
+					</efac:NoticeSubType>
+					<efac:Organizations>
+						<efac:Organization>
+							<efac:Company>
+								<cbc:WebsiteURI>https://www.ukaachen.de</cbc:WebsiteURI>
+								<cac:PartyIdentification>
+									<cbc:ID>ORG-0001</cbc:ID>
+								</cac:PartyIdentification>
+								<cac:PartyName>
+									<cbc:Name languageID="DEU">Universitätsklinikum Aachen AöR</cbc:Name>
+								</cac:PartyName>
+								<cac:PostalAddress>
+									<cbc:StreetName>Pauwelsstraße 30</cbc:StreetName>
+									<cbc:CityName>Aachen</cbc:CityName>
+									<cbc:PostalZone>52074</cbc:PostalZone>
+									<cbc:CountrySubentityCode listName="nuts-lvl3">DEA2D</cbc:CountrySubentityCode>
+									<cac:Country>
+										<cbc:IdentificationCode listName="country">DEU</cbc:IdentificationCode>
+									</cac:Country>
+								</cac:PostalAddress>
+								<cac:PartyLegalEntity>
+									<cbc:CompanyID>Keine Angaben</cbc:CompanyID>
+								</cac:PartyLegalEntity>
+								<cac:Contact>
+									<cbc:Telephone>+49 241-8080007</cbc:Telephone>
+									<cbc:Telefax>+49 241-8082504</cbc:Telefax>
+									<cbc:ElectronicMail>vergabestelle@ukaachen.de</cbc:ElectronicMail>
+								</cac:Contact>
+							</efac:Company>
+						</efac:Organization>
+						<efac:Organization>
+							<efac:Company>
+								<cbc:WebsiteURI>http://www.bezreg-muenster.de</cbc:WebsiteURI>
+								<cac:PartyIdentification>
+									<cbc:ID>ORG-0002</cbc:ID>
+								</cac:PartyIdentification>
+								<cac:PartyName>
+									<cbc:Name languageID="DEU">Vergabekammer Westfalen</cbc:Name>
+								</cac:PartyName>
+								<cac:PostalAddress>
+									<cbc:StreetName>Albrecht-Thaer-Straße 9</cbc:StreetName>
+									<cbc:CityName>Münster</cbc:CityName>
+									<cbc:PostalZone>48147</cbc:PostalZone>
+									<cbc:CountrySubentityCode listName="nuts-lvl3">DEA33</cbc:CountrySubentityCode>
+									<cac:Country>
+										<cbc:IdentificationCode listName="country">DEU</cbc:IdentificationCode>
+									</cac:Country>
+								</cac:PostalAddress>
+								<cac:PartyLegalEntity>
+									<cbc:CompanyID>05515-03004-07</cbc:CompanyID>
+								</cac:PartyLegalEntity>
+								<cac:Contact>
+									<cbc:Telephone>+49 2514111691</cbc:Telephone>
+									<cbc:Telefax>+49 2514112165</cbc:Telefax>
+									<cbc:ElectronicMail>vergabekammer@brms.nrw.de</cbc:ElectronicMail>
+								</cac:Contact>
+							</efac:Company>
+						</efac:Organization>
+						<efac:Organization>
+							<efac:Company>
+								<cbc:WebsiteURI>http://www.bezreg-muenster.de</cbc:WebsiteURI>
+								<cac:PartyIdentification>
+									<cbc:ID>ORG-0003</cbc:ID>
+								</cac:PartyIdentification>
+								<cac:PartyName>
+									<cbc:Name languageID="DEU">Vergabekammer Westfalen</cbc:Name>
+								</cac:PartyName>
+								<cac:PostalAddress>
+									<cbc:StreetName>Albrecht-Thaer-Straße 9</cbc:StreetName>
+									<cbc:CityName>Münster</cbc:CityName>
+									<cbc:PostalZone>48147</cbc:PostalZone>
+									<cbc:CountrySubentityCode listName="nuts-lvl3">DEA33</cbc:CountrySubentityCode>
+									<cac:Country>
+										<cbc:IdentificationCode listName="country">DEU</cbc:IdentificationCode>
+									</cac:Country>
+								</cac:PostalAddress>
+								<cac:PartyLegalEntity>
+									<cbc:CompanyID>05515-03004-07</cbc:CompanyID>
+								</cac:PartyLegalEntity>
+								<cac:Contact>
+									<cbc:Name>Geschäftsstelle</cbc:Name>
+									<cbc:Telephone>+49 2514111691</cbc:Telephone>
+									<cbc:Telefax>+49 2514112165</cbc:Telefax>
+									<cbc:ElectronicMail>vergabekammer@brms.nrw.de</cbc:ElectronicMail>
+								</cac:Contact>
+							</efac:Company>
+						</efac:Organization>
+					<efac:Organization><efac:Company><cac:PartyIdentification><cbc:ID schemeName="organization">ORG-0004</cbc:ID></cac:PartyIdentification><cac:PartyName><cbc:Name languageID="DEU">Datenservice Öffentlicher Einkauf (in Verantwortung des Beschaffungsamts des BMI)</cbc:Name></cac:PartyName><cac:PostalAddress><cbc:CityName>Bonn</cbc:CityName><cbc:PostalZone>53119</cbc:PostalZone><cbc:CountrySubentityCode listName="nuts">DEA22</cbc:CountrySubentityCode><cac:Country><cbc:IdentificationCode listName="country">DEU</cbc:IdentificationCode></cac:Country></cac:PostalAddress><cac:PartyLegalEntity><cbc:CompanyID schemeID="002">0204:994-DOEVD-83</cbc:CompanyID></cac:PartyLegalEntity><cac:Contact><cbc:Telephone>+49228996100</cbc:Telephone><cbc:ElectronicMail>noreply.esender_hub@bescha.bund.de</cbc:ElectronicMail></cac:Contact></efac:Company></efac:Organization></efac:Organizations>
+				<efac:Publication><efbc:NoticePublicationID schemeName="ojs-notice-id">00788030-2026</efbc:NoticePublicationID><efbc:GazetteID schemeName="ojs-id">220/2026</efbc:GazetteID><efbc:PublicationDate>2026-11-12+01:00</efbc:PublicationDate></efac:Publication></efext:EformsExtension>
+			</ext:ExtensionContent>
+		</ext:UBLExtension>
+	</ext:UBLExtensions>
+	<cbc:UBLVersionID>2.3</cbc:UBLVersionID>
+	<cbc:CustomizationID>eforms-sdk-1.13</cbc:CustomizationID>
+	<cbc:ProfileID>eforms-sdk-1.13</cbc:ProfileID>
+	<cbc:ID schemeName="notice-id">45ed6e20-9327-4239-b960-f0b97d31dcd0</cbc:ID>
+	<cbc:IssueDate>2026-11-11+01:00</cbc:IssueDate>
+	<cbc:IssueTime>13:39:05+01:00</cbc:IssueTime>
+	<cbc:VersionID>01</cbc:VersionID>
+	<cbc:RequestedPublicationDate>2026-11-11+01:00</cbc:RequestedPublicationDate>
+	<cbc:PlannedDate>2026-12-09+01:00</cbc:PlannedDate>
+	<cbc:RegulatoryDomain>32014L0024</cbc:RegulatoryDomain>
+	<cbc:NoticeTypeCode listName="planning">pin-only</cbc:NoticeTypeCode>
+	<cbc:NoticeLanguageCode listID="eu-official-language">DEU</cbc:NoticeLanguageCode>
+	<cac:ContractingParty>
+		<cac:ContractingPartyType>
+			<cbc:PartyTypeCode listName="buyer-legal-type">body-pl-ra</cbc:PartyTypeCode>
+		</cac:ContractingPartyType>
+		<cac:ContractingActivity>
+			<cbc:ActivityTypeCode listName="authority-activity">health</cbc:ActivityTypeCode>
+		</cac:ContractingActivity>
+		<cac:Party>
+			<cac:PartyIdentification>
+				<cbc:ID>ORG-0001</cbc:ID>
+			</cac:PartyIdentification>
+		<cac:ServiceProviderParty><cbc:ServiceTypeCode listName="organisation-role">ted-esen</cbc:ServiceTypeCode><cac:Party><cac:PartyIdentification><cbc:ID schemeName="organization">ORG-0004</cbc:ID></cac:PartyIdentification></cac:Party></cac:ServiceProviderParty></cac:Party>
+	</cac:ContractingParty>
+	<cac:TenderingTerms>
+		<cac:ProcurementLegislationDocumentReference>
+			<cbc:ID>vgv</cbc:ID>
+		</cac:ProcurementLegislationDocumentReference>
+		<cac:CallForTendersDocumentReference>
+			<ext:UBLExtensions>
+				<ext:UBLExtension>
+					<ext:ExtensionContent>
+						<efext:EformsExtension>
+							<efac:OfficialLanguages>
+								<cac:Language>
+									<cbc:ID>DEU</cbc:ID>
+								</cac:Language>
+							</efac:OfficialLanguages>
+						</efext:EformsExtension>
+					</ext:ExtensionContent>
+				</ext:UBLExtension>
+			</ext:UBLExtensions>
+			<cbc:ID>SomeTenderDocID1</cbc:ID>
+			<cbc:DocumentType>non-restricted-document</cbc:DocumentType>
+		</cac:CallForTendersDocumentReference>
+		<cac:AppealTerms>
+			<cac:AppealInformationParty>
+				<cac:PartyIdentification>
+					<cbc:ID schemeName="organization">ORG-0002</cbc:ID>
+				</cac:PartyIdentification>
+			</cac:AppealInformationParty>
+			<cac:AppealReceiverParty>
+				<cac:PartyIdentification>
+					<cbc:ID schemeName="organization">ORG-0003</cbc:ID>
+				</cac:PartyIdentification>
+			</cac:AppealReceiverParty>
+		</cac:AppealTerms>
+	</cac:TenderingTerms>
+	<cac:ProcurementProject>
+		<cbc:ID schemeName="internalID">2026-0718-CL</cbc:ID>
+		<cbc:Name languageID="DEU">MARKTERKUNDUNG System zur Extraktion und Strukturierten Bereitstellung klinischer Daten nebst Anwendungen</cbc:Name>
+		<cbc:Description languageID="DEU">Die Uniklinik RWTH Aachen (nachfolgend: UKA) führt gem. § 28 Abs. 1 der Vergabeverordnung (VgV) eine Markterkundung durch.  Die im Rahmen der Markterkundung ermittelten Informationen sollen ausgewertet und als Entscheidungsgrundlage für die weitere Gestaltung des Beschaffungsprozesses verwendet werden. Ziel der Markterkundung ist es insbesondere - festzustellen, ob es einen Markt für das Beschaffungsvorhaben gibt,  - Unternehmen über die Auftragsvergabepläne und Anforderungen zu unterrichten   Das UKA verfolgt mit der Beschaffung das Ziel, die klinischen Daten des UKA systemübergreifend nutzbar zu machen und eine zukunftsfähige Grundlage für die Weiterentwicklung der digitalen Versorgung zu schaffen. Dabei sollen Datensouveränität, Interoperabilität und die Möglichkeit zur Nutzung neuer digitaler und KI-gestützter Anwendungen gestärkt werden. Die UKA sucht ein System mit Funktionalität eines Clinical Data Repository (CDR), welches an KIS und Archivsystem angebunden wird und die Daten der Quellsysteme extrahiert, validiert, aufbereitet und strukturiert nachgelagerten Anwendungen per FHIR zur Verfügung stellt. Das System muss die Daten der aktiven Fälle vorhalten und nach Bedarf den gesamten Datensatz einzelner Patienten nachladen können. Angestrebt wird eine vorübergehende Datenhaltung, es ist weder eine dauerhafte Kopie der Quellsysteme noch eine Migration des gesamten Datenbestands gewünscht. Das System muss den Usern eine patientenzentrierte Arbeitsansicht bereitstellen, die eine Suche nach Patienten und Fällen anbietet und entsprechende Informationen aus den Quellsystemen anzeigt. Eine Darstellung der Informationen als Zeitstrahl ist erforderlich. Die Übersicht der gewünschten Informationen befindet sich im Anhang.  Das System muss auf Anfrage automatisiert Epikrise Texte erzeugen und den Usern zur Bearbeitung vorlegen. Verwendete Quellen, zugehörige Befunde müssen nachvollziehbar und mit wenigen Klicks abrufbar sein. Die Struktur der Epikrise muss dabei den Vorgaben der verschiedenen Kliniken entsprechen. Das System liefert eine Spracherkennungssoftware welche gesprochene Sprache in Text umwandelt und für die Erkennung medizinischer und administrativer Texte spezialisiert ist. Die Spracherkennung darf nicht auf die Nutzung innerhalb des Systems beschränkt sein. Die Spracherkennung muss als eigenständige Anwendung nutzbar sein, so dass sie auch in weiteren durch das UKA festgelegten Anwendungskontexten eingesetzt werden kann. Die in der UKA vorhandene IT-Systemlandschaft, in die das System eingebettet werden muss, besteht aus den folgenden Strukturen (Stand 09/2024):  - Windows Server 2019 Standard auf VM-Ware virtualisiert   - Client OS: Microsoft Windows v10, v11  - Microsoft Office 365  - Antivirus: Microsoft System Center Endpoint Protection  - Kommunikationsserver: Cloverleaf 2022.09 - KIS: CGM Medico - Archivsystem: CGM CLA (Clinical Archive) - aktuelles Apple oder Samsung Gerät mit aktueller, unterstützter iOS/Android Betriebssystemversion (inkl. Sicherheitsupdates) - bevorzugtes Patchmanagement: Microsoft SCCM     Vorliegend handelt es sich nicht um die Vergabe eines öffentlichen Auftrages oder um eine Vorinformation im Sinne des § 38 der Vergabeverordnung (VgV). Die Teilnehmer an der Markterkundung sind an ihre Informationen nicht vertraglich und auch nicht im Rahmen eines etwaigen späteren Vergabeverfahrens gebunden. Vergabeunterlagen oder ähnliches werden nicht bereitgestellt. Die im Markterkundungsverfahren eingereichten Unterlagen sollen lediglich ausgewertet und als Informationsgrundlage für die Entscheidung über das weitere Vorgehen genutzt werden. Das Universitätsklinikum Aachen behält sich die Vergabe der Leistungen oder die jederzeitige Einstellung des Verfahrens vor, ohne dass die Interessenten Ansprüche geltend machen können. Aufwendungsersatz für die Erstellung der Interessenbekundung wird nicht gewährt. Die Rücksendung eingereichter Unterlagen erfolgt nicht.</cbc:Description>
+		<cbc:ProcurementTypeCode listName="contract-nature">supplies</cbc:ProcurementTypeCode>
+		<cbc:Note languageID="DEU">#Bekanntmachungs-ID: CXPNY4EDW9D#
+
+
+Vorzulegende Unterlagen:  - Anschreiben - Unternehmensdarstellung - Mindestens drei Referenzen zu Projekten, in denen ein entsprechendes System bereits erfolgreich eingeführt wurde, davon eine erfolgreiche Integration in CGM Medico und Clinical Archive - Darstellung des Systems mit Funktionskatalog, Systemarchitektur und Datenbankstruktur - Darstellung der empfohlenen Hardwarevoraussetzungen für das System - Darstellung der Unternehmensleistungen bzgl. Projektumsetzung, Service und Pflege des Systems - Bitte Beantworten Sie Fragen wie folgt: - Wie erfolgt die Anbindung an das KIS? Welche Schnittstellen werden genutzt, für welche Daten(kategorien)?  - Welche FHiR Ressourcen werden bereitgestellt? - Wie setzt das System die im KIS vorhandenen Zugriffsrechte gegenüber Dritten bei Anfragen über die FHiR Schnittstelle durch? Welche Technik setzen Sie ein? - Wie stellt das System sicher, dass Daten fehlerfrei und vollständig aus den Quellsystemen extrahiert werden? - Besitzt das System KI-Anteile? Welches KI Modell setzen Sie ein? Findet ein Training der KI auf den Daten des UKA, unserer Systeme oder unserer Nutzer statt? Wenn ja, welche Daten werden dazu herangezogen?  Frist und Form zur Abgabe Ihrer Unterlagen: Einreichungsfrist: Mittwoch, den 09.12.2026, 09:00 Uhr Einreichungsform: per E-Mail an vergabestelle@ukaachen.de</cbc:Note>
+		<cac:RequestedTenderTotal>
+			<cbc:EstimatedOverallContractAmount currencyID="EUR">0.01</cbc:EstimatedOverallContractAmount>
+		</cac:RequestedTenderTotal>
+		<cac:MainCommodityClassification>
+			<cbc:ItemClassificationCode listName="cpv">48814000</cbc:ItemClassificationCode>
+		</cac:MainCommodityClassification>
+		<cac:RealizedLocation>
+			<cac:Address>
+				<cbc:StreetName>Pauwelsstraße 30</cbc:StreetName>
+				<cbc:CityName>Aachen</cbc:CityName>
+				<cbc:PostalZone>52074</cbc:PostalZone>
+				<cbc:CountrySubentityCode listName="nuts">DEA2D</cbc:CountrySubentityCode>
+				<cac:Country>
+					<cbc:IdentificationCode listName="country">DEU</cbc:IdentificationCode>
+				</cac:Country>
+			</cac:Address>
+		</cac:RealizedLocation>
+	</cac:ProcurementProject>
+	<cac:ProcurementProjectLot>
+		<cbc:ID schemeName="Part">PAR-0001</cbc:ID>
+		<cac:TenderingTerms>
+			<cac:CallForTendersDocumentReference>
+				<ext:UBLExtensions>
+					<ext:UBLExtension>
+						<ext:ExtensionContent>
+							<efext:EformsExtension>
+								<efac:OfficialLanguages>
+									<cac:Language>
+										<cbc:ID>DEU</cbc:ID>
+									</cac:Language>
+								</efac:OfficialLanguages>
+							</efext:EformsExtension>
+						</ext:ExtensionContent>
+					</ext:UBLExtension>
+				</ext:UBLExtensions>
+				<cbc:ID>SomeTenderDocID1</cbc:ID>
+				<cbc:DocumentType>non-restricted-document</cbc:DocumentType>
+				<cac:Attachment>
+					<cac:ExternalReference>
+						<cbc:URI>https://www.evergabe.nrw.de/VMPSatellite/notice/CXPNY4EDW9D/documents</cbc:URI>
+					</cac:ExternalReference>
+				</cac:Attachment>
+			</cac:CallForTendersDocumentReference>
+			<cac:AdditionalInformationParty>
+				<cac:PartyIdentification>
+					<cbc:ID>ORG-0001</cbc:ID>
+				</cac:PartyIdentification>
+			</cac:AdditionalInformationParty>
+			<cac:AppealTerms>
+				<cac:AppealInformationParty>
+					<cac:PartyIdentification>
+						<cbc:ID schemeName="organization">ORG-0002</cbc:ID>
+					</cac:PartyIdentification>
+				</cac:AppealInformationParty>
+				<cac:AppealReceiverParty>
+					<cac:PartyIdentification>
+						<cbc:ID schemeName="organization">ORG-0003</cbc:ID>
+					</cac:PartyIdentification>
+				</cac:AppealReceiverParty>
+			</cac:AppealTerms>
+		</cac:TenderingTerms>
+		<cac:TenderingProcess>
+			<cbc:GovernmentAgreementConstraintIndicator>true</cbc:GovernmentAgreementConstraintIndicator>
+		</cac:TenderingProcess>
+		<cac:ProcurementProject>
+			<cbc:ID schemeName="internalID">2026-0718-CL</cbc:ID>
+			<cbc:Name languageID="DEU">MARKTERKUNDUNG System zur Extraktion und Strukturierten Bereitstellung klinischer Daten nebst Anwendungen</cbc:Name>
+			<cbc:Description languageID="DEU">Nachfolgende Leistungen muss das System mindestens erfüllen:  - Das System bindet die Quellsysteme nach Möglichkeit über die Standardschnittstellen an - Das System stellt Informationen aus unterschiedlichen Systemen in einer gemeinsamen patientenbezogenen Ansicht bereit - Das System ermöglicht es den Nutzern, aktuelle und frühere Behandlungsverläufe durchsuchen und zeitlich nachvollziehen zu können - Das System fasst klinische Informationen zu einer Epikrise oder zu Arztbrieftexten zusammen. Dabei zeigt es die verwendeten Quellen nachvollziehbar an. - Die Spracherkennung kann Gespräche zwischen mehreren Personen transkribieren und die Texte den entsprechenden Sprechern zuordnen - Das System stellt eine Oberfläche bereit, um im Nachgang das transkribierte Gespräch bearbeiten und freigeben zu können - Die Spracherkennung muss den erkannten Text an der aktuellen Cursorposition in der jeweils aktiven Anwendung einfügen können. Die Funktion muss anwendungsübergreifend zur Verfügung stehen. - Das System verfügt über eine Nutzerverwaltung, rollenbasierte Zugriffskontrolle auf Daten und Funktionen, Nutzerauthentifizierung - Die User- und Rechteverwaltung werden aus dem KIS übernommen und laufend aktualisiert.  - Zugriffsberechtigungen aus dem KIS werden gegenüber Anfragenden Systemen und Nutzern wirksam durchgesetzt - Das System kann vollständig in On-Premise betrieben werden, eine Cloudkomponente ist nicht erwünscht - Integration in die bestehende Netzwerk-Domäne (Active Directory) und voll funktionsfähig mit dort bestehenden Richtlinien und Standard-Benutzerrechten des Betriebssystems - Die Benutzerauthentifizierung hat via Domäne / LDAPS zu erfolgen. Das Single Sign-On, über das Active Directory, muss via LDAPS oder SAML erfolgen.  - Die Anwendungs-Updates der Clients müssen zentral erfolgen - Die gesetzlichen Anforderungen, denen der Auftraggeber in NRW unterliegt, das gilt u.a. für das GDSG NRW, das DSG NRW, das BDSG, die EU-Datenschutz-Grundverordnung (DSGVO) und das IT-Sicherheitsgesetz 2.0 (IT-SiG), aber auch alle anderen geltenden Verordnungen und Regeln, sowie die Vorgaben zur Datensicherheit, in vollem Umfang zu erfüllen.  Was wir von unserem Projektpartner erwarten:  - Lizenzen für eine Softwarelösung und eventuelle Fremdprodukte  - Abschluss eines EVB-IT Vertrages - Löschkonzept, Datensicherungskonzept - Angaben für das Risikomanagement (Verhalten bei Netzwerkausfall, Verhalten bei Virenbefall/ Virenangriff, Hackerangriff) - Wartung, Fehlerbehebung und Optimierung des Systems - Anpassung des Systems an neue gesetzliche Vorgaben - Installation, Customizing und sonstige Dienstleistungen für die Inbetriebnahme der Softwarelösung - Schulungsleistungen, Schulungsunterlagen, Best-Practice Prozessmodell  - Einführungsunterstützung (Go-Live-Support, After-Go-Live-Support)</cbc:Description>
+			<cbc:ProcurementTypeCode listName="contract-nature">supplies</cbc:ProcurementTypeCode>
+			<cbc:Note languageID="DEU">#Besonders auch geeignet für:selbst#, #Besonders auch geeignet für:other-sme#</cbc:Note>
+			<cbc:SMESuitableIndicator>true</cbc:SMESuitableIndicator>
+			<cac:ProcurementAdditionalType>
+				<cbc:ProcurementTypeCode listName="strategic-procurement">none</cbc:ProcurementTypeCode>
+			</cac:ProcurementAdditionalType>
+			<cac:MainCommodityClassification>
+				<cbc:ItemClassificationCode listName="cpv">48814000</cbc:ItemClassificationCode>
+			</cac:MainCommodityClassification>
+			<cac:RealizedLocation>
+				<cac:Address>
+					<cbc:StreetName>Pauwelsstraße 30</cbc:StreetName>
+					<cbc:CityName>Aachen</cbc:CityName>
+					<cbc:PostalZone>52074</cbc:PostalZone>
+					<cbc:CountrySubentityCode listName="nuts">DEA2D</cbc:CountrySubentityCode>
+					<cac:Country>
+						<cbc:IdentificationCode listName="country">DEU</cbc:IdentificationCode>
+					</cac:Country>
+				</cac:Address>
+			</cac:RealizedLocation>
+		</cac:ProcurementProject>
+	</cac:ProcurementProjectLot>
+</PriorInformationNotice>

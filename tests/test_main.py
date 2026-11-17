@@ -115,3 +115,30 @@ def test_successful_search_writes_results_and_displays_notices(
     assert "KI-Beratung, Schulungen" in captured.out
     assert "Trefferlimit erreicht" not in captured.out
     assert str(output) in captured.out
+
+
+def test_analyze_relative_run_path_saves_inspectable_incomplete_result(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from tests.test_analysis import PROFILE, lot, saved_run, xml
+
+    saved_run(tmp_path, xml(lot()))
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["main.py", "--analyze", ".", "--analysis-config", str(PROFILE), "--structured-only"],
+    )
+    assert main.main() == 1
+    files = list((tmp_path / "analyses").glob("*/analysis.json"))
+    assert len(files) == 1
+    result = json.loads(files[0].read_text("utf-8"))
+    doc = result["documents"][0]
+    assert doc["status"] == "incomplete"
+    assert doc["provenance"]["original_file"] == "documents/100-2026.xml"
+    assert "error" not in doc
+    output = capsys.readouterr()
+    assert "Analysestatus: incomplete" in output.out
+    assert output.err == ""

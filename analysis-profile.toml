@@ -1,0 +1,9 @@
+# Dieses Profil wird bei jeder Analyse tatsächlich an das Modell übergeben.
+# Beschreibe angebotene Leistungen; Suchwörter sind kein Passungsnachweis.
+company_profile = """
+Eine Beratung für KI und Microsoft 365, die Schulungen gibt,
+KI-Assistenten und Agenten entwickelt und Abläufe automatisiert.
+"""
+# Verwendet das von Codex für dein ChatGPT-Konto angebotene Standardmodell.
+# Optional einen dort verfügbaren Modellnamen eintragen.
+model = "default"

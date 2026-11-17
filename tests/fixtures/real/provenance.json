@@ -1,0 +1,27 @@
+{
+  "source": "TED, Amt für Veröffentlichungen der Europäischen Union",
+  "legal_notice": "https://ted.europa.eu/en/legal-notice",
+  "research_run": "20261117T110548605638Z-5e2b0549",
+  "documents": {
+    "799785-2026": {
+      "source_url": "https://ted.europa.eu/en/notice/799785-2026/xml",
+      "retrieved_at": "2026-11-17T11:05:54.876608+00:00",
+      "sha256": "c3a164f1109bb94e7753dc8cb7fa3f21570b9ef14abb95a357d608088b2e0460"
+    },
+    "798622-2026": {
+      "source_url": "https://ted.europa.eu/en/notice/798622-2026/xml",
+      "retrieved_at": "2026-11-17T11:05:55.788437+00:00",
+      "sha256": "23c64464f201891918b526426f37eac8c22d454d986f6d1a3b9041c14c549299"
+    },
+    "788030-2026": {
+      "source_url": "https://ted.europa.eu/en/notice/788030-2026/xml",
+      "retrieved_at": "2026-11-17T11:06:02.202483+00:00",
+      "sha256": "eda8687afe368bbdf270ed4c1e9550515df5d69a504f1757e0fb7fa389471653"
+    },
+    "773064-2026": {
+      "source_url": "https://ted.europa.eu/en/notice/773064-2026/xml",
+      "retrieved_at": "2026-11-17T11:06:10.656181+00:00",
+      "sha256": "74be179fbc89ae82790bb8273ea51a43722559eebcd15a03e762ec7e2615f91a"
+    }
+  }
+}

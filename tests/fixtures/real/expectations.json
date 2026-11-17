@@ -1,0 +1,68 @@
+{
+  "basis": "Fachliche Sollwerte anhand der Original-XMLs vor der KI-Auswertung festgelegt. Keine echten API-Ergebnisse enthalten. Fundstellen sind vollständige, indizierte XML-Pfade.",
+  "773064-2026": {
+    "fit": "passend",
+    "reason": "Beschafft werden eine Multi-LLM-Plattform und ergänzende KI-Beratung, Entwicklung, Implementierung und Enablement. Diese Leistungen überschneiden sich mit dem Beratungsprofil. Anforderungen an Plattformbetrieb und touristisches Partnernetzwerk sind damit nicht als erfüllt nachgewiesen.",
+    "evidence": [
+      {
+        "path": "/ContractNotice/cac:ProcurementProject[1]/cbc:Description[1]",
+        "quote": "Ergänzende Leistungen wie KI-Beratung, Transformation bestehender Anwendungen, Implementierung, Integration, Entwicklung und Enablement können durch eigene Ressourcen oder durch qualifizierte Partnerunternehmen aus einem etablierten Partnernetzwerk erbracht werden."
+      }
+    ],
+    "fields": {
+      "buyer": "Hamburg Tourismus GmbH",
+      "subject": "Multi-LLM-SaaS-Plattform und KI-Beratung",
+      "place": "anyw",
+      "procedure": "neg-w-call",
+      "deadlines": "2026-12-07T11:00:00+01:00",
+      "duration": "UNLIMITED",
+      "selection_criteria_free_text": "Es ist eine Betriebshaftpflichtversicherung mit folgenden Mindestdeckungssummen nachzuweisen: Personenschäden 3.000.000 EUR, Vermögens- und sonstige Schäden 3.000.000 EUR je Schadensereignis.",
+      "award_criteria": "nicht angegeben",
+      "submission": "required",
+      "source_link": "https://ted.europa.eu/de/notice/-/detail/773064-2026"
+    }
+  },
+  "798622-2026": {
+    "fit": "unpassend",
+    "reason": "Beschafft werden Maststahl, Leiterseile und OPGW. Microsoft 365 wird nur als Ursache einer Fristverlängerung erwähnt; eine Beratungs-, Schulungs- oder Entwicklungsleistung zum Profil ist daraus nicht ableitbar.",
+    "evidence": [
+      {
+        "path": "/ContractNotice/cac:ProcurementProject[1]/cbc:Description[1]",
+        "quote": "Gegenstand und Ziel der vorliegenden Ausschreibung ist der Abschluss eines Kaufvertrages zur Beschaffung und Lieferung von Maststahl, Leiter für Freileitungen und Erdseil mit integrierten Lichtwellenleitern für das Netzausbauprojekt Miesau - Hohenecken in drei Losen."
+      }
+    ],
+    "lot_durations_months": {"LOT-0001": "20", "LOT-0002": "21", "LOT-0003": "21"},
+    "deadline_berlin": "2026-11-17T11:00:00+01:00"
+  },
+  "799785-2026": {
+    "fit": "unklar",
+    "reason": "KI-Assistenzplattformen sind thematisch nah. Konkret verlangt sind jedoch Softwarelieferung und Lizenzen; ob Beratung oder individuelle Assistentenentwicklung beauftragt werden, ist durch diese Leistungsbeschreibung nicht belegt. Die bloße Themenüberschneidung genügt für das beschriebene Beratungsprofil nicht zur gesicherten Passung.",
+    "evidence": [
+      {
+        "path": "/ContractNotice/cac:ProcurementProjectLot[1]/cac:ProcurementProject[1]/cbc:Description[1]",
+        "quote": "Beschaffung und Einführung einer KI-Assistenzplattform mit 180 Lizenzen im Jahr 2027 und optionale Erweiterung ab dem Jahr 2028 auf 380 Lizenzen."
+      }
+    ],
+    "fields": {
+      "buyer": "Landkreis Merzig-Wadern",
+      "subject": "Einführung KI-Assistent",
+      "place": "Merzig",
+      "procedure": "open",
+      "deadlines": "2026-12-16T23:59:00+01:00",
+      "duration": "48",
+      "selection_criteria": "nicht angegeben",
+      "award_criteria": ["Leistung/Qualität", "60.00", "Preis", "40.00"],
+      "submission": "allowed",
+      "source_link": "https://ted.europa.eu/de/notice/-/detail/799785-2026"
+    }
+  },
+  "788030-2026": {
+    "missing_fields": ["duration", "award_criteria"],
+    "freetext_source": "/PriorInformationNotice/cac:ProcurementProject[1]/cbc:Note[1]",
+    "original_deadline": "Einreichungsfrist: Mittwoch, den 09.12.2026, 09:00 Uhr",
+    "original_submission": "Einreichungsform: per E-Mail an vergabestelle@ukaachen.de",
+    "original_selection": "Mindestens drei Referenzen zu Projekten, in denen ein entsprechendes System bereits erfolgreich eingeführt wurde, davon eine erfolgreiche Integration in CGM Medico und Clinical Archive",
+    "participation": "ungeklärt",
+    "reason": "Markterkundung, keine Vergabe eines öffentlichen Auftrags laut globaler Leistungsbeschreibung. Keine Einreichungsfrist aus ACTIVE oder Suchworttreffern ableiten."
+  }
+}
