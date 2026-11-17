@@ -137,7 +137,13 @@ verursacht **0 USD zusätzliche API-Kosten**. Ein vorhandener Abopreis wird nich
 auf einzelne Läufe umgerechnet; Tarifgrenzen und gegebenenfalls bereits vorhandene
 Nutzungsguthaben gelten weiterhin. Es werden keine Guthaben gekauft.
 [Codex mit ChatGPT verwenden](https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan).
-Je Los erfolgen zwei Modellaufrufe. Das tatsächliche Modell, die Anmeldeart und der
+Je Bekanntmachung erfolgen eine gemeinsame Analyse aller Lose und, bei prüfpflichtigen
+Aussagen, eine gemeinsame Gegenprüfung. Ergebnisse und Belege bleiben je Los getrennt.
+Kurze Quellenkennungen werden lokal in Originalzitate und XML-Fundstellen aufgelöst.
+Die Gegenprüfung wiederholt keine abgeleiteten Ergebnisfelder. Freie Begründungen und
+strittige Angaben erhalten vorsorglich alle Originalquellen; die tatsächliche
+Quellenauswahl steht im Modellprotokoll und unter `verification_context` in `analysis.json`.
+Das tatsächliche Modell, die Anmeldeart und der
 Tokenverbrauch stehen in `analysis.json`; unbekannter Verbrauch bleibt gekennzeichnet.
 `model = "default"` verwendet das für dein Konto angebotene Standardmodell.
 

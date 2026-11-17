@@ -9,6 +9,7 @@ import json
 import os
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from typing import Any
 from uuid import uuid4
 
 import pytest
@@ -91,7 +92,7 @@ def test_real_model_against_prepared_oracles(case: str, number: str, expected: s
     assert all(c["auth"] == "chatgpt" for c in result["calls"])
     units = doc["units"]
     assert units
-    assert len(result["calls"]) == 2 * len(units)
+    assert len(result["calls"]) == 2  # gemeinsame Analyse und Gegenprüfung aller Lose
     assert all(call["status"] == "ok" for call in result["calls"]), result["calls"]
     for unit in units:
         assert unit["processing_errors"] == []
@@ -124,23 +125,29 @@ def test_real_model_against_prepared_oracles(case: str, number: str, expected: s
             assert unit["fields"]["deadlines"]["values"][0]["berlin"] == oracle["deadline_berlin"]
     assert (directory / "documents" / f"{number}.xml").read_bytes() == content
     if case == "positive":
-        text = json.dumps(units[0]["fields"]["selection_criteria"], ensure_ascii=False)
+        text = json.dumps(units[0]["fields"]["selection_criteria"]["values"], ensure_ascii=False)
         assert "3.000.000 EUR" in text  # fachliche Zuordnung aus Freitext, nicht Suchmetadaten
         assert "Betriebshaftpflichtversicherung" in text
         assert "Personenschäden" in text
         assert "Vermögens- und sonstige Schäden" in text
     if case == "missing":
-        deadline = units[0]["fields"]["deadlines"]
-        assert deadline["status"] == "uncertain"
-        assert any(
-            "09.12.2026" in value["original"]
-            and "09:00 Uhr" in value["original"]
-            and value["berlin"] is None
-            for value in deadline["values"]
-        )
-        submission = json.dumps(units[0]["fields"]["submission"], ensure_ascii=False)
-        assert "per E-Mail an vergabestelle@ukaachen.de" in submission
-        assert "Mindestens drei Referenzen" in json.dumps(
-            units[0]["fields"]["selection_criteria"], ensure_ascii=False
-        )
-        assert units[0]["participation"]["status"] == "ungeklärt"
+        assert_missing_notice_fields(units[0])
+
+
+def assert_missing_notice_fields(unit: dict[str, Any]) -> None:
+    deadline = unit["fields"]["deadlines"]
+    assert deadline["status"] == "uncertain"
+    assert any(
+        "09.12.2026" in value["original"]
+        and "09:00 Uhr" in value["original"]
+        and value["berlin"] is None
+        for value in deadline["values"]
+    )
+    submission = json.dumps(unit["fields"]["submission"]["values"], ensure_ascii=False)
+    assert "per E-Mail an vergabestelle@ukaachen.de" in submission, (
+        "E-Mail-Abgabeform nicht bestätigt"
+    )
+    assert "Mindestens drei Referenzen" in json.dumps(
+        unit["fields"]["selection_criteria"]["values"], ensure_ascii=False
+    )
+    assert unit["participation"]["status"] == "ungeklärt"

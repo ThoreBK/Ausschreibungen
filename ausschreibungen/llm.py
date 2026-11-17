@@ -6,6 +6,7 @@ import shutil
 import tempfile
 import tomllib
 from pathlib import Path
+from time import perf_counter
 from typing import Any
 
 from openai_codex import ApprovalMode, Codex, CodexConfig, CodexError, ExternalMessage, Sandbox
@@ -96,6 +97,7 @@ class CodexModel:
     def __call__(
         self, instructions: str, payload: dict[str, Any], schema: dict[str, Any]
     ) -> dict[str, Any]:
+        started = perf_counter()
         self.directory.mkdir(parents=True, exist_ok=True)
         stem = f"call-{len(self.calls) + 1}"
         call: dict[str, Any] = {
@@ -103,6 +105,7 @@ class CodexModel:
             "status": "pending",
             "provider": "codex_chatgpt",
             "billing": "chatgpt_plan",
+            "stage": payload.get("stage", "unclassified"),
         }
         self.calls.append(call)
         save_json(
@@ -203,3 +206,5 @@ class CodexModel:
                 error=f"Codex-/Antwortverarbeitung fehlgeschlagen ({type(error).__name__}).",
             )
             raise ModelError(call["error"]) from error
+        finally:
+            call["elapsed_seconds"] = perf_counter() - started

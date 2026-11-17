@@ -1,0 +1,278 @@
+{
+  "units": [
+    {
+      "unit_id": "u0",
+      "facts": [],
+      "fit": {
+        "status": "unpassend",
+        "reason": "Beschafft wird Maststahl für Hochspannungsmasten. Eine fachliche Überschneidung mit KI- und Microsoft-365-Beratung, Schulungen, Agentenentwicklung oder Automatisierung ist nicht erkennbar.",
+        "evidence": [
+          {
+            "source": "r170"
+          }
+        ]
+      },
+      "checkpoints": [
+        {
+          "reason": "Die verbindliche technische Spezifikation ist als Ausschlusskriterium einbezogen; ihr vollständiger Inhalt hängt von den nicht ausgewerteten Vergabeunterlagen ab.",
+          "evidence": [
+            {
+              "source": "r170"
+            },
+            {
+              "source": "r128"
+            }
+          ]
+        },
+        {
+          "reason": "Der Beginn der Vertragslaufzeit und ihr Verhältnis zum gewünschten Lieferabschluss bleiben offen. Einzelheiten zur verbindlichen Lieferterminzusage und Vertragsstrafe stehen im Vertrag.",
+          "evidence": [
+            {
+              "source": "r177"
+            },
+            {
+              "source": "r170"
+            }
+          ]
+        },
+        {
+          "reason": "Der für die Leistungspunkte maßgebliche Kriterienkatalog ist im übergebenen Text nicht enthalten.",
+          "evidence": [
+            {
+              "source": "r146"
+            }
+          ]
+        },
+        {
+          "reason": "Vorgesehen ist ein Kaufvertrag. Zahlungsbedingungen, verlangte Rechtsform und weitere Ausführungsbedingungen werden nur über die nicht ausgewerteten Vergabeunterlagen konkretisiert.",
+          "evidence": [
+            {
+              "source": "r95"
+            },
+            {
+              "source": "r129"
+            },
+            {
+              "source": "r131"
+            },
+            {
+              "source": "r137"
+            },
+            {
+              "source": "r128"
+            }
+          ]
+        },
+        {
+          "reason": "Das Projektgebiet Miesau–Hohenecken und die angegebene Leistungsortregion sind nicht näher zugeordnet; konkrete Lieferstellen bleiben offen.",
+          "evidence": [
+            {
+              "source": "r95"
+            },
+            {
+              "source": "r175"
+            },
+            {
+              "source": "r170"
+            }
+          ]
+        },
+        {
+          "reason": "Die Änderungsbegründung nennt eine Verlängerung der Angebotsfrist um einen Tag, enthält jedoch selbst kein konkretes Enddatum.",
+          "evidence": [
+            {
+              "source": "r2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "unit_id": "u1",
+      "facts": [],
+      "fit": {
+        "status": "unpassend",
+        "reason": "Beschafft werden Leiterseile für Hochspannungstrassen. Diese Materiallieferung weist keine erkennbare fachliche Überschneidung mit den angebotenen KI- und Microsoft-365-Dienstleistungen auf.",
+        "evidence": [
+          {
+            "source": "r247"
+          }
+        ]
+      },
+      "checkpoints": [
+        {
+          "reason": "Die verbindliche technische Spezifikation ist als Ausschlusskriterium einbezogen; ihr vollständiger Inhalt hängt von den nicht ausgewerteten Vergabeunterlagen ab.",
+          "evidence": [
+            {
+              "source": "r247"
+            },
+            {
+              "source": "r206"
+            }
+          ]
+        },
+        {
+          "reason": "Der Beginn der Vertragslaufzeit und ihr Verhältnis zum gewünschten Lieferabschluss bleiben offen. Einzelheiten zur verbindlichen Lieferterminzusage und Vertragsstrafe stehen im Vertrag.",
+          "evidence": [
+            {
+              "source": "r254"
+            },
+            {
+              "source": "r247"
+            }
+          ]
+        },
+        {
+          "reason": "Bei den Reservetrommeln ist die Käuferrolle unklar: Der Text bezeichnet den Auftragnehmer als Erwerber der mitzuliefernden Stahltrommeln.",
+          "evidence": [
+            {
+              "source": "r247"
+            }
+          ]
+        },
+        {
+          "reason": "Der für die Leistungspunkte maßgebliche Kriterienkatalog ist im übergebenen Text nicht enthalten.",
+          "evidence": [
+            {
+              "source": "r223"
+            }
+          ]
+        },
+        {
+          "reason": "Vorgesehen ist ein Kaufvertrag. Zahlungsbedingungen, verlangte Rechtsform und weitere Ausführungsbedingungen werden nur über die nicht ausgewerteten Vergabeunterlagen konkretisiert.",
+          "evidence": [
+            {
+              "source": "r95"
+            },
+            {
+              "source": "r207"
+            },
+            {
+              "source": "r209"
+            },
+            {
+              "source": "r214"
+            },
+            {
+              "source": "r206"
+            }
+          ]
+        },
+        {
+          "reason": "Das Projektgebiet Miesau–Hohenecken und die angegebene Leistungsortregion sind nicht näher zugeordnet; konkrete Lieferstellen bleiben offen.",
+          "evidence": [
+            {
+              "source": "r95"
+            },
+            {
+              "source": "r252"
+            },
+            {
+              "source": "r247"
+            }
+          ]
+        },
+        {
+          "reason": "Die Änderungsbegründung nennt eine Verlängerung der Angebotsfrist um einen Tag, enthält jedoch selbst kein konkretes Enddatum.",
+          "evidence": [
+            {
+              "source": "r2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "unit_id": "u2",
+      "facts": [],
+      "fit": {
+        "status": "unpassend",
+        "reason": "Beschafft werden Erdseile mit integrierten Lichtwellenleitern für Hochspannungstrassen. Auch der Zweck der Datenübertragung begründet keine fachliche Überschneidung dieser Materiallieferung mit KI- und Microsoft-365-Dienstleistungen.",
+        "evidence": [
+          {
+            "source": "r324"
+          }
+        ]
+      },
+      "checkpoints": [
+        {
+          "reason": "Die als Ausschlusskriterium verlangte OPGW-Spezifikation verweist auf einen Dateititel für Leiterseile aus Los 2. Welche technische Anlage für Los 3 verbindlich ist, bleibt dadurch unklar.",
+          "evidence": [
+            {
+              "source": "r324"
+            }
+          ]
+        },
+        {
+          "reason": "Der Beginn der Vertragslaufzeit und ihr Verhältnis zum gewünschten Lieferabschluss bleiben offen. Einzelheiten zur verbindlichen Lieferterminzusage und Vertragsstrafe stehen im Vertrag.",
+          "evidence": [
+            {
+              "source": "r331"
+            },
+            {
+              "source": "r324"
+            }
+          ]
+        },
+        {
+          "reason": "Bei den Reservetrommeln ist die Käuferrolle unklar: Der Text bezeichnet den Auftragnehmer als Erwerber der mitzuliefernden Stahltrommeln.",
+          "evidence": [
+            {
+              "source": "r324"
+            }
+          ]
+        },
+        {
+          "reason": "Der für die Leistungspunkte maßgebliche Kriterienkatalog ist im übergebenen Text nicht enthalten.",
+          "evidence": [
+            {
+              "source": "r300"
+            }
+          ]
+        },
+        {
+          "reason": "Vorgesehen ist ein Kaufvertrag. Zahlungsbedingungen, verlangte Rechtsform und weitere Ausführungsbedingungen werden nur über die nicht ausgewerteten Vergabeunterlagen konkretisiert.",
+          "evidence": [
+            {
+              "source": "r95"
+            },
+            {
+              "source": "r284"
+            },
+            {
+              "source": "r286"
+            },
+            {
+              "source": "r291"
+            },
+            {
+              "source": "r283"
+            }
+          ]
+        },
+        {
+          "reason": "Das Projektgebiet Miesau–Hohenecken und die angegebene Leistungsortregion sind nicht näher zugeordnet; konkrete Lieferstellen bleiben offen.",
+          "evidence": [
+            {
+              "source": "r95"
+            },
+            {
+              "source": "r329"
+            },
+            {
+              "source": "r324"
+            }
+          ]
+        },
+        {
+          "reason": "Die Änderungsbegründung nennt eine Verlängerung der Angebotsfrist um einen Tag, enthält jedoch selbst kein konkretes Enddatum.",
+          "evidence": [
+            {
+              "source": "r2"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

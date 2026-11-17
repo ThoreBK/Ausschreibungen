@@ -1,0 +1,99 @@
+[
+  {
+    "case": "framework_conflict",
+    "number": "773064-2026",
+    "kind": "checkpoints",
+    "claim": {
+      "reason": "Die angekündigte Rahmenvereinbarung widerspricht dem Losfeld framework-agreement=none; die Vertragsform bleibt zu klären.",
+      "evidence": [
+        {
+          "path": "/ContractNotice/cac:ProcurementProject[1]/cbc:Description[1]",
+          "quote": "Hierzu soll eine Rahmenvereinbarung mit dem Betreiber bzw. Anbieter einer professionellen Multi-LLM-SaaS-Plattform geschlossen werden."
+        },
+        {
+          "path": "/ContractNotice/cac:ProcurementProjectLot[1]/cac:TenderingProcess[1]/cac:ContractingSystem[1]/cbc:ContractingSystemTypeCode[1]",
+          "quote": "none"
+        }
+      ]
+    },
+    "expected": "bestätigt",
+    "reason": "Freitext und ausdrücklich als framework-agreement gekennzeichnetes Losfeld widersprechen einander.",
+    "historical_log": "reports/acceptance/changed-profile-7737695a/analyses/20261117T152414-83a81746/model/call-2.response.json"
+  },
+  {
+    "case": "email_submission",
+    "number": "788030-2026",
+    "kind": "facts",
+    "claim": {
+      "field": "submission",
+      "value": "Einreichungsform: per E-Mail an vergabestelle@ukaachen.de",
+      "state": "present",
+      "evidence": [
+        {
+          "path": "/PriorInformationNotice/cac:ProcurementProject[1]/cbc:Note[1]",
+          "quote": "Einreichungsform: per E-Mail an vergabestelle@ukaachen.de"
+        }
+      ]
+    },
+    "expected": "bestätigt",
+    "reason": "Die beschriftete Quellenangabe nennt Einreichungskanal und Adresse ausdrücklich.",
+    "historical_log": "reports/acceptance/missing-29381c9b/analyses/20261117T151538-d1f972b6/model/call-2.response.json"
+  },
+  {
+    "case": "deadline_without_timezone",
+    "number": "788030-2026",
+    "kind": "facts",
+    "claim": {
+      "field": "deadlines",
+      "value": "Einreichungsfrist: Mittwoch, den 09.12.2026, 09:00 Uhr",
+      "state": "uncertain",
+      "evidence": [
+        {
+          "path": "/PriorInformationNotice/cac:ProcurementProject[1]/cbc:Note[1]",
+          "quote": "Einreichungsfrist: Mittwoch, den 09.12.2026, 09:00 Uhr"
+        }
+      ]
+    },
+    "expected": "bestätigt",
+    "reason": "Originaldatum und Uhrzeit sind belegt; uncertain erhält die fehlende Zeitzone. Die bereits regelbasiert erfasste identische Angabe benötigt keine Gegenprüfung.",
+    "historical_log": "reports/acceptance/missing-53379306/analyses/20261117T152834-21aeff21/model/call-2.response.json"
+  },
+  {
+    "case": "appeal_not_submission_deadline",
+    "number": "799785-2026",
+    "kind": "facts",
+    "claim": {
+      "field": "deadlines",
+      "value": "Es gelten insbesondere die §§ 134, 135 und 160 GWB.",
+      "state": "present",
+      "evidence": [
+        {
+          "path": "/ContractNotice/cac:ProcurementProjectLot[1]/cac:TenderingTerms[1]/cac:AppealTerms[1]/cac:PresentationPeriod[1]/cbc:Description[1]",
+          "quote": "Es gelten insbesondere die §§ 134, 135 und 160 GWB."
+        }
+      ]
+    },
+    "expected": "widerlegt",
+    "reason": "Der vollständige Kontext beschreibt ereignisbezogene Rechtsbehelfsfristen, keine datierte Einreichungsfrist.",
+    "historical_log": "reports/acceptance/unclear-51ff3ba0/analyses/20261117T151117-b927dfd1/model/call-2.response.json"
+  },
+  {
+    "case": "documents_not_submission_method",
+    "number": "788030-2026",
+    "kind": "facts",
+    "claim": {
+      "field": "submission",
+      "value": "Vorzulegende Unterlagen:  - Anschreiben - Unternehmensdarstellung",
+      "state": "present",
+      "evidence": [
+        {
+          "path": "/PriorInformationNotice/cac:ProcurementProject[1]/cbc:Note[1]",
+          "quote": "Vorzulegende Unterlagen:  - Anschreiben - Unternehmensdarstellung"
+        }
+      ]
+    },
+    "expected": "widerlegt",
+    "reason": "Die Liste nennt einzureichende Inhalte, keinen Kanal, keine Adresse und keine Einreichungsform.",
+    "historical_log": "reports/acceptance/missing-29381c9b/analyses/20261117T151538-d1f972b6/model/call-2.response.json"
+  }
+]

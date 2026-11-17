@@ -80,6 +80,65 @@ def proposal(document: dict[str, Any], *, status: str = "passend") -> dict[str, 
     }
 
 
+def original_path(record: dict[str, Any], payload: dict[str, Any]) -> str:
+    path = record["path"]
+    seen = set()
+    while not path.startswith("/"):
+        prefix, rest = path.split("/", 1)
+        assert prefix not in seen
+        seen.add(prefix)
+        path = payload["paths"][prefix] + "/" + rest
+    return path
+
+
+def wire_claim(item: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
+    """Fixtures nennen unabhängige Originalfundstellen; nur Transport-IDs übersetzen."""
+    result = deepcopy(item)
+    result["evidence"] = [
+        {
+            "source": next(
+                (
+                    r["id"]
+                    for r in payload["records"]
+                    if original_path(r, payload) == ev["path"]
+                    and ev["quote"] in payload["texts"][r["text_id"]]
+                ),
+                "unknown-source",
+            )
+        }
+        for ev in item["evidence"]
+    ]
+    return result
+
+
+def wire_proposal(answer: Any, payload: dict[str, Any]) -> Any:
+    if (
+        not isinstance(answer, dict)
+        or set(answer) != {"facts", "fit", "checkpoints"}
+        or not answer["fit"]
+    ):
+        return deepcopy(answer)
+    return {
+        "units": [
+            {
+                "unit_id": u["unit_id"],
+                "facts": [wire_claim(f, payload) for f in answer["facts"]],
+                "fit": wire_claim(answer["fit"], payload),
+                "checkpoints": [wire_claim(c, payload) for c in answer["checkpoints"]],
+            }
+            for u in payload["units"]
+        ]
+    }
+
+
+def wire_verdict(verdict: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "claims": [
+            {**wire_claim(c, payload), "claim_id": "u0/" + c["claim_id"]} for c in verdict["claims"]
+        ]
+    }
+
+
 class ControlledModel:
     def __init__(self, answer: Any, verdict: Any = None) -> None:
         self.answer = answer
@@ -92,16 +151,27 @@ class ControlledModel:
         if isinstance(self.answer, Exception):
             raise self.answer
         if schema == PROPOSAL:
-            return deepcopy(self.answer)
+            return wire_proposal(self.answer, payload)
         assert schema == VERIFICATION
-        return deepcopy(
-            self.verdict
-            or {
-                "facts": [True] * len(self.answer["facts"]),
-                "fit": True,
-                "checkpoints": [True] * len(self.answer["checkpoints"]),
-            }
-        )
+        if self.verdict and "claims" in self.verdict:
+            return wire_verdict(self.verdict, payload)
+        decisions = []
+        for request in payload["claims"]:
+            key = request["claim_id"]
+            kind, _, index = key.split("/", 1)[1].partition(":")
+            item = self.answer[kind][int(index)] if index else self.answer[kind]
+            approved = True
+            if self.verdict:
+                approved = self.verdict[kind][int(index)] if index else self.verdict[kind]
+            decisions.append(
+                {
+                    "claim_id": key,
+                    "status": "bestätigt" if approved else "nicht entscheidbar",
+                    "reason": "Kontrolliertes Testurteil; keine Aussage über Modellqualität.",
+                    "evidence": wire_claim(item, payload)["evidence"],
+                }
+            )
+        return {"claims": deepcopy(decisions)}
 
 
 def saved_run(tmp_path: Path, content: bytes, number: str = "100-2026") -> Path:
@@ -182,7 +252,11 @@ def test_t4_01_saved_complete_fields_and_unchanged_original(tmp_path: Path) -> N
 
 @pytest.mark.parametrize("case", ["correct", "absent", "unrelated", "invented", "other_lot"])
 def test_t4_02_citations_need_existence_content_and_scope(case: str) -> None:
-    doc = extract(xml(lot() + lot("LOT-2", subject="Bauarbeiten")), "100-2026", now=NOW)
+    doc = extract(
+        xml(lot(subject="KI-Beratung und Schulung") + lot("LOT-2", subject="Bauarbeiten")),
+        "100-2026",
+        now=NOW,
+    )
     answer = proposal(doc)
     ev = citation(doc, "KI-Beratung")
     value = "KI-Beratung"
@@ -207,8 +281,9 @@ def test_t4_02_citations_need_existence_content_and_scope(case: str) -> None:
     ]
     assert bool(additions) == (case == "correct")
     assert bool(unit["rejected_claims"]) == (case != "correct")
-    assert len(model.payloads) == 4  # pro Los einmal Interpretation, einmal Belegprüfung
-    assert "proposal" in model.payloads[1]
+    # Beide Lose teilen eine Analyse und eine Gegenprüfung.
+    assert len(model.payloads) == 2
+    assert "claims" in model.payloads[1]
 
 
 def test_t4_03_lots_and_versions_stay_separate(tmp_path: Path) -> None:

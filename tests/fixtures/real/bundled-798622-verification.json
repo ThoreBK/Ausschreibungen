@@ -1,0 +1,324 @@
+{
+  "claims": [
+    {
+      "claim_id": "u0/fit",
+      "status": "bestätigt",
+      "reason": "Los 1 betrifft ausschließlich Maststahllieferungen; eine fachliche Überschneidung mit dem übergebenen Beratungs- und Entwicklungsprofil besteht nicht.",
+      "evidence": [
+        {
+          "source": "r170"
+        }
+      ]
+    },
+    {
+      "claim_id": "u0/checkpoints:0",
+      "status": "bestätigt",
+      "reason": "Die technische Anlage ist verbindlich und eignungsentscheidend für das Angebot; ihr vollständiger Inhalt wurde nicht übergeben.",
+      "evidence": [
+        {
+          "source": "r170"
+        },
+        {
+          "source": "r128"
+        }
+      ]
+    },
+    {
+      "claim_id": "u0/checkpoints:1",
+      "status": "bestätigt",
+      "reason": "Die Laufzeit beträgt 20 Monate ohne angegebenen Beginn. Lieferziel und vertragliche Terminbindung werden genannt; Strafregelungen werden auf den Vertrag verwiesen.",
+      "evidence": [
+        {
+          "source": "r177"
+        },
+        {
+          "source": "r170"
+        }
+      ]
+    },
+    {
+      "claim_id": "u0/checkpoints:2",
+      "status": "bestätigt",
+      "reason": "Die Bewertungsmethode verweist auf einen Kriterienkatalog, dessen konkrete Leistungskriterien im übergebenen Text fehlen.",
+      "evidence": [
+        {
+          "source": "r146"
+        }
+      ]
+    },
+    {
+      "claim_id": "u0/checkpoints:3",
+      "status": "bestätigt",
+      "reason": "Der Kaufvertrag ist ausdrücklich vorgesehen; Zahlungsbedingungen, Rechtsform und ergänzende Ausführungsbedingungen werden auf die nicht ausgewerteten Unterlagen verwiesen.",
+      "evidence": [
+        {
+          "source": "r95"
+        },
+        {
+          "source": "r129"
+        },
+        {
+          "source": "r131"
+        },
+        {
+          "source": "r137"
+        },
+        {
+          "source": "r128"
+        }
+      ]
+    },
+    {
+      "claim_id": "u0/checkpoints:4",
+      "status": "bestätigt",
+      "reason": "Projektstrecke und strukturierte Ortsregion werden ohne nähere Zuordnung genannt; eine konkrete Lieferadresse fehlt.",
+      "evidence": [
+        {
+          "source": "r95"
+        },
+        {
+          "source": "r175"
+        },
+        {
+          "source": "r170"
+        }
+      ]
+    },
+    {
+      "claim_id": "u0/checkpoints:5",
+      "status": "bestätigt",
+      "reason": "Die Änderungsbegründung nennt nur die eintägige Verlängerung. Das konkrete Enddatum steht getrennt in den Fristfeldern.",
+      "evidence": [
+        {
+          "source": "r2"
+        },
+        {
+          "source": "r162"
+        },
+        {
+          "source": "r163"
+        }
+      ]
+    },
+    {
+      "claim_id": "u1/fit",
+      "status": "bestätigt",
+      "reason": "Die beschaffte Leiterseillieferung enthält keine profilbezogenen Beratungs-, Schulungs-, Entwicklungs- oder Automatisierungsleistungen.",
+      "evidence": [
+        {
+          "source": "r247"
+        }
+      ]
+    },
+    {
+      "claim_id": "u1/checkpoints:0",
+      "status": "bestätigt",
+      "reason": "Die Einhaltung der technischen Anlage ist ein Ausschlusskriterium; deren vollständiger Inhalt liegt in den übergebenen Daten nicht vor.",
+      "evidence": [
+        {
+          "source": "r247"
+        },
+        {
+          "source": "r206"
+        }
+      ]
+    },
+    {
+      "claim_id": "u1/checkpoints:1",
+      "status": "bestätigt",
+      "reason": "Für die 21 Monate Laufzeit fehlt der Beginn. Der gewünschte Lieferabschluss ist genannt; Details der Terminbindung und Vertragsstrafe bleiben dem Vertrag vorbehalten.",
+      "evidence": [
+        {
+          "source": "r254"
+        },
+        {
+          "source": "r247"
+        }
+      ]
+    },
+    {
+      "claim_id": "u1/checkpoints:2",
+      "status": "bestätigt",
+      "reason": "Die mitzuliefernden Reservetrommeln sollen laut Beschreibung vom Auftragnehmer erworben werden; diese Käuferzuordnung begründet den offenen Prüfpunkt.",
+      "evidence": [
+        {
+          "source": "r247"
+        }
+      ]
+    },
+    {
+      "claim_id": "u1/checkpoints:3",
+      "status": "bestätigt",
+      "reason": "Die Leistungspunkte beruhen auf einem verwiesenen Kriterienkatalog, der in den übergebenen Daten nicht enthalten ist.",
+      "evidence": [
+        {
+          "source": "r223"
+        }
+      ]
+    },
+    {
+      "claim_id": "u1/checkpoints:4",
+      "status": "bestätigt",
+      "reason": "Kaufvertrag und Verweise auf externe Konkretisierungen zu Zahlung, Rechtsform und weiteren Ausführungsbedingungen sind belegt.",
+      "evidence": [
+        {
+          "source": "r95"
+        },
+        {
+          "source": "r207"
+        },
+        {
+          "source": "r209"
+        },
+        {
+          "source": "r214"
+        },
+        {
+          "source": "r206"
+        }
+      ]
+    },
+    {
+      "claim_id": "u1/checkpoints:5",
+      "status": "bestätigt",
+      "reason": "Eine nähere Zuordnung der Projektstrecke zur angegebenen Ortsregion und konkrete Lieferstellen fehlen im übergebenen Text.",
+      "evidence": [
+        {
+          "source": "r95"
+        },
+        {
+          "source": "r252"
+        },
+        {
+          "source": "r247"
+        }
+      ]
+    },
+    {
+      "claim_id": "u1/checkpoints:6",
+      "status": "bestätigt",
+      "reason": "Die Änderungsbegründung enthält kein Enddatum; die konkrete Angebotsfrist ist separat strukturiert angegeben.",
+      "evidence": [
+        {
+          "source": "r2"
+        },
+        {
+          "source": "r239"
+        },
+        {
+          "source": "r240"
+        }
+      ]
+    },
+    {
+      "claim_id": "u2/fit",
+      "status": "bestätigt",
+      "reason": "Los 3 beschafft physische OPGW-Seile. Deren Datenübertragungszweck umfasst keine Leistungen des übergebenen KI- und Microsoft-365-Profils.",
+      "evidence": [
+        {
+          "source": "r324"
+        }
+      ]
+    },
+    {
+      "claim_id": "u2/checkpoints:0",
+      "status": "bestätigt",
+      "reason": "Die Los-3-Beschreibung verlangt eine OPGW-Spezifikation, benennt dafür aber eine Leiterseil-Anlage aus Los 2; die Anlagenzuordnung ist widersprüchlich.",
+      "evidence": [
+        {
+          "source": "r324"
+        },
+        {
+          "source": "r247"
+        }
+      ]
+    },
+    {
+      "claim_id": "u2/checkpoints:1",
+      "status": "bestätigt",
+      "reason": "Die 21-monatige Laufzeit hat keinen angegebenen Beginn. Lieferziel und Terminbindung sind beschrieben; Einzelheiten der Vertragsstrafe stehen im nicht übergebenen Vertrag.",
+      "evidence": [
+        {
+          "source": "r331"
+        },
+        {
+          "source": "r324"
+        }
+      ]
+    },
+    {
+      "claim_id": "u2/checkpoints:2",
+      "status": "bestätigt",
+      "reason": "Auch für Los 3 wird der Auftragnehmer als Käufer der mitzuliefernden Reservetrommeln bezeichnet; die Käuferrolle ist damit klärungsbedürftig.",
+      "evidence": [
+        {
+          "source": "r324"
+        }
+      ]
+    },
+    {
+      "claim_id": "u2/checkpoints:3",
+      "status": "bestätigt",
+      "reason": "Der für die Leistungsbewertung herangezogene Kriterienkatalog wird erwähnt, aber nicht inhaltlich wiedergegeben.",
+      "evidence": [
+        {
+          "source": "r300"
+        }
+      ]
+    },
+    {
+      "claim_id": "u2/checkpoints:4",
+      "status": "bestätigt",
+      "reason": "Die Beschaffung erfolgt über einen Kaufvertrag; die genannten ergänzenden Bedingungen werden auf nicht ausgewertete Vergabeunterlagen verwiesen.",
+      "evidence": [
+        {
+          "source": "r95"
+        },
+        {
+          "source": "r284"
+        },
+        {
+          "source": "r286"
+        },
+        {
+          "source": "r291"
+        },
+        {
+          "source": "r283"
+        }
+      ]
+    },
+    {
+      "claim_id": "u2/checkpoints:5",
+      "status": "bestätigt",
+      "reason": "Projektstrecke und Ortsregion sind nicht näher miteinander verknüpft; konkrete Lieferstellen sind nicht angegeben.",
+      "evidence": [
+        {
+          "source": "r95"
+        },
+        {
+          "source": "r329"
+        },
+        {
+          "source": "r324"
+        }
+      ]
+    },
+    {
+      "claim_id": "u2/checkpoints:6",
+      "status": "bestätigt",
+      "reason": "Die Änderungsbegründung nennt die Verlängerungsdauer ohne Enddatum; dieses ist ausschließlich in den gesonderten Fristangaben konkretisiert.",
+      "evidence": [
+        {
+          "source": "r2"
+        },
+        {
+          "source": "r316"
+        },
+        {
+          "source": "r317"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1247 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><ContractNotice xmlns="urn:oasis:names:specification:ubl:schema:xsd:ContractNotice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ccts-cct="urn:un:unece:uncefact:data:specification:CoreComponentTypeSchemaModule:2" xmlns:efac="http://data.europa.eu/p27/eforms-ubl-extension-aggregate-components/1" xmlns:efbc="http://data.europa.eu/p27/eforms-ubl-extension-basic-components/1" xmlns:efext="http://data.europa.eu/p27/eforms-ubl-extensions/1" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2" xmlns:qdt="urn:oasis:names:specification:ubl:schema:xsd:QualifiedDataTypes-2" xmlns:udt="urn:oasis:names:specification:bdndr:schema:xsd:UnqualifiedDataTypes-1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<ext:UBLExtensions>
+		<ext:UBLExtension>
+			<ext:ExtensionContent>
+				<efext:EformsExtension>
+					<efac:NoticeSubType>
+						<cbc:SubTypeCode listName="notice-subtype">16</cbc:SubTypeCode>
+					</efac:NoticeSubType>
+					<efac:Organizations>
+						<efac:Organization>
+							<efac:Company>
+								<cbc:WebsiteURI>https://www.aok.de/pk/nordwest/</cbc:WebsiteURI>
+								<cac:PartyIdentification>
+									<cbc:ID>ORG-0001</cbc:ID>
+								</cac:PartyIdentification>
+								<cac:PartyName>
+									<cbc:Name languageID="DEU">AOK NordWest</cbc:Name>
+								</cac:PartyName>
+								<cac:PostalAddress>
+									<cbc:StreetName>Die Gesundheitskasse.</cbc:StreetName>
+									<cbc:CityName>Hagen</cbc:CityName>
+									<cbc:PostalZone>58079</cbc:PostalZone>
+									<cbc:CountrySubentityCode listName="nuts-lvl3">DEA53</cbc:CountrySubentityCode>
+									<cac:Country>
+										<cbc:IdentificationCode listName="country">DEU</cbc:IdentificationCode>
+									</cac:Country>
+								</cac:PostalAddress>
+								<cac:PartyLegalEntity>
+									<cbc:CompanyID>DE 124159739</cbc:CompanyID>
+								</cac:PartyLegalEntity>
+								<cac:Contact>
+									<cbc:Name>FB Beschaffungsmanagement</cbc:Name>
+									<cbc:Telephone>+49 23141930</cbc:Telephone>
+									<cbc:ElectronicMail>vergabestelle@nw.aok.de</cbc:ElectronicMail>
+								</cac:Contact>
+							</efac:Company>
+						</efac:Organization>
+						<efac:Organization>
+							<efac:Company>
+								<cac:PartyIdentification>
+									<cbc:ID>ORG-0002</cbc:ID>
+								</cac:PartyIdentification>
+								<cac:PartyName>
+									<cbc:Name languageID="DEU">Vergabekammern des Bundes</cbc:Name>
+								</cac:PartyName>
+								<cac:PostalAddress>
+									<cbc:StreetName>Bundeskanzlerplatz 2 - 10</cbc:StreetName>
+									<cbc:CityName>Bonn</cbc:CityName>
+									<cbc:PostalZone>53113</cbc:PostalZone>
+									<cbc:CountrySubentityCode listName="nuts-lvl3">DEA22</cbc:CountrySubentityCode>
+									<cac:Country>
+										<cbc:IdentificationCode listName="country">DEU</cbc:IdentificationCode>
+									</cac:Country>
+								</cac:PostalAddress>
+								<cac:PartyLegalEntity>
+									<cbc:CompanyID>t:022894990</cbc:CompanyID>
+								</cac:PartyLegalEntity>
+								<cac:Contact>
+									<cbc:Telephone>+49 22894990</cbc:Telephone>
+									<cbc:ElectronicMail>vk@bundeskartellamt.bund.de</cbc:ElectronicMail>
+								</cac:Contact>
+							</efac:Company>
+						</efac:Organization>
+					<efac:Organization><efac:Company><cac:PartyIdentification><cbc:ID schemeName="organization">ORG-0003</cbc:ID></cac:PartyIdentification><cac:PartyName><cbc:Name languageID="DEU">Datenservice Öffentlicher Einkauf (in Verantwortung des Beschaffungsamts des BMI)</cbc:Name></cac:PartyName><cac:PostalAddress><cbc:CityName>Bonn</cbc:CityName><cbc:PostalZone>53119</cbc:PostalZone><cbc:CountrySubentityCode listName="nuts">DEA22</cbc:CountrySubentityCode><cac:Country><cbc:IdentificationCode listName="country">DEU</cbc:IdentificationCode></cac:Country></cac:PostalAddress><cac:PartyLegalEntity><cbc:CompanyID schemeID="002">0204:994-DOEVD-83</cbc:CompanyID></cac:PartyLegalEntity><cac:Contact><cbc:Telephone>+49228996100</cbc:Telephone><cbc:ElectronicMail>noreply.esender_hub@bescha.bund.de</cbc:ElectronicMail></cac:Contact></efac:Company></efac:Organization></efac:Organizations>
+				<efac:Publication><efbc:NoticePublicationID schemeName="ojs-notice-id">00794059-2026</efbc:NoticePublicationID><efbc:GazetteID schemeName="ojs-id">222/2026</efbc:GazetteID><efbc:PublicationDate>2026-11-16+01:00</efbc:PublicationDate></efac:Publication></efext:EformsExtension>
+			</ext:ExtensionContent>
+		</ext:UBLExtension>
+	</ext:UBLExtensions>
+	<cbc:UBLVersionID>2.3</cbc:UBLVersionID>
+	<cbc:CustomizationID>eforms-sdk-1.13</cbc:CustomizationID>
+	<cbc:ProfileID>eforms-sdk-1.13</cbc:ProfileID>
+	<cbc:ID schemeName="notice-id">d99e1b05-6180-41e8-b2a4-9aa31da18d54</cbc:ID>
+	<cbc:ContractFolderID>27dd354b-9e46-4248-b591-06492c5c5343</cbc:ContractFolderID>
+	<cbc:IssueDate>2026-11-13+01:00</cbc:IssueDate>
+	<cbc:IssueTime>10:00:01+01:00</cbc:IssueTime>
+	<cbc:VersionID>01</cbc:VersionID>
+	<cbc:RequestedPublicationDate>2026-11-13+01:00</cbc:RequestedPublicationDate>
+	<cbc:RegulatoryDomain>32014L0024</cbc:RegulatoryDomain>
+	<cbc:NoticeTypeCode listName="competition">cn-standard</cbc:NoticeTypeCode>
+	<cbc:NoticeLanguageCode listID="eu-official-language">DEU</cbc:NoticeLanguageCode>
+	<cac:ContractingParty>
+		<cac:ContractingPartyType>
+			<cbc:PartyTypeCode listName="buyer-legal-type">body-pl-ra</cbc:PartyTypeCode>
+		</cac:ContractingPartyType>
+		<cac:ContractingActivity>
+			<cbc:ActivityTypeCode listName="authority-activity">health</cbc:ActivityTypeCode>
+		</cac:ContractingActivity>
+		<cac:Party>
+			<cac:PartyIdentification>
+				<cbc:ID>ORG-0001</cbc:ID>
+			</cac:PartyIdentification>
+		<cac:ServiceProviderParty><cbc:ServiceTypeCode listName="organisation-role">ted-esen</cbc:ServiceTypeCode><cac:Party><cac:PartyIdentification><cbc:ID schemeName="organization">ORG-0003</cbc:ID></cac:PartyIdentification></cac:Party></cac:ServiceProviderParty></cac:Party>
+	</cac:ContractingParty>
+	<cac:TenderingTerms>
+		<ext:UBLExtensions>
+			<ext:UBLExtension>
+				<ext:ExtensionContent>
+					<efext:EformsExtension>
+						<efac:StrategicProcurement>
+							<efbc:ApplicableLegalBasis listName="cvd-scope">false</efbc:ApplicableLegalBasis>
+						</efac:StrategicProcurement>
+						<efac:StrategicProcurement>
+							<efbc:ApplicableLegalBasis listName="eed-scope">false</efbc:ApplicableLegalBasis>
+						</efac:StrategicProcurement>
+					</efext:EformsExtension>
+				</ext:ExtensionContent>
+			</ext:UBLExtension>
+		</ext:UBLExtensions>
+		<cbc:FundingProgramCode listName="eu-funded">no-eu-funds</cbc:FundingProgramCode>
+		<cac:RequiredFinancialGuarantee>
+			<cbc:GuaranteeTypeCode listName="tender-guarantee-required">false</cbc:GuaranteeTypeCode>
+		</cac:RequiredFinancialGuarantee>
+		<cac:ProcurementLegislationDocumentReference>
+			<cbc:ID>vgv</cbc:ID>
+		</cac:ProcurementLegislationDocumentReference>
+		<cac:CallForTendersDocumentReference>
+			<ext:UBLExtensions>
+				<ext:UBLExtension>
+					<ext:ExtensionContent>
+						<efext:EformsExtension>
+							<efac:OfficialLanguages>
+								<cac:Language>
+									<cbc:ID>DEU</cbc:ID>
+								</cac:Language>
+							</efac:OfficialLanguages>
+						</efext:EformsExtension>
+					</ext:ExtensionContent>
+				</ext:UBLExtension>
+			</ext:UBLExtensions>
+			<cbc:ID>SomeTenderDocID1</cbc:ID>
+			<cbc:DocumentType>non-restricted-document</cbc:DocumentType>
+		</cac:CallForTendersDocumentReference>
+		<cac:TendererQualificationRequest>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-natl-bre-nat-law</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-crim-part</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-crim-terror</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-crim-laund</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-crim-fraud</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-crim-corrpt</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-crim-traffick</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-pmt-bre-tax</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-pmt-bre-ssc</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-mis-bre-env-law</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-mis-bre-soc-law</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-mis-bre-lab-law</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-sitn-insolvency</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-sitn-liq-admin</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-sitn-as-susp</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-sitn-other</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-mis-misconduct</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-mis-distortion</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-mis-partic-confl</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-mis-prep-confl</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-mis-sanction</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-ground">exg-mis-misrepresent</cbc:TendererRequirementTypeCode>
+				<cbc:Description languageID="DEU">Zwingende bzw. fakultative Ausschlussgründe nach §§ 123 bis 126 GWB</cbc:Description>
+			</cac:SpecificTendererRequirement>
+		</cac:TendererQualificationRequest>
+		<cac:TendererQualificationRequest>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-grounds-source">epo-notice</cbc:TendererRequirementTypeCode>
+			</cac:SpecificTendererRequirement>
+			<cac:SpecificTendererRequirement>
+				<cbc:TendererRequirementTypeCode listName="exclusion-grounds-source">epo-procurement-document</cbc:TendererRequirementTypeCode>
+			</cac:SpecificTendererRequirement>
+		</cac:TendererQualificationRequest>
+		<cac:TenderRecipientParty>
+			<cac:PartyIdentification>
+				<cbc:ID>ORG-0001</cbc:ID>
+			</cac:PartyIdentification>
+		</cac:TenderRecipientParty>
+		<cac:AppealTerms>
+			<cac:PresentationPeriod>
+				<cbc:Description languageID="DEU">134 GWB Informations- und Wartepflicht. "(1) Öffentliche Auftraggeber haben die Bieter, deren Angebote nicht berücksichtigt werden sollen, über den Namen des Unternehmens, dessen Angebot angenommen werden soll, über die Gründe der vorgesehenen Nichtberücksichtigung ihres Angebots und über den frühesten Zeitpunkt des Vertragsschlusses unverzüglich in Textform zu informieren. Dies gilt auch für Bewerber, denen keine Information über die Ablehnung ihrer Bewerbung zur Verfügung gestellt wurde, bevor die Mitteilung über die Zuschlagsentscheidung an die betroffenen Bieter ergangen ist. (2) Ein Vertrag darf erst 15 Kalendertage nach Absendung der Information nach Absatz 1 geschlossen werden. Wird die Information auf elektronischem Weg oder per Fax versendet, verkürzt sich die Frist auf zehn Kalendertage. Die Frist beginnt am Tag nach der Absendung der Information durch den Auftraggeber; auf den Tag des Zugangs beim betroffenen Bieter und Bewerber kommt es nicht an. (3) Die Informationspflicht entfällt in Fällen, in denen das Verhandlungsverfahren ohne Teilnahmewettbewerb wegen besonderer Dringlichkeit gerechtfertigt ist..." § 135 GWB Unwirksamkeit. "(1) Ein öffentlicher Auftrag ist von Anfang an unwirksam, wenn der öffentliche Auftraggeber: 1. gegen § 134 verstoßen hat..." § 160 GWB Einleitung, Antrag. "(1) Die Vergabekammer leitet ein Nachprüfungsverfahren nur auf Antrag ein. (2) Antragsbefugt ist jedes Unternehmen, das ein Interesse an dem öffentlichen Auftrag oder der Konzession hat und eine Verletzung in seinen Rechten nach § 97 Absatz 6 durch Nichtbeachtung von Vergabevorschriften geltend macht. Dabei ist darzulegen, dass dem Unternehmen durch die behauptete Verletzung der Vergabevorschriften ein Schaden entstanden ist oder zu entstehen droht. (3) Der Antrag ist unzulässig, soweit: 1. der Antragsteller den geltend gemachten Verstoß gegen Vergabevorschriften vor Einreichen des Nachprüfungsantrags erkannt und gegenüber dem Auftraggeber nicht innerhalb einer Frist von 10 Kalendertagen gerügt hat; der Ablauf der Frist nach § 134 Absatz 2 bleibt unberührt, 2. Verstöße gegen Vergabevorschriften, die aufgrund der Bekanntmachung erkennbar sind, nicht spätestens bis zum Ablauf der in der Bekanntmachung benannten Frist zur Bewerbung oder zur Angebotsabgabe gegenüber dem Auftraggeber gerügt werden, 3. Verstöße gegen Vergabevorschriften, die erst in den Vergabeunterlagen erkennbar sind, nicht spätestens bis zum Ablauf der Frist zur Bewerbung oder zur Angebotsabgabe gegenüber dem Auftraggeber gerügt werden, 4. mehr als 15 Kalendertage nach Eingang der Mitteilung des Auftraggebers, einer Rüge nicht abhelfen zu wollen, vergangen sind. Satz 1 gilt nicht bei einem Antrag auf Feststellung der Unwirksamkeit des Vertrags nach § 135 Absatz 1 Nummer 2. § 134 Absatz 1 Satz 2 bleibt unberührt." § 168 GWB Entscheidung der Vergabekammer. "(1) Die Vergabekammer entscheidet, ob der Antragsteller in seinen Rechten verletzt ist und trifft die geeigneten Maßnahmen, um eine Rechtsverletzung zu beseitigen und eine Schädigung der betroffenen Interessen zu verhindern. Sie ist an die Anträge nicht gebunden und kann auch unabhängig davon auf die Rechtmäßigkeit des Vergabeverfahrens einwirken. (2) Ein wirksam erteilter Zuschlag kann nicht aufgehoben werden...".</cbc:Description>
+			</cac:PresentationPeriod>
+			<cac:AppealReceiverParty>
+				<cac:PartyIdentification>
+					<cbc:ID schemeName="organization">ORG-0002</cbc:ID>
+				</cac:PartyIdentification>
+			</cac:AppealReceiverParty>
+		</cac:AppealTerms>
+		<cac:Language>
+			<cbc:ID>DEU</cbc:ID>
+		</cac:Language>
+		<cac:LotDistribution>
+			<cbc:MaximumLotsAwardedNumeric>3</cbc:MaximumLotsAwardedNumeric>
+			<cbc:MaximumLotsSubmittedNumeric>3</cbc:MaximumLotsSubmittedNumeric>
+		</cac:LotDistribution>
+	</cac:TenderingTerms>
+	<cac:TenderingProcess>
+		<cbc:ProcedureCode listName="procurement-procedure-type">neg-w-call</cbc:ProcedureCode>
+		<cbc:AccessToolsURI>https://www.dtvp.de/Satellite/notice/CXP4Y6LMT88</cbc:AccessToolsURI>
+		<cac:ProcessJustification>
+			<cbc:ProcessReasonCode listName="accelerated-procedure">false</cbc:ProcessReasonCode>
+		</cac:ProcessJustification>
+		<cac:AuctionTerms>
+			<cbc:AuctionConstraintIndicator>false</cbc:AuctionConstraintIndicator>
+		</cac:AuctionTerms>
+	</cac:TenderingProcess>
+	<cac:ProcurementProject>
+		<cbc:ID schemeName="internalID">21258</cbc:ID>
+		<cbc:Name languageID="DEU">Rahmenvereinbarung zur strategischen Beratung und IT-Dienstleistungen</cbc:Name>
+		<cbc:Description languageID="DEU">Leistungsgegenstand der vorliegenden Ausschreibung ist eine Rahmenvereinbarung über die "Strategische Beratung der AOK NordWest und IT-Dienstleistungen" welche mit mehreren Wirtschaftsteilnehmer/-innen geschlossen wird. Hierbei werden die zu erbringenden und in dem vorliegenden Verfahren zu vergebenden Leistungen in drei Lose unterteilt. Innerhalb der Lose 1 und 2 behält die Auftraggeberin sich vor, im Rahmen eines Mehrpartnermodells, die Rahmenvereinbarung jeweils mit fünf Vertragspartnern abzuschließen. Sofern weniger als fünf zuschlagsfähige Angebote vorliegen, kann die Rahmenvereinbarung auch mit weniger als fünf Vertragspartnern geschlossen werden. Für das Los 3 wird die Rahmenvereinbarung mit einem Vertragspartner geschlossen.  Bewerber können sich auf ein, zwei oder alle Lose bewerben.</cbc:Description>
+		<cbc:ProcurementTypeCode listName="contract-nature">services</cbc:ProcurementTypeCode>
+		<cbc:Note languageID="DEU">#Bekanntmachungs-ID: CXP4Y6LMT88#
+
+
+(I) Höchstwert: -In Los 1 dürfen Beratungsleistungen im Wert von maximal 10 Mio. EUR netto aus der Rahmenvereinbarung abgerufen werden (Höchstwert). -In Los 2 dürfen Beratungsleistungen im Wert von maximal 12 Mio. EUR netto aus der Rahmenvereinbarung abgerufen werden (Höchstwert). -In Los 3 dürfen Beratungsleistungen im Wert von maximal 4 Mio. EUR netto aus der Rahmenvereinbarung abgerufen werden (Höchstwert). (II) Für die Ausführung des Auftrages gelten die nachfolgend aufgeführten besonderen Bedingungen: -Ergänzenden Vertragsbedingungen der AOK NordWest -Besonderen Vertragsbedingungen des Landes Nordrhein-Westfalen zur Einhaltung des Tariftreue- und Vergabegesetzes Nordrhein-Westfalen -Datenschutzbestimmungen -Informationssicherheitsanforderungen (III) Eignungsnachweise: (a) Im Fall der Bildung einer Bewerbergemeinschaft beachten Sie die Hinweise in den Teilnahme/Bewerbungsbedingungen und im Teilnahmeantrag (siehe Vergabeunterlagen). (b) Im Fall der Eignungsleihe beachten Sie die Hinweise in den Teilnahme/Bewerbungsbedingungen und im Teilnahmeantrag (siehe Vergabeunterlagen). (c) Im Fall des Einsatzes von Nachunternehmern beachten Sie die Hinweise in den Teilnahme/Bewerbungsbedingungen und im Teilnahmeantrag (siehe Vergabeunterlagen). (IV) Zur Durchführung des Vergabeverfahrens verwendet die Auftraggeberin die E-Vergabelösung www.dtvp.de. Die für die Teilnahme zwingend zu verwendenden Vergabeunterlagen sind unter dem o. g. Link dort abzurufen. Für Angaben und Erklärungen sind die Formulare der Vergabeunterlagen zu verwenden, soweit diese entsprechende Vordrucke enthalten. Bitte beachten Sie, dass die Abgabe des Teilnahmeantrags elektronisch über dieses Vergabeportal zu erfolgen hat. Weitere Hinweise zur elektronischen Abgabe finden Sie in den Vergabeunterlagen.</cbc:Note>
+		<cac:MainCommodityClassification>
+			<cbc:ItemClassificationCode listName="cpv">79400000</cbc:ItemClassificationCode>
+		</cac:MainCommodityClassification>
+		<cac:AdditionalCommodityClassification>
+			<cbc:ItemClassificationCode listName="cpv">72000000</cbc:ItemClassificationCode>
+		</cac:AdditionalCommodityClassification>
+		<cac:AdditionalCommodityClassification>
+			<cbc:ItemClassificationCode listName="cpv">72224000</cbc:ItemClassificationCode>
+		</cac:AdditionalCommodityClassification>
+		<cac:RealizedLocation>
+			<cbc:Description languageID="DEU">Der Erfüllungsort richtet sich nach dem konkreten Einzelauftrag und kann im Bereich Westfalen-Lippe oder Schleswig-Holstein liegen. Abstimmungsgespräche erfolgen sowohl remote als auch vor Ort.</cbc:Description>
+			<cac:Address>
+				<cbc:Region>anyw</cbc:Region>
+			</cac:Address>
+		</cac:RealizedLocation>
+	</cac:ProcurementProject>
+	<cac:ProcurementProjectLot>
+		<cbc:ID schemeName="Lot">LOT-0001</cbc:ID>
+		<cac:TenderingTerms>
+			<ext:UBLExtensions>
+				<ext:UBLExtension>
+					<ext:ExtensionContent>
+						<efext:EformsExtension>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-ref-services</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Referenzen Los 1: Es sind insgesamt mindestens 3 Referenzen aus den in der Leistungsbeschreibung genannten Handlungsfeldern - Unternehmensstrategie/-entwicklung und/oder - Konsolidierung/Versorgung und/oder  - Markt/Vertrieb/Wettbewerb nachzuweisen.  Das Beratungsende eines Referenzprojektes darf nicht vor Dezember 2023 liegen. Jede Referenz muss mindestens 200 Beratertage umfassen. Sofern die Referenz noch nicht abgeschlossen ist, müssen bis Ablauf der Teilnahmefrist bereits 200 Beratertage erbracht worden sein. Mind. eine Referenz muss die Beratung von gesetzlichen Krankenversicherungen (mit mehr als 500.000 Versicherten) beinhalten.  Jede eingereichte Referenz, die die Mindestanforderungen erfüllt, wird mit 3 Punkten bewertet. Es können maximal 18 Punkte für 6 Referenzen erreicht werden. Weitere eingereichte Referenzen, die die Mindestanforderungen erfüllen, bleiben unberücksichtigt und erhöhen die maximal zu erreichende Punktzahl nicht.   Des Weiteren werden zusätzliche Punkte wie folgt vergeben:  5 weitere Punkte, wenn für alle 3 Handlungsfelder mindestens eine Referenz eingereicht wurde.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>23.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-ref-services</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Referenzen Los 2: Es sind insgesamt mindestens 3 Referenzen aus den in der Leistungsbeschreibung genannten Handlungsfeldern - Realisierung der digitalen Transformation und/oder - Operative Umsetzung der IT-Strategie und/oder - IT-Sicherheit und Datenschutz nachzuweisen.  Das Ende eines Referenzprojektes darf nicht vor Dezember 2023 liegen. Jede Referenz muss mindestens 200 Beratertage umfassen. Sofern die Referenz noch nicht abgeschlossen ist, müssen bis Ablauf der Teilnahmefrist bereits 200 Beratertage erbracht worden sein. Bei mind. einer Referenz muss die Leistung bei einer gesetzlichen Krankenversicherungen erbracht worden sein.  Jede eingereichte Referenz, die die Mindestanforderungen erfüllt, wird mit 3 Punkten bewertet. Es können maximal 18 Punkte für 6 Referenzen erreicht werden. Weitere eingereichte Referenzen, die die Mindestanforderungen erfüllen, bleiben unberücksichtigt und erhöhen die maximal zu erreichende Punktzahl nicht.   Des Weiteren werden zusätzliche Punkte je Referenz wie folgt vergeben:  2 weitere Punkte, wenn die in der Referenz genannte Leistung mit systematischem KI-/Agenteneinsatz umgesetzt und damit Produktivitäts- bzw. Effizienzgewinne erzielt wurden;   Des Weiteren werden zusätzliche Punkte wie folgt vergeben:  3 weitere Punkte, wenn für alle 3 Handlungsfelder eine Referenz eingereicht wurde.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>33.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-ref-services</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Referenzen Los 3: Es sind insgesamt mindestens 5 Referenzen aus den in der Leistungsbeschreibung genannten Profilen  - Projekt-, Programm- und Agile Delivery Management  - Entwicklung, insbesondere Frontend/Backend Developer, Datenarchitektur, Dashboard Design, RPA  - Data und AI  - Qualität und Sicherheit - Kundenzentrierung, Nutzererlebnis und Omnikanalmanagement.  Das Beratungsende eines Referenzprojektes darf nicht vor Dezember 2023 liegen.  Bei mind. drei Referenzen muss die Leistung bei einer gesetzlichen Krankenversicherungen erbracht worden sein.   Jede eingereichte Referenz, die die Mindestanforderungen erfüllt, wird mit 3 Punkten bewertet. Es können maximal 30 Punkte für 10 Referenzen erreicht werden. Weitere eingereichte Referenzen, die die Mindestanforderungen erfüllen, bleiben unberücksichtigt und erhöhen die maximal zu erreichende Punktzahl nicht.   Des Weiteren werden zusätzliche Punkte je Referenz wie folgt vergeben:  1 weiterer Punkt, wenn die in der Referenz genannte Leistung vom Umsatz größer als 150.000 EUR war;  2 weitere Punkte, wenn die in der Referenz genannte Leistung mit systematischem KI-/Agenteneinsatz umgesetzt und damit Produktivitäts- bzw. Effizienzgewinne erzielt wurden;  Des Weiteren werden zusätzliche Punkte wie folgt vergeben:  3 weitere Punkte, wenn für alle 5 Profile eine Referenz eingereicht wurde.  Anhand der Kriterien werden die Bewerber ausgewählt, die zur zweiten Phase des Verfahrens eingeladen werden.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>63.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-stand-to-avg</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Umsatz des Unternehmens (Lose 1 bis 3):  Bewertet wird die Höhe des durchschnittlichen Umsatzes in den letzten 3 Geschäftsjahren.  3 Punkte: über 25 Mio. EUR  2 Punkte: ab 5 Mio. EUR bis 25 Mio. EUR  0 Punkte: unter 5 Mio. EUR 2 weitere Punkte, wenn die Umsatzentwicklung im angegebenen 3-Jahreszeitraum kontinuierlich gewachsen ist.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>5.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-staff-yrly-avg-mp</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Unternehmensgröße hinsichtlich der Anzahl der Mitarbeiter/-innen (Lose 1 bis 3): Bewertet wird die durchschnittliche Gesamtanzahl der Mitarbeiter/-innen in den letzten 3 Geschäftsjahren.  Los 1: 3 Punkte: über 750 festangestellte Mitarbeiter/-innen 2 Punkte: ab 500 bis 750 festangestellte Mitarbeiter/-innen 0 Punkte: unter 500 festangestellte Mitarbeiter/-innen 1 weiterer Punkt, wenn die Anzahl der Mitarbeiter/-innen im angegebenen 3-Jahreszeitraum gewachsen ist.  Lose 2 und 3: 3 Punkte: über 500 festangestellte Mitarbeiter/-innen oder über 300 festangestellte Mitarbeiter/-innen und über 200 Mitarbeiter/-innen auf Honorarbasis 2 Punkte: ab 50 bis 300 festangestellte Mitarbeiter/-innen und ab 50 bis 200 Mitarbeiter/-innen auf Honorarbasis 0 Punkte: unter 50 festangestellte Mitarbeiter/-innen oder unter 50 Mitarbeiter/-innen auf Honorarbasis 1 weiterer Punkt, wenn die Anzahl der Mitarbeiter/-innen im angegebenen 3-Jahreszeitraum kontinuierlich gewachsen ist.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>4.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-sec-inf</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Informationssicherheitsanforderungen und Datenschutz (Lose 1 bis 3): Angaben zu geeigneten Nachweisen im Kontext Informationssicherheit und Datenschutz. Die Informationssicherheitsanforderungen an Auftragnehmer gemäß Anlage B1d sind sicherzustellen.  Es werden zusätzliche Punkte wie folgt vergeben:  2 weitere Punkte für die Zertifizierung nach ISO 27001 (auch auf Basis von IT-Grundschutz, für TISAX);  1 weiterer Punkt für die Zertifizierung nach ISO 22301</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>3.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-staff-qual</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Anzahl und Qualifikation der Projektleitung, der Berater/-innen und der analysierenden Personen (Los 1): Anzahl der Projektleiter/-innen, die die Anforderungen gem. Anlage B2, Ziffer 3.1 erfüllen. Je 0,5 Punkte bei 5-15 Jahren Beratungserfahrung,   je 1 Punkt bei mehr als 15 Jahren Beratungserfahrung.  Maximal werden hierbei 10 Punkte vergeben.  Anzahl der Berater/-innen, die die Anforderungen gem. Anlage B2, Ziffer 3.1 erfüllen. Je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl der analysierenden Personen, die die Anforderungen gem. Anlage B2, Ziffer 3.1 erfüllen. Je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>20.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-staff-qual</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Anzahl und Qualifikation der Projektleitung, der IT-Berater/-innen, der Entwickler/-innen und der analysierenden Personen (Los 2): Anzahl der Projektleiter/-innen, die die Anforderungen gem. Anlage B2, Ziffer 3.2 erfüllen. Je 0,5 Punkte bei 5-15 Jahren Beratungserfahrung,   je 1 Punkt bei mehr als 15 Jahren Beratungserfahrung.  Maximal werden hierbei 8 Punkte vergeben.  Anzahl der IT-Berater/-innen, die die Anforderungen gem. Anlage B2, Ziffer 3.2 erfüllen. Je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl der Entwickler/-innen, die die Anforderungen gem. Anlage B2, Ziffer 3.2 erfüllen. Je 0,5 Punkte Maximal werden hierbei 4 Punkte vergeben.  Anzahl der analysierenden Personen, die die Anforderungen gem. Anlage B2, Ziffer 3.2 erfüllen. Je 0,5 Punkte Maximal werden hierbei 3 Punkte vergeben.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>20.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-staff-qual</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Anzahl und Qualifikation der Expert, Senior und Young Professionals (Los 3): Anzahl Expert im Profil Projekt-, Programm- und Agile Delivery Management, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. Je 0,5 Punkte je 1 Punkt bei mehr als 10 Jahren Berufserfahrung.  Maximal werden hierbei 10 Punkte vergeben.  Anzahl Senior Professional im Profil Projekt-, Programm- und Agile Delivery Management, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Young Professional im Profil Projekt-, Programm- und Agile Delivery Management, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Expert im Profil Entwicklung, insbesondere Frontend/Backend Developer, Datenarchitektur, Dashboard Design, RPA,  die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. Je 0,5 Punkte je 1 Punkt bei mehr als 10 Jahren Berufserfahrung.  Maximal werden hierbei 10 Punkte vergeben.  Anzahl Senior Professional im Profil Entwicklung, insbesondere Frontend/Backend Developer, Datenarchitektur, Dashboard Design, RPA, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Young Professional im Profil Entwicklung, insbesondere Frontend/Backend Developer, Datenarchitektur, Dashboard Design, RPA, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Expert im Profil Data und AI, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. Je 0,5 Punkte je 1 Punkt bei mehr als 10 Jahren Berufserfahrung.  Maximal werden hierbei 10 Punkte vergeben.  Anzahl Senior Professional im Profil Data und AI, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Young Professional im Profil Data und AI, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Expert im Profil Qualität und Sicherheit, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. Je 0,5 Punkte je 1 Punkt bei mehr als 10 Jahren Berufserfahrung.  Maximal werden hierbei 10 Punkte vergeben.  Anzahl Senior Professional im Profil Qualität und Sicherheit, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Young Professional im Profil Qualität und Sicherheit, die die Anforderungen gem. Anlage B2, Ziffer ff. 3.3 erfüllen. Je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Expert die im Profil Kundenzentrierung, Nutzererlebnis und Omnikanalmanagement, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. Je 0,5 Punkte je 1 Punkt bei mehr als 10 Jahren Berufserfahrung.  Maximal werden hierbei 10 Punkte vergeben.  Anzahl Senior Professional im Profil Kundenzentrierung, Nutzererlebnis und Omnikanalmanagement, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Young Professional im Profil Kundenzentrierung, Nutzererlebnis und Omnikanalmanagement, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>100.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-suit-reg-trade</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Eintragung im Handelsregister: Sofern vorhanden und zur Eintragung verpflichtet: Aktueller Nachweis zur Eintragung in das einschlägige Handelsregister des Niederlassungsstaats des Bewerbers/des Mitglieds der Bewerbergemeinschaft (nicht älter als 6 Monate vom Tag der Teilnahmefrist gerechnet). Bewerber mit Firmensitz außerhalb Deutschlands haben den Nachweis der Eintragung in ein vergleichbares Register von Stellen des Herkunftslandes in deutscher beglaubigter Übersetzung einzureichen.</cbc:Description>
+								<efbc:SecondStageIndicator>false</efbc:SecondStageIndicator>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-stand-ins</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Betriebshaftpflichtversicherung: Der Bewerber erklärt mit Einreichung seines Teilnahmeantrags, dass er spätestens 8 (acht) Wochen nach Zuschlag der Auftraggeberin nachweist, dass er über eine Berufs- und/oder Betriebshaftpflichtversicherung, welche Sach- und Personenschäden in Höhe von mindestens 5 Mio. EUR pro Kalenderjahr und Vermögensschäden inklusive Datenschutz i. H. v. 5 Mio. EUR pro Kalenderjahr abdeckt. Diese Versicherung wird über die Dauer der gesamten Vertragslaufzeit aufrechterhalten. Hinweise: (a) Der Nachweis kann bereits mit Abgabe des Teilnahmeantrags eingereicht werden, ist jedoch spätestens acht Wochen nach Zuschlagserteilung vorzulegen. (b) Im Fall der Bildung einer Bewerbergemeinschaft ist die zuvor genannte Erklärung zur Betriebshaftpflichtversicherung vom bevollmächtigten Mitglied der Bewerbergemeinschaft abzugeben und mit dem Teilnahmeantrag einzureichen. Der Nachweis der Versicherungsbescheinigung ist von jedem Mitglied der Bewerbergemeinschaft den Auftraggeberinnen binnen acht Wochen nach Zuschlagserteilung vorzulegen.</cbc:Description>
+								<efbc:SecondStageIndicator>false</efbc:SecondStageIndicator>
+							</efac:SelectionCriteria>
+							<efac:StrategicProcurement>
+								<efbc:ApplicableLegalBasis listName="cvd-scope">false</efbc:ApplicableLegalBasis>
+							</efac:StrategicProcurement>
+							<efac:StrategicProcurement>
+								<efbc:ApplicableLegalBasis listName="eed-scope">false</efbc:ApplicableLegalBasis>
+							</efac:StrategicProcurement>
+						</efext:EformsExtension>
+					</ext:ExtensionContent>
+				</ext:UBLExtension>
+			</ext:UBLExtensions>
+			<cbc:VariantConstraintCode listName="permission">not-allowed</cbc:VariantConstraintCode>
+			<cbc:FundingProgramCode listName="eu-funded">no-eu-funds</cbc:FundingProgramCode>
+			<cbc:RequiredCurriculaCode listName="requirement-stage">not-requ</cbc:RequiredCurriculaCode>
+			<cbc:MultipleTendersCode listName="permission">not-allowed</cbc:MultipleTendersCode>
+			<cac:RequiredFinancialGuarantee>
+				<cbc:GuaranteeTypeCode listName="tender-guarantee-required">false</cbc:GuaranteeTypeCode>
+			</cac:RequiredFinancialGuarantee>
+			<cac:CallForTendersDocumentReference>
+				<ext:UBLExtensions>
+					<ext:UBLExtension>
+						<ext:ExtensionContent>
+							<efext:EformsExtension>
+								<efac:OfficialLanguages>
+									<cac:Language>
+										<cbc:ID>DEU</cbc:ID>
+									</cac:Language>
+								</efac:OfficialLanguages>
+							</efext:EformsExtension>
+						</ext:ExtensionContent>
+					</ext:UBLExtension>
+				</ext:UBLExtensions>
+				<cbc:ID>SomeTenderDocID1</cbc:ID>
+				<cbc:DocumentType>non-restricted-document</cbc:DocumentType>
+				<cac:Attachment>
+					<cac:ExternalReference>
+						<cbc:URI>https://www.dtvp.de/Satellite/notice/CXP4Y6LMT88/documents</cbc:URI>
+					</cac:ExternalReference>
+				</cac:Attachment>
+			</cac:CallForTendersDocumentReference>
+			<cac:TendererQualificationRequest>
+				<cbc:CompanyLegalFormCode listName="required">false</cbc:CompanyLegalFormCode>
+			</cac:TendererQualificationRequest>
+			<cac:TendererQualificationRequest>
+				<cac:SpecificTendererRequirement>
+					<cbc:TendererRequirementTypeCode listName="missing-info-submission">late-some</cbc:TendererRequirementTypeCode>
+					<cbc:Description languageID="DEU">Nachforderungen können gem. § 56 VgV erfolgen.</cbc:Description>
+				</cac:SpecificTendererRequirement>
+			</cac:TendererQualificationRequest>
+			<cac:TendererQualificationRequest>
+				<cac:SpecificTendererRequirement>
+					<cbc:TendererRequirementTypeCode listName="reserved-procurement">none</cbc:TendererRequirementTypeCode>
+				</cac:SpecificTendererRequirement>
+			</cac:TendererQualificationRequest>
+			<cac:TendererQualificationRequest>
+				<cac:SpecificTendererRequirement>
+					<cbc:TendererRequirementTypeCode listName="selection-criteria-source">epo-notice</cbc:TendererRequirementTypeCode>
+				</cac:SpecificTendererRequirement>
+				<cac:SpecificTendererRequirement>
+					<cbc:TendererRequirementTypeCode listName="selection-criteria-source">epo-procurement-document</cbc:TendererRequirementTypeCode>
+				</cac:SpecificTendererRequirement>
+			</cac:TendererQualificationRequest>
+			<cac:ContractExecutionRequirement>
+				<cbc:ExecutionRequirementCode listName="reserved-execution">no</cbc:ExecutionRequirementCode>
+			</cac:ContractExecutionRequirement>
+			<cac:ContractExecutionRequirement>
+				<cbc:ExecutionRequirementCode listName="ecatalog-submission">not-allowed</cbc:ExecutionRequirementCode>
+			</cac:ContractExecutionRequirement>
+			<cac:ContractExecutionRequirement>
+				<cbc:ExecutionRequirementCode listName="einvoicing">allowed</cbc:ExecutionRequirementCode>
+			</cac:ContractExecutionRequirement>
+			<cac:ContractExecutionRequirement>
+				<cbc:ExecutionRequirementCode listName="conditions">performance</cbc:ExecutionRequirementCode>
+				<cbc:Description languageID="DEU">Nichtvorliegen von "Russlandsanktionen" Das Unternehmen bestätigt die Einhaltung der EU-Sanktionen gegen Russland (VO (EU) Nr. 833/2014) und erklärt, dass weder ein direkter noch ein indirekter Russland-Bezug besteht - es also weder in Russland ansässig ist noch mehrheitlich (über 50 %) von russischen Personen oder Organisationen kontrolliert wird oder in deren Auftrag handelt. Zudem wird zugesichert, dass weder aktuell noch während der Vertragslaufzeit betroffene Unterauftragnehmer oder Lieferanten eingesetzt werden, auf die mehr als 10 % des Auftragswerts entfallen. Sollten sich diese Umstände künftig ändern oder das Unternehmen von Russland-Sanktionen betroffen sein, wird die Auftraggeberin unverzüglich informiert (vgl. hierzu Anlage A3).</cbc:Description>
+			</cac:ContractExecutionRequirement>
+			<cac:ContractExecutionRequirement>
+				<cbc:ExecutionRequirementCode listName="fsr">false</cbc:ExecutionRequirementCode>
+			</cac:ContractExecutionRequirement>
+			<cac:AwardingTerms>
+				<cbc:NoFurtherNegotiationIndicator>false</cbc:NoFurtherNegotiationIndicator>
+				<cac:AwardingCriterion>
+					<cac:SubordinateAwardingCriterion>
+						<ext:UBLExtensions>
+							<ext:UBLExtension>
+								<ext:ExtensionContent>
+									<efext:EformsExtension>
+										<efac:AwardCriterionParameter>
+											<efbc:ParameterCode listName="number-weight">dec-exa</efbc:ParameterCode>
+											<efbc:ParameterNumeric>0.5</efbc:ParameterNumeric>
+										</efac:AwardCriterionParameter>
+									</efext:EformsExtension>
+								</ext:ExtensionContent>
+							</ext:UBLExtension>
+						</ext:UBLExtensions>
+						<cbc:AwardingCriterionTypeCode listName="award-criterion-type">quality</cbc:AwardingCriterionTypeCode>
+						<cbc:Name languageID="DEU">Qualität</cbc:Name>
+						<cbc:Description languageID="DEU">Das Qualitätskriterium setzt sich zusammen aus einem Konzept und einer Präsentation einer Fallaufgabe. Für das einzureichende Konzept gilt eine maximale Folien-/Seitenzahl von 30 Folien (Powerpoint) bzw. 15 Seiten (DIN A4, word/pdf), jeweils in Schriftgröße 11, ausgenommen sind Abbildungen. Deckblätter, Agendafolien bzw. Inhaltsverzeichnisse werden nicht als Folien-/Seitenzahl mitgezählt.  Die erreichte Punktzahl für das eingereichte Konzept sowie für die Präsentation der Fallaufgabe werden addiert und bilden die Gesamtpunktzahl des Kriteriums Qualität.</cbc:Description>
+					</cac:SubordinateAwardingCriterion>
+					<cac:SubordinateAwardingCriterion>
+						<ext:UBLExtensions>
+							<ext:UBLExtension>
+								<ext:ExtensionContent>
+									<efext:EformsExtension>
+										<efac:AwardCriterionParameter>
+											<efbc:ParameterCode listName="number-weight">dec-exa</efbc:ParameterCode>
+											<efbc:ParameterNumeric>0.5</efbc:ParameterNumeric>
+										</efac:AwardCriterionParameter>
+									</efext:EformsExtension>
+								</ext:ExtensionContent>
+							</ext:UBLExtension>
+						</ext:UBLExtensions>
+						<cbc:AwardingCriterionTypeCode listName="award-criterion-type">price</cbc:AwardingCriterionTypeCode>
+						<cbc:Name languageID="DEU">Preis</cbc:Name>
+						<cbc:Description languageID="DEU">Die Angebotsposition mit dem niedrigsten, geprüften Tagessatz erhält die maximale Punktzahl. Alle höheren, geprüften Tagessätze der jeweiligen Position, werden mit dem niedrigsten, geprüften Tagessatz ins Verhältnis gesetzt und mit der maximalen Punktzahl der jeweiligen Position (vgl. Anlage B4a, Gewichtung) multipliziert.</cbc:Description>
+					</cac:SubordinateAwardingCriterion>
+				</cac:AwardingCriterion>
+			</cac:AwardingTerms>
+			<cac:AdditionalInformationParty>
+				<cac:PartyIdentification>
+					<cbc:ID>ORG-0001</cbc:ID>
+				</cac:PartyIdentification>
+			</cac:AdditionalInformationParty>
+			<cac:TenderRecipientParty>
+				<cbc:EndpointID>https://www.dtvp.de/Satellite/notice/CXP4Y6LMT88</cbc:EndpointID>
+				<cac:PartyIdentification>
+					<cbc:ID>ORG-0001</cbc:ID>
+				</cac:PartyIdentification>
+			</cac:TenderRecipientParty>
+			<cac:AppealTerms>
+				<cac:PresentationPeriod>
+					<cbc:Description languageID="DEU">134 GWB Informations- und Wartepflicht. "(1) Öffentliche Auftraggeber haben die Bieter, deren Angebote nicht berücksichtigt werden sollen, über den Namen des Unternehmens, dessen Angebot angenommen werden soll, über die Gründe der vorgesehenen Nichtberücksichtigung ihres Angebots und über den frühesten Zeitpunkt des Vertragsschlusses unverzüglich in Textform zu informieren. Dies gilt auch für Bewerber, denen keine Information über die Ablehnung ihrer Bewerbung zur Verfügung gestellt wurde, bevor die Mitteilung über die Zuschlagsentscheidung an die betroffenen Bieter ergangen ist. (2) Ein Vertrag darf erst 15 Kalendertage nach Absendung der Information nach Absatz 1 geschlossen werden. Wird die Information auf elektronischem Weg oder per Fax versendet, verkürzt sich die Frist auf zehn Kalendertage. Die Frist beginnt am Tag nach der Absendung der Information durch den Auftraggeber; auf den Tag des Zugangs beim betroffenen Bieter und Bewerber kommt es nicht an. (3) Die Informationspflicht entfällt in Fällen, in denen das Verhandlungsverfahren ohne Teilnahmewettbewerb wegen besonderer Dringlichkeit gerechtfertigt ist..." § 135 GWB Unwirksamkeit. "(1) Ein öffentlicher Auftrag ist von Anfang an unwirksam, wenn der öffentliche Auftraggeber: 1. gegen § 134 verstoßen hat..." § 160 GWB Einleitung, Antrag. "(1) Die Vergabekammer leitet ein Nachprüfungsverfahren nur auf Antrag ein. (2) Antragsbefugt ist jedes Unternehmen, das ein Interesse an dem öffentlichen Auftrag oder der Konzession hat und eine Verletzung in seinen Rechten nach § 97 Absatz 6 durch Nichtbeachtung von Vergabevorschriften geltend macht. Dabei ist darzulegen, dass dem Unternehmen durch die behauptete Verletzung der Vergabevorschriften ein Schaden entstanden ist oder zu entstehen droht. (3) Der Antrag ist unzulässig, soweit: 1. der Antragsteller den geltend gemachten Verstoß gegen Vergabevorschriften vor Einreichen des Nachprüfungsantrags erkannt und gegenüber dem Auftraggeber nicht innerhalb einer Frist von 10 Kalendertagen gerügt hat; der Ablauf der Frist nach § 134 Absatz 2 bleibt unberührt, 2. Verstöße gegen Vergabevorschriften, die aufgrund der Bekanntmachung erkennbar sind, nicht spätestens bis zum Ablauf der in der Bekanntmachung benannten Frist zur Bewerbung oder zur Angebotsabgabe gegenüber dem Auftraggeber gerügt werden, 3. Verstöße gegen Vergabevorschriften, die erst in den Vergabeunterlagen erkennbar sind, nicht spätestens bis zum Ablauf der Frist zur Bewerbung oder zur Angebotsabgabe gegenüber dem Auftraggeber gerügt werden, 4. mehr als 15 Kalendertage nach Eingang der Mitteilung des Auftraggebers, einer Rüge nicht abhelfen zu wollen, vergangen sind. Satz 1 gilt nicht bei einem Antrag auf Feststellung der Unwirksamkeit des Vertrags nach § 135 Absatz 1 Nummer 2. § 134 Absatz 1 Satz 2 bleibt unberührt." § 168 GWB Entscheidung der Vergabekammer. "(1) Die Vergabekammer entscheidet, ob der Antragsteller in seinen Rechten verletzt ist und trifft die geeigneten Maßnahmen, um eine Rechtsverletzung zu beseitigen und eine Schädigung der betroffenen Interessen zu verhindern. Sie ist an die Anträge nicht gebunden und kann auch unabhängig davon auf die Rechtmäßigkeit des Vergabeverfahrens einwirken. (2) Ein wirksam erteilter Zuschlag kann nicht aufgehoben werden...".</cbc:Description>
+				</cac:PresentationPeriod>
+				<cac:AppealReceiverParty>
+					<cac:PartyIdentification>
+						<cbc:ID schemeName="organization">ORG-0002</cbc:ID>
+					</cac:PartyIdentification>
+				</cac:AppealReceiverParty>
+			</cac:AppealTerms>
+			<cac:Language>
+				<cbc:ID>DEU</cbc:ID>
+			</cac:Language>
+			<cac:LotDistribution>
+				<cbc:MaximumLotsAwardedNumeric>3</cbc:MaximumLotsAwardedNumeric>
+				<cbc:MaximumLotsSubmittedNumeric>3</cbc:MaximumLotsSubmittedNumeric>
+			</cac:LotDistribution>
+			<cac:PostAwardProcess>
+				<cbc:ElectronicOrderUsageIndicator>true</cbc:ElectronicOrderUsageIndicator>
+				<cbc:ElectronicPaymentUsageIndicator>true</cbc:ElectronicPaymentUsageIndicator>
+			</cac:PostAwardProcess>
+			<cac:SecurityClearanceTerm>
+				<cbc:Code listName="required">false</cbc:Code>
+			</cac:SecurityClearanceTerm>
+		</cac:TenderingTerms>
+		<cac:TenderingProcess>
+			<cbc:SubmissionMethodCode listName="esubmission">required</cbc:SubmissionMethodCode>
+			<cbc:CandidateReductionConstraintIndicator>true</cbc:CandidateReductionConstraintIndicator>
+			<cbc:GovernmentAgreementConstraintIndicator>true</cbc:GovernmentAgreementConstraintIndicator>
+			<cbc:AccessToolsURI>https://www.dtvp.de/Satellite/notice/CXP4Y6LMT88</cbc:AccessToolsURI>
+			<cac:InvitationSubmissionPeriod>
+				<cbc:StartDate>2027-01-29+01:00</cbc:StartDate>
+			</cac:InvitationSubmissionPeriod>
+			<cac:ParticipationRequestReceptionPeriod>
+				<cbc:EndDate>2026-12-16+01:00</cbc:EndDate>
+				<cbc:EndTime>09:00:00+01:00</cbc:EndTime>
+			</cac:ParticipationRequestReceptionPeriod>
+			<cac:AdditionalInformationRequestPeriod>
+				<cbc:EndDate>2026-12-09+01:00</cbc:EndDate>
+				<cbc:EndTime>23:59:59+01:00</cbc:EndTime>
+			</cac:AdditionalInformationRequestPeriod>
+			<cac:EconomicOperatorShortList>
+				<cbc:LimitationDescription>true</cbc:LimitationDescription>
+				<cbc:MaximumQuantity>8</cbc:MaximumQuantity>
+				<cbc:MinimumQuantity>3</cbc:MinimumQuantity>
+			</cac:EconomicOperatorShortList>
+			<cac:AuctionTerms>
+				<cbc:AuctionConstraintIndicator>false</cbc:AuctionConstraintIndicator>
+			</cac:AuctionTerms>
+			<cac:FrameworkAgreement>
+				<cbc:MaximumOperatorQuantity>11</cbc:MaximumOperatorQuantity>
+			</cac:FrameworkAgreement>
+			<cac:ContractingSystem>
+				<cbc:ContractingSystemTypeCode listName="framework-agreement">fa-mix</cbc:ContractingSystemTypeCode>
+			</cac:ContractingSystem>
+			<cac:ContractingSystem>
+				<cbc:ContractingSystemTypeCode listName="dps-usage">none</cbc:ContractingSystemTypeCode>
+			</cac:ContractingSystem>
+		</cac:TenderingProcess>
+		<cac:ProcurementProject>
+			<cbc:ID schemeName="internalID">1</cbc:ID>
+			<cbc:Name languageID="DEU">Strategische Beratung</cbc:Name>
+			<cbc:Description languageID="DEU">Die AOK NordWest beabsichtigt den Auftrag an mehrere Unternehmensberatungen zu erteilen, die zu den unten genannten vorstandsnahen Handlungsfeldern strategisch beraten und bei der Umsetzung z. B. von Projekten unterstützen.  Das Los 1 umfasst die übergeordnete, konzeptionelle Beratungsleistung zur Entwicklung langfristiger Ziele und Strategien für die Auftraggeberin. Die Beratungsleistungen in Los 1 sollen in den nachfolgenden, drei miteinander vernetzten Handlungsfeldern ("Unternehmensstrategie/-entwicklung", "Konsolidierung und Versorgung" sowie "Markt/Vertrieb und Wettbewerb") erbracht werden. Die Beratung richtet sich primär an die Ausrichtung der Auftraggeberin und den Aufbau zukunftsfähiger Geschäftsmodelle - sie ist somit nicht auf konkrete Abläufe oder Technologien fokussiert, sondern auf die oberste und damit übergeordnete Ebene der Unternehmenssteuerung. Zudem können die Koordination und die Steuerung ggf. weiterer Dienstleister in jedem Abruf Teil des Auftrags sein.  Die folgenden, zu den Handlungsfeldern aufgeführten Leistungen, sind beispielhaft, nicht ab-schließend und können sich innerhalb der Vertragslaufzeit dynamisch fortentwickeln und eine Anpassung innerhalb dieses Rahmens berechtigt den Rahmenvertragspartner nicht zu einer Neubestimmung des jeweiligen Angebotspreises:  Unternehmensstrategie/-entwicklung - Trend- und Umfeldbetrachtung  - Entwicklung neuer Geschäftsfelder  - Geschäftsmodellentwicklung  - Weiterentwicklung der strategischen Ausrichtung der AOK NordWest sowie Ableitung von Unternehmens-/Bereichszielen inkl. Umsetzungsmaßnahmen   Konsolidierung und Versorgung - Gewährleistung einer bedarfs- und qualitätsgerechten (Gesundheits-)Versorgung - Leistungssteuerung, Vertragsmanagement und Versorgungsportfolio  - Sicherstellung der Versorgung z. B. im ländlichen Raum  - Beschleunigung von Genehmigungs- und Abrechnungsprozessen   Markt/Vertrieb und Wettbewerb - wettbewerbsfähige Ausrichtung - Omnikanalmanagement - Erhöhung von Kundenzufriedenheit, Weiterempfehlungsbereitschaft und Marktanteil  - Customer Experience, Kundenzentrierung und Steigerung der Kundenloyalität - Vertriebswege und Vertriebsformen</cbc:Description>
+			<cbc:ProcurementTypeCode listName="contract-nature">services</cbc:ProcurementTypeCode>
+			<cbc:SMESuitableIndicator>false</cbc:SMESuitableIndicator>
+			<cac:ProcurementAdditionalType>
+				<cbc:ProcurementTypeCode listName="strategic-procurement">none</cbc:ProcurementTypeCode>
+			</cac:ProcurementAdditionalType>
+			<cac:MainCommodityClassification>
+				<cbc:ItemClassificationCode listName="cpv">79400000</cbc:ItemClassificationCode>
+			</cac:MainCommodityClassification>
+			<cac:AdditionalCommodityClassification>
+				<cbc:ItemClassificationCode listName="cpv">72224000</cbc:ItemClassificationCode>
+			</cac:AdditionalCommodityClassification>
+			<cac:RealizedLocation>
+				<cbc:Description languageID="DEU">Der Erfüllungsort richtet sich nach dem konkreten Einzelauftrag und kann im Bereich Westfalen-Lippe oder Schleswig-Holstein liegen. Abstimmungsgespräche erfolgen sowohl remote als auch vor Ort.</cbc:Description>
+				<cac:Address>
+					<cbc:Region>anyw</cbc:Region>
+				</cac:Address>
+			</cac:RealizedLocation>
+			<cac:PlannedPeriod>
+				<cbc:DurationMeasure unitCode="YEAR">2</cbc:DurationMeasure>
+			</cac:PlannedPeriod>
+			<cac:ContractExtension>
+				<cbc:OptionsDescription languageID="DEU">Für den Fall, dass wegen eines Nachprüfungsverfahrens die Vergabe des Anschlussauftrags nicht spätestens am 30.04.2031 erfolgen kann, verlängert sich die Vertragslaufzeit bis zum Ablauf des auf den bestands- oder rechtskräftigen Abschluss des Nachprüfungsverfahrens folgenden Monats, wenn die Auftraggeberin bis zum 30.04.2031 eine entsprechende Erklärung gegenüber dem Auftragnehmer abgibt, längstens aber bis zum 30.11.2031 oder bei Erreichen der Höchstgrenze gem. Ziffer 10.3 des Vertrags (B1) bzw. Ziffer 22 des EVB-IT Vertrages (B1).</cbc:OptionsDescription>
+				<cbc:MaximumNumberNumeric>2</cbc:MaximumNumberNumeric>
+				<cac:Renewal>
+					<cac:Period>
+						<cbc:Description languageID="DEU">Der Vertrag läuft vom 01.06.2027 bis zum 31.05.2029. Er kann zweimalig um jeweils ein Jahr durch einseitige Erklärung der Auftraggeberin verlängert werden bis maximal zum 31.05.2031.</cbc:Description>
+					</cac:Period>
+				</cac:Renewal>
+			</cac:ContractExtension>
+		</cac:ProcurementProject>
+	</cac:ProcurementProjectLot>
+	<cac:ProcurementProjectLot>
+		<cbc:ID schemeName="Lot">LOT-0002</cbc:ID>
+		<cac:TenderingTerms>
+			<ext:UBLExtensions>
+				<ext:UBLExtension>
+					<ext:ExtensionContent>
+						<efext:EformsExtension>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-ref-services</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Referenzen Los 1: Es sind insgesamt mindestens 3 Referenzen aus den in der Leistungsbeschreibung genannten Handlungsfeldern - Unternehmensstrategie/-entwicklung und/oder - Konsolidierung/Versorgung und/oder  - Markt/Vertrieb/Wettbewerb nachzuweisen.  Das Beratungsende eines Referenzprojektes darf nicht vor Dezember 2023 liegen. Jede Referenz muss mindestens 200 Beratertage umfassen. Sofern die Referenz noch nicht abgeschlossen ist, müssen bis Ablauf der Teilnahmefrist bereits 200 Beratertage erbracht worden sein. Mind. eine Referenz muss die Beratung von gesetzlichen Krankenversicherungen (mit mehr als 500.000 Versicherten) beinhalten.  Jede eingereichte Referenz, die die Mindestanforderungen erfüllt, wird mit 3 Punkten bewertet. Es können maximal 18 Punkte für 6 Referenzen erreicht werden. Weitere eingereichte Referenzen, die die Mindestanforderungen erfüllen, bleiben unberücksichtigt und erhöhen die maximal zu erreichende Punktzahl nicht.   Des Weiteren werden zusätzliche Punkte wie folgt vergeben:  5 weitere Punkte, wenn für alle 3 Handlungsfelder mindestens eine Referenz eingereicht wurde.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>23.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-ref-services</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Referenzen Los 2: Es sind insgesamt mindestens 3 Referenzen aus den in der Leistungsbeschreibung genannten Handlungsfeldern - Realisierung der digitalen Transformation und/oder - Operative Umsetzung der IT-Strategie und/oder - IT-Sicherheit und Datenschutz nachzuweisen.  Das Ende eines Referenzprojektes darf nicht vor Dezember 2023 liegen. Jede Referenz muss mindestens 200 Beratertage umfassen. Sofern die Referenz noch nicht abgeschlossen ist, müssen bis Ablauf der Teilnahmefrist bereits 200 Beratertage erbracht worden sein. Bei mind. einer Referenz muss die Leistung bei einer gesetzlichen Krankenversicherungen erbracht worden sein.  Jede eingereichte Referenz, die die Mindestanforderungen erfüllt, wird mit 3 Punkten bewertet. Es können maximal 18 Punkte für 6 Referenzen erreicht werden. Weitere eingereichte Referenzen, die die Mindestanforderungen erfüllen, bleiben unberücksichtigt und erhöhen die maximal zu erreichende Punktzahl nicht.   Des Weiteren werden zusätzliche Punkte je Referenz wie folgt vergeben:  2 weitere Punkte, wenn die in der Referenz genannte Leistung mit systematischem KI-/Agenteneinsatz umgesetzt und damit Produktivitäts- bzw. Effizienzgewinne erzielt wurden;   Des Weiteren werden zusätzliche Punkte wie folgt vergeben:  3 weitere Punkte, wenn für alle 3 Handlungsfelder eine Referenz eingereicht wurde.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>33.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-ref-services</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Referenzen Los 3: Es sind insgesamt mindestens 5 Referenzen aus den in der Leistungsbeschreibung genannten Profilen  - Projekt-, Programm- und Agile Delivery Management  - Entwicklung, insbesondere Frontend/Backend Developer, Datenarchitektur, Dashboard Design, RPA  - Data und AI  - Qualität und Sicherheit - Kundenzentrierung, Nutzererlebnis und Omnikanalmanagement.  Das Beratungsende eines Referenzprojektes darf nicht vor Dezember 2023 liegen.  Bei mind. drei Referenzen muss die Leistung bei einer gesetzlichen Krankenversicherungen erbracht worden sein.   Jede eingereichte Referenz, die die Mindestanforderungen erfüllt, wird mit 3 Punkten bewertet. Es können maximal 30 Punkte für 10 Referenzen erreicht werden. Weitere eingereichte Referenzen, die die Mindestanforderungen erfüllen, bleiben unberücksichtigt und erhöhen die maximal zu erreichende Punktzahl nicht.   Des Weiteren werden zusätzliche Punkte je Referenz wie folgt vergeben:  1 weiterer Punkt, wenn die in der Referenz genannte Leistung vom Umsatz größer als 150.000 EUR war;  2 weitere Punkte, wenn die in der Referenz genannte Leistung mit systematischem KI-/Agenteneinsatz umgesetzt und damit Produktivitäts- bzw. Effizienzgewinne erzielt wurden;  Des Weiteren werden zusätzliche Punkte wie folgt vergeben:  3 weitere Punkte, wenn für alle 5 Profile eine Referenz eingereicht wurde.  Anhand der Kriterien werden die Bewerber ausgewählt, die zur zweiten Phase des Verfahrens eingeladen werden.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>63.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-stand-to-avg</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Umsatz des Unternehmens (Lose 1 bis 3):  Bewertet wird die Höhe des durchschnittlichen Umsatzes in den letzten 3 Geschäftsjahren.  3 Punkte: über 25 Mio. EUR  2 Punkte: ab 5 Mio. EUR bis 25 Mio. EUR  0 Punkte: unter 5 Mio. EUR 2 weitere Punkte, wenn die Umsatzentwicklung im angegebenen 3-Jahreszeitraum kontinuierlich gewachsen ist.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>5.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-staff-yrly-avg-mp</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Unternehmensgröße hinsichtlich der Anzahl der Mitarbeiter/-innen (Lose 1 bis 3): Bewertet wird die durchschnittliche Gesamtanzahl der Mitarbeiter/-innen in den letzten 3 Geschäftsjahren.  Los 1: 3 Punkte: über 750 festangestellte Mitarbeiter/-innen 2 Punkte: ab 500 bis 750 festangestellte Mitarbeiter/-innen 0 Punkte: unter 500 festangestellte Mitarbeiter/-innen 1 weiterer Punkt, wenn die Anzahl der Mitarbeiter/-innen im angegebenen 3-Jahreszeitraum gewachsen ist.  Lose 2 und 3: 3 Punkte: über 500 festangestellte Mitarbeiter/-innen oder über 300 festangestellte Mitarbeiter/-innen und über 200 Mitarbeiter/-innen auf Honorarbasis 2 Punkte: ab 50 bis 300 festangestellte Mitarbeiter/-innen und ab 50 bis 200 Mitarbeiter/-innen auf Honorarbasis 0 Punkte: unter 50 festangestellte Mitarbeiter/-innen oder unter 50 Mitarbeiter/-innen auf Honorarbasis 1 weiterer Punkt, wenn die Anzahl der Mitarbeiter/-innen im angegebenen 3-Jahreszeitraum kontinuierlich gewachsen ist.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>4.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-sec-inf</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Informationssicherheitsanforderungen und Datenschutz (Lose 1 bis 3): Angaben zu geeigneten Nachweisen im Kontext Informationssicherheit und Datenschutz. Die Informationssicherheitsanforderungen an Auftragnehmer gemäß Anlage B1d sind sicherzustellen.  Es werden zusätzliche Punkte wie folgt vergeben:  2 weitere Punkte für die Zertifizierung nach ISO 27001 (auch auf Basis von IT-Grundschutz, für TISAX);  1 weiterer Punkt für die Zertifizierung nach ISO 22301</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>3.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-staff-qual</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Anzahl und Qualifikation der Projektleitung, der Berater/-innen und der analysierenden Personen (Los 1): Anzahl der Projektleiter/-innen, die die Anforderungen gem. Anlage B2, Ziffer 3.1 erfüllen. Je 0,5 Punkte bei 5-15 Jahren Beratungserfahrung,   je 1 Punkt bei mehr als 15 Jahren Beratungserfahrung.  Maximal werden hierbei 10 Punkte vergeben.  Anzahl der Berater/-innen, die die Anforderungen gem. Anlage B2, Ziffer 3.1 erfüllen. Je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl der analysierenden Personen, die die Anforderungen gem. Anlage B2, Ziffer 3.1 erfüllen. Je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>20.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-staff-qual</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Anzahl und Qualifikation der Projektleitung, der IT-Berater/-innen, der Entwickler/-innen und der analysierenden Personen (Los 2): Anzahl der Projektleiter/-innen, die die Anforderungen gem. Anlage B2, Ziffer 3.2 erfüllen. Je 0,5 Punkte bei 5-15 Jahren Beratungserfahrung,   je 1 Punkt bei mehr als 15 Jahren Beratungserfahrung.  Maximal werden hierbei 8 Punkte vergeben.  Anzahl der IT-Berater/-innen, die die Anforderungen gem. Anlage B2, Ziffer 3.2 erfüllen. Je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl der Entwickler/-innen, die die Anforderungen gem. Anlage B2, Ziffer 3.2 erfüllen. Je 0,5 Punkte Maximal werden hierbei 4 Punkte vergeben.  Anzahl der analysierenden Personen, die die Anforderungen gem. Anlage B2, Ziffer 3.2 erfüllen. Je 0,5 Punkte Maximal werden hierbei 3 Punkte vergeben.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>20.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-staff-qual</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Anzahl und Qualifikation der Expert, Senior und Young Professionals (Los 3): Anzahl Expert im Profil Projekt-, Programm- und Agile Delivery Management, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. Je 0,5 Punkte je 1 Punkt bei mehr als 10 Jahren Berufserfahrung.  Maximal werden hierbei 10 Punkte vergeben.  Anzahl Senior Professional im Profil Projekt-, Programm- und Agile Delivery Management, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Young Professional im Profil Projekt-, Programm- und Agile Delivery Management, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Expert im Profil Entwicklung, insbesondere Frontend/Backend Developer, Datenarchitektur, Dashboard Design, RPA,  die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. Je 0,5 Punkte je 1 Punkt bei mehr als 10 Jahren Berufserfahrung.  Maximal werden hierbei 10 Punkte vergeben.  Anzahl Senior Professional im Profil Entwicklung, insbesondere Frontend/Backend Developer, Datenarchitektur, Dashboard Design, RPA, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Young Professional im Profil Entwicklung, insbesondere Frontend/Backend Developer, Datenarchitektur, Dashboard Design, RPA, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Expert im Profil Data und AI, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. Je 0,5 Punkte je 1 Punkt bei mehr als 10 Jahren Berufserfahrung.  Maximal werden hierbei 10 Punkte vergeben.  Anzahl Senior Professional im Profil Data und AI, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Young Professional im Profil Data und AI, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Expert im Profil Qualität und Sicherheit, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. Je 0,5 Punkte je 1 Punkt bei mehr als 10 Jahren Berufserfahrung.  Maximal werden hierbei 10 Punkte vergeben.  Anzahl Senior Professional im Profil Qualität und Sicherheit, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Young Professional im Profil Qualität und Sicherheit, die die Anforderungen gem. Anlage B2, Ziffer ff. 3.3 erfüllen. Je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Expert die im Profil Kundenzentrierung, Nutzererlebnis und Omnikanalmanagement, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. Je 0,5 Punkte je 1 Punkt bei mehr als 10 Jahren Berufserfahrung.  Maximal werden hierbei 10 Punkte vergeben.  Anzahl Senior Professional im Profil Kundenzentrierung, Nutzererlebnis und Omnikanalmanagement, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Young Professional im Profil Kundenzentrierung, Nutzererlebnis und Omnikanalmanagement, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>100.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-suit-reg-trade</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Eintragung im Handelsregister: Sofern vorhanden und zur Eintragung verpflichtet: Aktueller Nachweis zur Eintragung in das einschlägige Handelsregister des Niederlassungsstaats des Bewerbers/des Mitglieds der Bewerbergemeinschaft (nicht älter als 6 Monate vom Tag der Teilnahmefrist gerechnet). Bewerber mit Firmensitz außerhalb Deutschlands haben den Nachweis der Eintragung in ein vergleichbares Register von Stellen des Herkunftslandes in deutscher beglaubigter Übersetzung einzureichen.</cbc:Description>
+								<efbc:SecondStageIndicator>false</efbc:SecondStageIndicator>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-stand-ins</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Betriebshaftpflichtversicherung: Der Bewerber erklärt mit Einreichung seines Teilnahmeantrags, dass er spätestens 8 (acht) Wochen nach Zuschlag der Auftraggeberin nachweist, dass er über eine Berufs- und/oder Betriebshaftpflichtversicherung, welche Sach- und Personenschäden in Höhe von mindestens 5 Mio. EUR pro Kalenderjahr und Vermögensschäden inklusive Datenschutz i. H. v. 5 Mio. EUR pro Kalenderjahr abdeckt. Diese Versicherung wird über die Dauer der gesamten Vertragslaufzeit aufrechterhalten. Hinweise: (a) Der Nachweis kann bereits mit Abgabe des Teilnahmeantrags eingereicht werden, ist jedoch spätestens acht Wochen nach Zuschlagserteilung vorzulegen. (b) Im Fall der Bildung einer Bewerbergemeinschaft ist die zuvor genannte Erklärung zur Betriebshaftpflichtversicherung vom bevollmächtigten Mitglied der Bewerbergemeinschaft abzugeben und mit dem Teilnahmeantrag einzureichen. Der Nachweis der Versicherungsbescheinigung ist von jedem Mitglied der Bewerbergemeinschaft den Auftraggeberinnen binnen acht Wochen nach Zuschlagserteilung vorzulegen.</cbc:Description>
+								<efbc:SecondStageIndicator>false</efbc:SecondStageIndicator>
+							</efac:SelectionCriteria>
+							<efac:StrategicProcurement>
+								<efbc:ApplicableLegalBasis listName="cvd-scope">false</efbc:ApplicableLegalBasis>
+							</efac:StrategicProcurement>
+							<efac:StrategicProcurement>
+								<efbc:ApplicableLegalBasis listName="eed-scope">false</efbc:ApplicableLegalBasis>
+							</efac:StrategicProcurement>
+						</efext:EformsExtension>
+					</ext:ExtensionContent>
+				</ext:UBLExtension>
+			</ext:UBLExtensions>
+			<cbc:VariantConstraintCode listName="permission">not-allowed</cbc:VariantConstraintCode>
+			<cbc:FundingProgramCode listName="eu-funded">no-eu-funds</cbc:FundingProgramCode>
+			<cbc:RequiredCurriculaCode listName="requirement-stage">not-requ</cbc:RequiredCurriculaCode>
+			<cbc:MultipleTendersCode listName="permission">not-allowed</cbc:MultipleTendersCode>
+			<cac:RequiredFinancialGuarantee>
+				<cbc:GuaranteeTypeCode listName="tender-guarantee-required">false</cbc:GuaranteeTypeCode>
+			</cac:RequiredFinancialGuarantee>
+			<cac:CallForTendersDocumentReference>
+				<ext:UBLExtensions>
+					<ext:UBLExtension>
+						<ext:ExtensionContent>
+							<efext:EformsExtension>
+								<efac:OfficialLanguages>
+									<cac:Language>
+										<cbc:ID>DEU</cbc:ID>
+									</cac:Language>
+								</efac:OfficialLanguages>
+							</efext:EformsExtension>
+						</ext:ExtensionContent>
+					</ext:UBLExtension>
+				</ext:UBLExtensions>
+				<cbc:ID>SomeTenderDocID1</cbc:ID>
+				<cbc:DocumentType>non-restricted-document</cbc:DocumentType>
+				<cac:Attachment>
+					<cac:ExternalReference>
+						<cbc:URI>https://www.dtvp.de/Satellite/notice/CXP4Y6LMT88/documents</cbc:URI>
+					</cac:ExternalReference>
+				</cac:Attachment>
+			</cac:CallForTendersDocumentReference>
+			<cac:TendererQualificationRequest>
+				<cbc:CompanyLegalFormCode listName="required">false</cbc:CompanyLegalFormCode>
+			</cac:TendererQualificationRequest>
+			<cac:TendererQualificationRequest>
+				<cac:SpecificTendererRequirement>
+					<cbc:TendererRequirementTypeCode listName="missing-info-submission">late-some</cbc:TendererRequirementTypeCode>
+					<cbc:Description languageID="DEU">Nachforderungen können gem. § 56 VgV erfolgen.</cbc:Description>
+				</cac:SpecificTendererRequirement>
+			</cac:TendererQualificationRequest>
+			<cac:TendererQualificationRequest>
+				<cac:SpecificTendererRequirement>
+					<cbc:TendererRequirementTypeCode listName="reserved-procurement">none</cbc:TendererRequirementTypeCode>
+				</cac:SpecificTendererRequirement>
+			</cac:TendererQualificationRequest>
+			<cac:TendererQualificationRequest>
+				<cac:SpecificTendererRequirement>
+					<cbc:TendererRequirementTypeCode listName="selection-criteria-source">epo-notice</cbc:TendererRequirementTypeCode>
+				</cac:SpecificTendererRequirement>
+				<cac:SpecificTendererRequirement>
+					<cbc:TendererRequirementTypeCode listName="selection-criteria-source">epo-procurement-document</cbc:TendererRequirementTypeCode>
+				</cac:SpecificTendererRequirement>
+			</cac:TendererQualificationRequest>
+			<cac:ContractExecutionRequirement>
+				<cbc:ExecutionRequirementCode listName="reserved-execution">no</cbc:ExecutionRequirementCode>
+			</cac:ContractExecutionRequirement>
+			<cac:ContractExecutionRequirement>
+				<cbc:ExecutionRequirementCode listName="ecatalog-submission">not-allowed</cbc:ExecutionRequirementCode>
+			</cac:ContractExecutionRequirement>
+			<cac:ContractExecutionRequirement>
+				<cbc:ExecutionRequirementCode listName="einvoicing">allowed</cbc:ExecutionRequirementCode>
+			</cac:ContractExecutionRequirement>
+			<cac:ContractExecutionRequirement>
+				<cbc:ExecutionRequirementCode listName="conditions">performance</cbc:ExecutionRequirementCode>
+				<cbc:Description languageID="DEU">Nichtvorliegen von "Russlandsanktionen" Das Unternehmen bestätigt die Einhaltung der EU-Sanktionen gegen Russland (VO (EU) Nr. 833/2014) und erklärt, dass weder ein direkter noch ein indirekter Russland-Bezug besteht - es also weder in Russland ansässig ist noch mehrheitlich (über 50 %) von russischen Personen oder Organisationen kontrolliert wird oder in deren Auftrag handelt. Zudem wird zugesichert, dass weder aktuell noch während der Vertragslaufzeit betroffene Unterauftragnehmer oder Lieferanten eingesetzt werden, auf die mehr als 10 % des Auftragswerts entfallen. Sollten sich diese Umstände künftig ändern oder das Unternehmen von Russland-Sanktionen betroffen sein, wird die Auftraggeberin unverzüglich informiert (vgl. hierzu Anlage A3).</cbc:Description>
+			</cac:ContractExecutionRequirement>
+			<cac:ContractExecutionRequirement>
+				<cbc:ExecutionRequirementCode listName="fsr">false</cbc:ExecutionRequirementCode>
+			</cac:ContractExecutionRequirement>
+			<cac:AwardingTerms>
+				<cbc:NoFurtherNegotiationIndicator>false</cbc:NoFurtherNegotiationIndicator>
+				<cac:AwardingCriterion>
+					<cac:SubordinateAwardingCriterion>
+						<ext:UBLExtensions>
+							<ext:UBLExtension>
+								<ext:ExtensionContent>
+									<efext:EformsExtension>
+										<efac:AwardCriterionParameter>
+											<efbc:ParameterCode listName="number-weight">dec-exa</efbc:ParameterCode>
+											<efbc:ParameterNumeric>0.5</efbc:ParameterNumeric>
+										</efac:AwardCriterionParameter>
+									</efext:EformsExtension>
+								</ext:ExtensionContent>
+							</ext:UBLExtension>
+						</ext:UBLExtensions>
+						<cbc:AwardingCriterionTypeCode listName="award-criterion-type">quality</cbc:AwardingCriterionTypeCode>
+						<cbc:Name languageID="DEU">Qualität</cbc:Name>
+						<cbc:Description languageID="DEU">Das Qualitätskriterium setzt sich zusammen aus einem Konzept und einer Präsentation einer Fallaufgabe. Für das einzureichende Konzept gilt eine maximale Folien-/Seitenzahl von 30 Folien (Powerpoint) bzw. 15 Seiten (DIN A4, word/pdf), jeweils in Schriftgröße 11, ausgenommen sind Abbildungen. Deckblätter, Agendafolien bzw. Inhaltsverzeichnisse werden nicht als Folien-/Seitenzahl mitgezählt.  Die erreichte Punktzahl für das eingereichte Konzept sowie für die Präsentation der Fallaufgabe werden addiert und bilden die Gesamtpunktzahl des Kriteriums Qualität.</cbc:Description>
+					</cac:SubordinateAwardingCriterion>
+					<cac:SubordinateAwardingCriterion>
+						<ext:UBLExtensions>
+							<ext:UBLExtension>
+								<ext:ExtensionContent>
+									<efext:EformsExtension>
+										<efac:AwardCriterionParameter>
+											<efbc:ParameterCode listName="number-weight">dec-exa</efbc:ParameterCode>
+											<efbc:ParameterNumeric>0.5</efbc:ParameterNumeric>
+										</efac:AwardCriterionParameter>
+									</efext:EformsExtension>
+								</ext:ExtensionContent>
+							</ext:UBLExtension>
+						</ext:UBLExtensions>
+						<cbc:AwardingCriterionTypeCode listName="award-criterion-type">price</cbc:AwardingCriterionTypeCode>
+						<cbc:Name languageID="DEU">Preis</cbc:Name>
+						<cbc:Description languageID="DEU">Die Angebotsposition mit dem niedrigsten, geprüften Tagessatz erhält die maximale Punktzahl. Alle höheren, geprüften Tagessätze der jeweiligen Position, werden mit dem niedrigsten, geprüften Tagessatz ins Verhältnis gesetzt und mit der maximalen Punktzahl der jeweiligen Position (vgl. Anlage B4b, Gewichtung) multipliziert.</cbc:Description>
+					</cac:SubordinateAwardingCriterion>
+				</cac:AwardingCriterion>
+			</cac:AwardingTerms>
+			<cac:AdditionalInformationParty>
+				<cac:PartyIdentification>
+					<cbc:ID>ORG-0001</cbc:ID>
+				</cac:PartyIdentification>
+			</cac:AdditionalInformationParty>
+			<cac:TenderRecipientParty>
+				<cbc:EndpointID>https://www.dtvp.de/Satellite/notice/CXP4Y6LMT88</cbc:EndpointID>
+				<cac:PartyIdentification>
+					<cbc:ID>ORG-0001</cbc:ID>
+				</cac:PartyIdentification>
+			</cac:TenderRecipientParty>
+			<cac:AppealTerms>
+				<cac:PresentationPeriod>
+					<cbc:Description languageID="DEU">134 GWB Informations- und Wartepflicht. "(1) Öffentliche Auftraggeber haben die Bieter, deren Angebote nicht berücksichtigt werden sollen, über den Namen des Unternehmens, dessen Angebot angenommen werden soll, über die Gründe der vorgesehenen Nichtberücksichtigung ihres Angebots und über den frühesten Zeitpunkt des Vertragsschlusses unverzüglich in Textform zu informieren. Dies gilt auch für Bewerber, denen keine Information über die Ablehnung ihrer Bewerbung zur Verfügung gestellt wurde, bevor die Mitteilung über die Zuschlagsentscheidung an die betroffenen Bieter ergangen ist. (2) Ein Vertrag darf erst 15 Kalendertage nach Absendung der Information nach Absatz 1 geschlossen werden. Wird die Information auf elektronischem Weg oder per Fax versendet, verkürzt sich die Frist auf zehn Kalendertage. Die Frist beginnt am Tag nach der Absendung der Information durch den Auftraggeber; auf den Tag des Zugangs beim betroffenen Bieter und Bewerber kommt es nicht an. (3) Die Informationspflicht entfällt in Fällen, in denen das Verhandlungsverfahren ohne Teilnahmewettbewerb wegen besonderer Dringlichkeit gerechtfertigt ist..." § 135 GWB Unwirksamkeit. "(1) Ein öffentlicher Auftrag ist von Anfang an unwirksam, wenn der öffentliche Auftraggeber: 1. gegen § 134 verstoßen hat..." § 160 GWB Einleitung, Antrag. "(1) Die Vergabekammer leitet ein Nachprüfungsverfahren nur auf Antrag ein. (2) Antragsbefugt ist jedes Unternehmen, das ein Interesse an dem öffentlichen Auftrag oder der Konzession hat und eine Verletzung in seinen Rechten nach § 97 Absatz 6 durch Nichtbeachtung von Vergabevorschriften geltend macht. Dabei ist darzulegen, dass dem Unternehmen durch die behauptete Verletzung der Vergabevorschriften ein Schaden entstanden ist oder zu entstehen droht. (3) Der Antrag ist unzulässig, soweit: 1. der Antragsteller den geltend gemachten Verstoß gegen Vergabevorschriften vor Einreichen des Nachprüfungsantrags erkannt und gegenüber dem Auftraggeber nicht innerhalb einer Frist von 10 Kalendertagen gerügt hat; der Ablauf der Frist nach § 134 Absatz 2 bleibt unberührt, 2. Verstöße gegen Vergabevorschriften, die aufgrund der Bekanntmachung erkennbar sind, nicht spätestens bis zum Ablauf der in der Bekanntmachung benannten Frist zur Bewerbung oder zur Angebotsabgabe gegenüber dem Auftraggeber gerügt werden, 3. Verstöße gegen Vergabevorschriften, die erst in den Vergabeunterlagen erkennbar sind, nicht spätestens bis zum Ablauf der Frist zur Bewerbung oder zur Angebotsabgabe gegenüber dem Auftraggeber gerügt werden, 4. mehr als 15 Kalendertage nach Eingang der Mitteilung des Auftraggebers, einer Rüge nicht abhelfen zu wollen, vergangen sind. Satz 1 gilt nicht bei einem Antrag auf Feststellung der Unwirksamkeit des Vertrags nach § 135 Absatz 1 Nummer 2. § 134 Absatz 1 Satz 2 bleibt unberührt." § 168 GWB Entscheidung der Vergabekammer. "(1) Die Vergabekammer entscheidet, ob der Antragsteller in seinen Rechten verletzt ist und trifft die geeigneten Maßnahmen, um eine Rechtsverletzung zu beseitigen und eine Schädigung der betroffenen Interessen zu verhindern. Sie ist an die Anträge nicht gebunden und kann auch unabhängig davon auf die Rechtmäßigkeit des Vergabeverfahrens einwirken. (2) Ein wirksam erteilter Zuschlag kann nicht aufgehoben werden...".</cbc:Description>
+				</cac:PresentationPeriod>
+				<cac:AppealReceiverParty>
+					<cac:PartyIdentification>
+						<cbc:ID schemeName="organization">ORG-0002</cbc:ID>
+					</cac:PartyIdentification>
+				</cac:AppealReceiverParty>
+			</cac:AppealTerms>
+			<cac:Language>
+				<cbc:ID>DEU</cbc:ID>
+			</cac:Language>
+			<cac:LotDistribution>
+				<cbc:MaximumLotsAwardedNumeric>3</cbc:MaximumLotsAwardedNumeric>
+				<cbc:MaximumLotsSubmittedNumeric>3</cbc:MaximumLotsSubmittedNumeric>
+			</cac:LotDistribution>
+			<cac:PostAwardProcess>
+				<cbc:ElectronicOrderUsageIndicator>true</cbc:ElectronicOrderUsageIndicator>
+				<cbc:ElectronicPaymentUsageIndicator>true</cbc:ElectronicPaymentUsageIndicator>
+			</cac:PostAwardProcess>
+			<cac:SecurityClearanceTerm>
+				<cbc:Code listName="required">false</cbc:Code>
+			</cac:SecurityClearanceTerm>
+		</cac:TenderingTerms>
+		<cac:TenderingProcess>
+			<cbc:SubmissionMethodCode listName="esubmission">required</cbc:SubmissionMethodCode>
+			<cbc:CandidateReductionConstraintIndicator>true</cbc:CandidateReductionConstraintIndicator>
+			<cbc:GovernmentAgreementConstraintIndicator>true</cbc:GovernmentAgreementConstraintIndicator>
+			<cbc:AccessToolsURI>https://www.dtvp.de/Satellite/notice/CXP4Y6LMT88</cbc:AccessToolsURI>
+			<cac:InvitationSubmissionPeriod>
+				<cbc:StartDate>2027-01-29+01:00</cbc:StartDate>
+			</cac:InvitationSubmissionPeriod>
+			<cac:ParticipationRequestReceptionPeriod>
+				<cbc:EndDate>2026-12-16+01:00</cbc:EndDate>
+				<cbc:EndTime>09:00:00+01:00</cbc:EndTime>
+			</cac:ParticipationRequestReceptionPeriod>
+			<cac:AdditionalInformationRequestPeriod>
+				<cbc:EndDate>2026-12-09+01:00</cbc:EndDate>
+				<cbc:EndTime>23:59:59+01:00</cbc:EndTime>
+			</cac:AdditionalInformationRequestPeriod>
+			<cac:EconomicOperatorShortList>
+				<cbc:LimitationDescription>true</cbc:LimitationDescription>
+				<cbc:MaximumQuantity>8</cbc:MaximumQuantity>
+				<cbc:MinimumQuantity>3</cbc:MinimumQuantity>
+			</cac:EconomicOperatorShortList>
+			<cac:AuctionTerms>
+				<cbc:AuctionConstraintIndicator>false</cbc:AuctionConstraintIndicator>
+			</cac:AuctionTerms>
+			<cac:FrameworkAgreement>
+				<cbc:MaximumOperatorQuantity>11</cbc:MaximumOperatorQuantity>
+			</cac:FrameworkAgreement>
+			<cac:ContractingSystem>
+				<cbc:ContractingSystemTypeCode listName="framework-agreement">fa-mix</cbc:ContractingSystemTypeCode>
+			</cac:ContractingSystem>
+			<cac:ContractingSystem>
+				<cbc:ContractingSystemTypeCode listName="dps-usage">none</cbc:ContractingSystemTypeCode>
+			</cac:ContractingSystem>
+		</cac:TenderingProcess>
+		<cac:ProcurementProject>
+			<cbc:ID schemeName="internalID">2</cbc:ID>
+			<cbc:Name languageID="DEU">IT-Beratung</cbc:Name>
+			<cbc:Description languageID="DEU">Die AOK NordWest beabsichtigt den Auftrag an mehrere Unternehmensberatungen mit Schwerpunkt IT zu erteilen, die den Unternehmensbereich Strategie, IT und Digitalisierung zu den unten genannten Handlungsfeldern beraten und bei der Umsetzung unterstützen.  Das Los 2 umfasst die beratende Unterstützung bei der Planung, Steuerung und Bewertung von Digitalisierungsprojekten und -vorhaben wie beispielsweise digitalen Technologien und Systemen bei der Auftraggeberin. Ziel ist es, gemeinsam mit der Auftraggeberin digitale Potenziale zu identifizieren, Anforderungen und Chancen zu analysieren, digitale Transformation zu realisieren sowie IT-Strategien umzusetzen.  Die Beratungsleistungen in Los 2 sind in den drei Handlungsfeldern "Realisierung der digitalen Transformation", "operative Umsetzung der IT-Strategie" sowie "IT-Sicherheit und Datenschutz" zu erbringen. Zudem können die Koordination und die Steuerung ggf. weiterer Dienstleister in jedem Abruf Teil des Auftrags sein. Die folgenden, zu den Handlungsfeldern aufgeführten Leistungen, sind beispielhaft, nicht abschließend und können sich innerhalb der Vertragslaufzeit dynamisch fortentwickeln und eine Anpassung innerhalb dieses Rahmens berechtigt den Rahmenvertragspartner nicht zu einer Neubestimmung des jeweiligen Angebotspreises:  Realisierung der digitalen Transformation - technische Realisierung eines ganzheitlichen digitalen Kundenerlebnisses  - Unterstützung bei der Weiterentwicklung einer mehrschichtigen IT-Architektur zur Integration von Digital-Plattformen  - Digitalisierung und Automatisierung von Prozessen beispielsweise in IT-Projekten - Digitale Services für Versicherte und Vernetzung mit Leitungserbringern  - Agilisierung der IT  Operative Umsetzung der IT-Strategie - Weiterentwicklung der IT-Infrastruktur - operative Umsetzung/Unterstützung der IT-Strategie und eingesetzter Technik (z. B. Dokumentenmanagement und -entwicklung, Cloud, Apps, Applikationen etc.) - Weiterentwicklung der Themen Advanced Analytics und Künstliche Intelligenz  IT-Sicherheit und Datenschutz - Umsetzung und Weiterentwicklung von Cybersicherheit, Zugriffsschutz, Notfallfähigkeit etc. - Umsetzung und Weiterentwicklung von Datenschutz, Data Governance, sicherer Datennutzung, KI-Daten sowie verantwortungsvoller Umgang mit Informationen - Umsetzung Weiterentwicklung neuer Technologien, regulatorischer Anforderungen und Steuerung der digitalen Abhängigkeiten</cbc:Description>
+			<cbc:ProcurementTypeCode listName="contract-nature">services</cbc:ProcurementTypeCode>
+			<cbc:SMESuitableIndicator>false</cbc:SMESuitableIndicator>
+			<cac:ProcurementAdditionalType>
+				<cbc:ProcurementTypeCode listName="strategic-procurement">none</cbc:ProcurementTypeCode>
+			</cac:ProcurementAdditionalType>
+			<cac:MainCommodityClassification>
+				<cbc:ItemClassificationCode listName="cpv">72000000</cbc:ItemClassificationCode>
+			</cac:MainCommodityClassification>
+			<cac:AdditionalCommodityClassification>
+				<cbc:ItemClassificationCode listName="cpv">72224000</cbc:ItemClassificationCode>
+			</cac:AdditionalCommodityClassification>
+			<cac:RealizedLocation>
+				<cbc:Description languageID="DEU">Der Erfüllungsort richtet sich nach dem konkreten Einzelauftrag und kann im Bereich Westfalen-Lippe oder Schleswig-Holstein liegen. Abstimmungsgespräche erfolgen sowohl remote als auch vor Ort.</cbc:Description>
+				<cac:Address>
+					<cbc:Region>anyw</cbc:Region>
+				</cac:Address>
+			</cac:RealizedLocation>
+			<cac:PlannedPeriod>
+				<cbc:DurationMeasure unitCode="YEAR">2</cbc:DurationMeasure>
+			</cac:PlannedPeriod>
+			<cac:ContractExtension>
+				<cbc:OptionsDescription languageID="DEU">Für den Fall, dass wegen eines Nachprüfungsverfahrens die Vergabe des Anschlussauftrags nicht spätestens am 30.04.2031 erfolgen kann, verlängert sich die Vertragslaufzeit bis zum Ablauf des auf den bestands- oder rechtskräftigen Abschluss des Nachprüfungsverfahrens folgenden Monats, wenn die Auftraggeberin bis zum 30.04.2031 eine entsprechende Erklärung gegenüber dem Auftragnehmer abgibt, längstens aber bis zum 30.11.2031 oder bei Erreichen der Höchstgrenze gem. Ziffer 10.3 des Vertrags (B1) bzw. Ziffer 22 des EVB-IT Vertrages (B1).</cbc:OptionsDescription>
+				<cbc:MaximumNumberNumeric>2</cbc:MaximumNumberNumeric>
+				<cac:Renewal>
+					<cac:Period>
+						<cbc:Description languageID="DEU">Der Vertrag läuft vom 01.06.2027 bis zum 31.05.2029. Er kann zweimalig um jeweils ein Jahr durch einseitige Erklärung der Auftraggeberin verlängert werden bis maximal zum 31.05.2031.</cbc:Description>
+					</cac:Period>
+				</cac:Renewal>
+			</cac:ContractExtension>
+		</cac:ProcurementProject>
+	</cac:ProcurementProjectLot>
+	<cac:ProcurementProjectLot>
+		<cbc:ID schemeName="Lot">LOT-0003</cbc:ID>
+		<cac:TenderingTerms>
+			<ext:UBLExtensions>
+				<ext:UBLExtension>
+					<ext:ExtensionContent>
+						<efext:EformsExtension>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-ref-services</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Referenzen Los 1: Es sind insgesamt mindestens 3 Referenzen aus den in der Leistungsbeschreibung genannten Handlungsfeldern - Unternehmensstrategie/-entwicklung und/oder - Konsolidierung/Versorgung und/oder  - Markt/Vertrieb/Wettbewerb nachzuweisen.  Das Beratungsende eines Referenzprojektes darf nicht vor Dezember 2023 liegen. Jede Referenz muss mindestens 200 Beratertage umfassen. Sofern die Referenz noch nicht abgeschlossen ist, müssen bis Ablauf der Teilnahmefrist bereits 200 Beratertage erbracht worden sein. Mind. eine Referenz muss die Beratung von gesetzlichen Krankenversicherungen (mit mehr als 500.000 Versicherten) beinhalten.  Jede eingereichte Referenz, die die Mindestanforderungen erfüllt, wird mit 3 Punkten bewertet. Es können maximal 18 Punkte für 6 Referenzen erreicht werden. Weitere eingereichte Referenzen, die die Mindestanforderungen erfüllen, bleiben unberücksichtigt und erhöhen die maximal zu erreichende Punktzahl nicht.   Des Weiteren werden zusätzliche Punkte wie folgt vergeben:  5 weitere Punkte, wenn für alle 3 Handlungsfelder mindestens eine Referenz eingereicht wurde.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>23.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-ref-services</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Referenzen Los 2: Es sind insgesamt mindestens 3 Referenzen aus den in der Leistungsbeschreibung genannten Handlungsfeldern - Realisierung der digitalen Transformation und/oder - Operative Umsetzung der IT-Strategie und/oder - IT-Sicherheit und Datenschutz nachzuweisen.  Das Ende eines Referenzprojektes darf nicht vor Dezember 2023 liegen. Jede Referenz muss mindestens 200 Beratertage umfassen. Sofern die Referenz noch nicht abgeschlossen ist, müssen bis Ablauf der Teilnahmefrist bereits 200 Beratertage erbracht worden sein. Bei mind. einer Referenz muss die Leistung bei einer gesetzlichen Krankenversicherungen erbracht worden sein.  Jede eingereichte Referenz, die die Mindestanforderungen erfüllt, wird mit 3 Punkten bewertet. Es können maximal 18 Punkte für 6 Referenzen erreicht werden. Weitere eingereichte Referenzen, die die Mindestanforderungen erfüllen, bleiben unberücksichtigt und erhöhen die maximal zu erreichende Punktzahl nicht.   Des Weiteren werden zusätzliche Punkte je Referenz wie folgt vergeben:  2 weitere Punkte, wenn die in der Referenz genannte Leistung mit systematischem KI-/Agenteneinsatz umgesetzt und damit Produktivitäts- bzw. Effizienzgewinne erzielt wurden;   Des Weiteren werden zusätzliche Punkte wie folgt vergeben:  3 weitere Punkte, wenn für alle 3 Handlungsfelder eine Referenz eingereicht wurde.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>33.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-ref-services</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Referenzen Los 3: Es sind insgesamt mindestens 5 Referenzen aus den in der Leistungsbeschreibung genannten Profilen  - Projekt-, Programm- und Agile Delivery Management  - Entwicklung, insbesondere Frontend/Backend Developer, Datenarchitektur, Dashboard Design, RPA  - Data und AI  - Qualität und Sicherheit - Kundenzentrierung, Nutzererlebnis und Omnikanalmanagement.  Das Beratungsende eines Referenzprojektes darf nicht vor Dezember 2023 liegen.  Bei mind. drei Referenzen muss die Leistung bei einer gesetzlichen Krankenversicherungen erbracht worden sein.   Jede eingereichte Referenz, die die Mindestanforderungen erfüllt, wird mit 3 Punkten bewertet. Es können maximal 30 Punkte für 10 Referenzen erreicht werden. Weitere eingereichte Referenzen, die die Mindestanforderungen erfüllen, bleiben unberücksichtigt und erhöhen die maximal zu erreichende Punktzahl nicht.   Des Weiteren werden zusätzliche Punkte je Referenz wie folgt vergeben:  1 weiterer Punkt, wenn die in der Referenz genannte Leistung vom Umsatz größer als 150.000 EUR war;  2 weitere Punkte, wenn die in der Referenz genannte Leistung mit systematischem KI-/Agenteneinsatz umgesetzt und damit Produktivitäts- bzw. Effizienzgewinne erzielt wurden;  Des Weiteren werden zusätzliche Punkte wie folgt vergeben:  3 weitere Punkte, wenn für alle 5 Profile eine Referenz eingereicht wurde.  Anhand der Kriterien werden die Bewerber ausgewählt, die zur zweiten Phase des Verfahrens eingeladen werden.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>63.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-stand-to-avg</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Umsatz des Unternehmens (Lose 1 bis 3):  Bewertet wird die Höhe des durchschnittlichen Umsatzes in den letzten 3 Geschäftsjahren.  3 Punkte: über 25 Mio. EUR  2 Punkte: ab 5 Mio. EUR bis 25 Mio. EUR  0 Punkte: unter 5 Mio. EUR 2 weitere Punkte, wenn die Umsatzentwicklung im angegebenen 3-Jahreszeitraum kontinuierlich gewachsen ist.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>5.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-staff-yrly-avg-mp</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Unternehmensgröße hinsichtlich der Anzahl der Mitarbeiter/-innen (Lose 1 bis 3): Bewertet wird die durchschnittliche Gesamtanzahl der Mitarbeiter/-innen in den letzten 3 Geschäftsjahren.  Los 1: 3 Punkte: über 750 festangestellte Mitarbeiter/-innen 2 Punkte: ab 500 bis 750 festangestellte Mitarbeiter/-innen 0 Punkte: unter 500 festangestellte Mitarbeiter/-innen 1 weiterer Punkt, wenn die Anzahl der Mitarbeiter/-innen im angegebenen 3-Jahreszeitraum gewachsen ist.  Lose 2 und 3: 3 Punkte: über 500 festangestellte Mitarbeiter/-innen oder über 300 festangestellte Mitarbeiter/-innen und über 200 Mitarbeiter/-innen auf Honorarbasis 2 Punkte: ab 50 bis 300 festangestellte Mitarbeiter/-innen und ab 50 bis 200 Mitarbeiter/-innen auf Honorarbasis 0 Punkte: unter 50 festangestellte Mitarbeiter/-innen oder unter 50 Mitarbeiter/-innen auf Honorarbasis 1 weiterer Punkt, wenn die Anzahl der Mitarbeiter/-innen im angegebenen 3-Jahreszeitraum kontinuierlich gewachsen ist.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>4.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-sec-inf</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Informationssicherheitsanforderungen und Datenschutz (Lose 1 bis 3): Angaben zu geeigneten Nachweisen im Kontext Informationssicherheit und Datenschutz. Die Informationssicherheitsanforderungen an Auftragnehmer gemäß Anlage B1d sind sicherzustellen.  Es werden zusätzliche Punkte wie folgt vergeben:  2 weitere Punkte für die Zertifizierung nach ISO 27001 (auch auf Basis von IT-Grundschutz, für TISAX);  1 weiterer Punkt für die Zertifizierung nach ISO 22301</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>3.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-staff-qual</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Anzahl und Qualifikation der Projektleitung, der Berater/-innen und der analysierenden Personen (Los 1): Anzahl der Projektleiter/-innen, die die Anforderungen gem. Anlage B2, Ziffer 3.1 erfüllen. Je 0,5 Punkte bei 5-15 Jahren Beratungserfahrung,   je 1 Punkt bei mehr als 15 Jahren Beratungserfahrung.  Maximal werden hierbei 10 Punkte vergeben.  Anzahl der Berater/-innen, die die Anforderungen gem. Anlage B2, Ziffer 3.1 erfüllen. Je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl der analysierenden Personen, die die Anforderungen gem. Anlage B2, Ziffer 3.1 erfüllen. Je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>20.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-staff-qual</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Anzahl und Qualifikation der Projektleitung, der IT-Berater/-innen, der Entwickler/-innen und der analysierenden Personen (Los 2): Anzahl der Projektleiter/-innen, die die Anforderungen gem. Anlage B2, Ziffer 3.2 erfüllen. Je 0,5 Punkte bei 5-15 Jahren Beratungserfahrung,   je 1 Punkt bei mehr als 15 Jahren Beratungserfahrung.  Maximal werden hierbei 8 Punkte vergeben.  Anzahl der IT-Berater/-innen, die die Anforderungen gem. Anlage B2, Ziffer 3.2 erfüllen. Je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl der Entwickler/-innen, die die Anforderungen gem. Anlage B2, Ziffer 3.2 erfüllen. Je 0,5 Punkte Maximal werden hierbei 4 Punkte vergeben.  Anzahl der analysierenden Personen, die die Anforderungen gem. Anlage B2, Ziffer 3.2 erfüllen. Je 0,5 Punkte Maximal werden hierbei 3 Punkte vergeben.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>20.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-abil-staff-qual</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Anzahl und Qualifikation der Expert, Senior und Young Professionals (Los 3): Anzahl Expert im Profil Projekt-, Programm- und Agile Delivery Management, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. Je 0,5 Punkte je 1 Punkt bei mehr als 10 Jahren Berufserfahrung.  Maximal werden hierbei 10 Punkte vergeben.  Anzahl Senior Professional im Profil Projekt-, Programm- und Agile Delivery Management, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Young Professional im Profil Projekt-, Programm- und Agile Delivery Management, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Expert im Profil Entwicklung, insbesondere Frontend/Backend Developer, Datenarchitektur, Dashboard Design, RPA,  die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. Je 0,5 Punkte je 1 Punkt bei mehr als 10 Jahren Berufserfahrung.  Maximal werden hierbei 10 Punkte vergeben.  Anzahl Senior Professional im Profil Entwicklung, insbesondere Frontend/Backend Developer, Datenarchitektur, Dashboard Design, RPA, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Young Professional im Profil Entwicklung, insbesondere Frontend/Backend Developer, Datenarchitektur, Dashboard Design, RPA, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Expert im Profil Data und AI, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. Je 0,5 Punkte je 1 Punkt bei mehr als 10 Jahren Berufserfahrung.  Maximal werden hierbei 10 Punkte vergeben.  Anzahl Senior Professional im Profil Data und AI, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Young Professional im Profil Data und AI, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Expert im Profil Qualität und Sicherheit, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. Je 0,5 Punkte je 1 Punkt bei mehr als 10 Jahren Berufserfahrung.  Maximal werden hierbei 10 Punkte vergeben.  Anzahl Senior Professional im Profil Qualität und Sicherheit, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Young Professional im Profil Qualität und Sicherheit, die die Anforderungen gem. Anlage B2, Ziffer ff. 3.3 erfüllen. Je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Expert die im Profil Kundenzentrierung, Nutzererlebnis und Omnikanalmanagement, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. Je 0,5 Punkte je 1 Punkt bei mehr als 10 Jahren Berufserfahrung.  Maximal werden hierbei 10 Punkte vergeben.  Anzahl Senior Professional im Profil Kundenzentrierung, Nutzererlebnis und Omnikanalmanagement, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.  Anzahl Young Professional im Profil Kundenzentrierung, Nutzererlebnis und Omnikanalmanagement, die die Anforderungen gem. Anlage B2, Ziffer 3.3 ff. erfüllen. je 0,5 Punkte Maximal werden hierbei 5 Punkte vergeben.</cbc:Description>
+								<efbc:SecondStageIndicator>true</efbc:SecondStageIndicator>
+								<efac:CriterionParameter>
+									<efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+									<efbc:ParameterNumeric>100.0</efbc:ParameterNumeric>
+								</efac:CriterionParameter>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-suit-reg-trade</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Eintragung im Handelsregister: Sofern vorhanden und zur Eintragung verpflichtet: Aktueller Nachweis zur Eintragung in das einschlägige Handelsregister des Niederlassungsstaats des Bewerbers/des Mitglieds der Bewerbergemeinschaft (nicht älter als 6 Monate vom Tag der Teilnahmefrist gerechnet). Bewerber mit Firmensitz außerhalb Deutschlands haben den Nachweis der Eintragung in ein vergleichbares Register von Stellen des Herkunftslandes in deutscher beglaubigter Übersetzung einzureichen.</cbc:Description>
+								<efbc:SecondStageIndicator>false</efbc:SecondStageIndicator>
+							</efac:SelectionCriteria>
+							<efac:SelectionCriteria>
+								<cbc:TendererRequirementTypeCode listName="selection-criterion">slc-stand-ins</cbc:TendererRequirementTypeCode>
+								<cbc:Description languageID="DEU">Betriebshaftpflichtversicherung: Der Bewerber erklärt mit Einreichung seines Teilnahmeantrags, dass er spätestens 8 (acht) Wochen nach Zuschlag der Auftraggeberin nachweist, dass er über eine Berufs- und/oder Betriebshaftpflichtversicherung, welche Sach- und Personenschäden in Höhe von mindestens 5 Mio. EUR pro Kalenderjahr und Vermögensschäden inklusive Datenschutz i. H. v. 5 Mio. EUR pro Kalenderjahr abdeckt. Diese Versicherung wird über die Dauer der gesamten Vertragslaufzeit aufrechterhalten. Hinweise: (a) Der Nachweis kann bereits mit Abgabe des Teilnahmeantrags eingereicht werden, ist jedoch spätestens acht Wochen nach Zuschlagserteilung vorzulegen. (b) Im Fall der Bildung einer Bewerbergemeinschaft ist die zuvor genannte Erklärung zur Betriebshaftpflichtversicherung vom bevollmächtigten Mitglied der Bewerbergemeinschaft abzugeben und mit dem Teilnahmeantrag einzureichen. Der Nachweis der Versicherungsbescheinigung ist von jedem Mitglied der Bewerbergemeinschaft den Auftraggeberinnen binnen acht Wochen nach Zuschlagserteilung vorzulegen.</cbc:Description>
+								<efbc:SecondStageIndicator>false</efbc:SecondStageIndicator>
+							</efac:SelectionCriteria>
+							<efac:StrategicProcurement>
+								<efbc:ApplicableLegalBasis listName="cvd-scope">false</efbc:ApplicableLegalBasis>
+							</efac:StrategicProcurement>
+							<efac:StrategicProcurement>
+								<efbc:ApplicableLegalBasis listName="eed-scope">false</efbc:ApplicableLegalBasis>
+							</efac:StrategicProcurement>
+						</efext:EformsExtension>
+					</ext:ExtensionContent>
+				</ext:UBLExtension>
+			</ext:UBLExtensions>
+			<cbc:VariantConstraintCode listName="permission">not-allowed</cbc:VariantConstraintCode>
+			<cbc:FundingProgramCode listName="eu-funded">no-eu-funds</cbc:FundingProgramCode>
+			<cbc:RequiredCurriculaCode listName="requirement-stage">not-requ</cbc:RequiredCurriculaCode>
+			<cbc:MultipleTendersCode listName="permission">not-allowed</cbc:MultipleTendersCode>
+			<cac:RequiredFinancialGuarantee>
+				<cbc:GuaranteeTypeCode listName="tender-guarantee-required">false</cbc:GuaranteeTypeCode>
+			</cac:RequiredFinancialGuarantee>
+			<cac:CallForTendersDocumentReference>
+				<ext:UBLExtensions>
+					<ext:UBLExtension>
+						<ext:ExtensionContent>
+							<efext:EformsExtension>
+								<efac:OfficialLanguages>
+									<cac:Language>
+										<cbc:ID>DEU</cbc:ID>
+									</cac:Language>
+								</efac:OfficialLanguages>
+							</efext:EformsExtension>
+						</ext:ExtensionContent>
+					</ext:UBLExtension>
+				</ext:UBLExtensions>
+				<cbc:ID>SomeTenderDocID1</cbc:ID>
+				<cbc:DocumentType>non-restricted-document</cbc:DocumentType>
+				<cac:Attachment>
+					<cac:ExternalReference>
+						<cbc:URI>https://www.dtvp.de/Satellite/notice/CXP4Y6LMT88/documents</cbc:URI>
+					</cac:ExternalReference>
+				</cac:Attachment>
+			</cac:CallForTendersDocumentReference>
+			<cac:TendererQualificationRequest>
+				<cbc:CompanyLegalFormCode listName="required">false</cbc:CompanyLegalFormCode>
+			</cac:TendererQualificationRequest>
+			<cac:TendererQualificationRequest>
+				<cac:SpecificTendererRequirement>
+					<cbc:TendererRequirementTypeCode listName="missing-info-submission">late-some</cbc:TendererRequirementTypeCode>
+					<cbc:Description languageID="DEU">Nachforderungen können gem. § 56 VgV erfolgen.</cbc:Description>
+				</cac:SpecificTendererRequirement>
+			</cac:TendererQualificationRequest>
+			<cac:TendererQualificationRequest>
+				<cac:SpecificTendererRequirement>
+					<cbc:TendererRequirementTypeCode listName="reserved-procurement">none</cbc:TendererRequirementTypeCode>
+				</cac:SpecificTendererRequirement>
+			</cac:TendererQualificationRequest>
+			<cac:TendererQualificationRequest>
+				<cac:SpecificTendererRequirement>
+					<cbc:TendererRequirementTypeCode listName="selection-criteria-source">epo-notice</cbc:TendererRequirementTypeCode>
+				</cac:SpecificTendererRequirement>
+				<cac:SpecificTendererRequirement>
+					<cbc:TendererRequirementTypeCode listName="selection-criteria-source">epo-procurement-document</cbc:TendererRequirementTypeCode>
+				</cac:SpecificTendererRequirement>
+			</cac:TendererQualificationRequest>
+			<cac:ContractExecutionRequirement>
+				<cbc:ExecutionRequirementCode listName="reserved-execution">no</cbc:ExecutionRequirementCode>
+			</cac:ContractExecutionRequirement>
+			<cac:ContractExecutionRequirement>
+				<cbc:ExecutionRequirementCode listName="ecatalog-submission">not-allowed</cbc:ExecutionRequirementCode>
+			</cac:ContractExecutionRequirement>
+			<cac:ContractExecutionRequirement>
+				<cbc:ExecutionRequirementCode listName="einvoicing">allowed</cbc:ExecutionRequirementCode>
+			</cac:ContractExecutionRequirement>
+			<cac:ContractExecutionRequirement>
+				<cbc:ExecutionRequirementCode listName="conditions">performance</cbc:ExecutionRequirementCode>
+				<cbc:Description languageID="DEU">Nichtvorliegen von "Russlandsanktionen" Das Unternehmen bestätigt die Einhaltung der EU-Sanktionen gegen Russland (VO (EU) Nr. 833/2014) und erklärt, dass weder ein direkter noch ein indirekter Russland-Bezug besteht - es also weder in Russland ansässig ist noch mehrheitlich (über 50 %) von russischen Personen oder Organisationen kontrolliert wird oder in deren Auftrag handelt. Zudem wird zugesichert, dass weder aktuell noch während der Vertragslaufzeit betroffene Unterauftragnehmer oder Lieferanten eingesetzt werden, auf die mehr als 10 % des Auftragswerts entfallen. Sollten sich diese Umstände künftig ändern oder das Unternehmen von Russland-Sanktionen betroffen sein, wird die Auftraggeberin unverzüglich informiert (vgl. hierzu Anlage A3).</cbc:Description>
+			</cac:ContractExecutionRequirement>
+			<cac:ContractExecutionRequirement>
+				<cbc:ExecutionRequirementCode listName="fsr">false</cbc:ExecutionRequirementCode>
+			</cac:ContractExecutionRequirement>
+			<cac:AwardingTerms>
+				<cbc:NoFurtherNegotiationIndicator>false</cbc:NoFurtherNegotiationIndicator>
+				<cac:AwardingCriterion>
+					<cac:SubordinateAwardingCriterion>
+						<ext:UBLExtensions>
+							<ext:UBLExtension>
+								<ext:ExtensionContent>
+									<efext:EformsExtension>
+										<efac:AwardCriterionParameter>
+											<efbc:ParameterCode listName="number-weight">dec-exa</efbc:ParameterCode>
+											<efbc:ParameterNumeric>0.7</efbc:ParameterNumeric>
+										</efac:AwardCriterionParameter>
+									</efext:EformsExtension>
+								</ext:ExtensionContent>
+							</ext:UBLExtension>
+						</ext:UBLExtensions>
+						<cbc:AwardingCriterionTypeCode listName="award-criterion-type">price</cbc:AwardingCriterionTypeCode>
+						<cbc:Name languageID="DEU">Preis</cbc:Name>
+						<cbc:Description languageID="DEU">Die Angebotsposition mit dem niedrigsten, geprüften Tagessatz erhält die maximale Punktzahl. Alle höheren, geprüften Tagessätze der jeweiligen Position, werden mit dem niedrigsten, geprüften Tagessatz ins Verhältnis gesetzt und mit der maximalen Punktzahl der jeweiligen Position (vgl. Anlage B4c, Gewichtung) multipliziert.</cbc:Description>
+					</cac:SubordinateAwardingCriterion>
+					<cac:SubordinateAwardingCriterion>
+						<ext:UBLExtensions>
+							<ext:UBLExtension>
+								<ext:ExtensionContent>
+									<efext:EformsExtension>
+										<efac:AwardCriterionParameter>
+											<efbc:ParameterCode listName="number-weight">dec-exa</efbc:ParameterCode>
+											<efbc:ParameterNumeric>0.3</efbc:ParameterNumeric>
+										</efac:AwardCriterionParameter>
+									</efext:EformsExtension>
+								</ext:ExtensionContent>
+							</ext:UBLExtension>
+						</ext:UBLExtensions>
+						<cbc:AwardingCriterionTypeCode listName="award-criterion-type">quality</cbc:AwardingCriterionTypeCode>
+						<cbc:Name languageID="DEU">Qualität</cbc:Name>
+						<cbc:Description languageID="DEU">Das Qualitätskriterium setzt sich jeweils zusammen aus einem Konzept und einer Präsentation einer Fallaufgabe. Für das einzureichende Konzept gilt eine maximale Folien-/Seitenzahl von 20 Folien (Powerpoint) bzw. 10 Seiten (DIN A4, word/pdf), jeweils in Schriftgröße 11, ausgenommen sind Abbildungen. Deckblätter, Agendafolien bzw. Inhaltsverzeichnisse werden nicht als Folien-/Seitenzahl mitgezählt.  Die erreichte Punktzahl für das eingereichte Konzept sowie für die Präsentation der Fallaufgabe werden addiert und bilden die Gesamtpunktzahl des Kriteriums Qualität.</cbc:Description>
+					</cac:SubordinateAwardingCriterion>
+				</cac:AwardingCriterion>
+			</cac:AwardingTerms>
+			<cac:AdditionalInformationParty>
+				<cac:PartyIdentification>
+					<cbc:ID>ORG-0001</cbc:ID>
+				</cac:PartyIdentification>
+			</cac:AdditionalInformationParty>
+			<cac:TenderRecipientParty>
+				<cbc:EndpointID>https://www.dtvp.de/Satellite/notice/CXP4Y6LMT88</cbc:EndpointID>
+				<cac:PartyIdentification>
+					<cbc:ID>ORG-0001</cbc:ID>
+				</cac:PartyIdentification>
+			</cac:TenderRecipientParty>
+			<cac:AppealTerms>
+				<cac:PresentationPeriod>
+					<cbc:Description languageID="DEU">134 GWB Informations- und Wartepflicht. "(1) Öffentliche Auftraggeber haben die Bieter, deren Angebote nicht berücksichtigt werden sollen, über den Namen des Unternehmens, dessen Angebot angenommen werden soll, über die Gründe der vorgesehenen Nichtberücksichtigung ihres Angebots und über den frühesten Zeitpunkt des Vertragsschlusses unverzüglich in Textform zu informieren. Dies gilt auch für Bewerber, denen keine Information über die Ablehnung ihrer Bewerbung zur Verfügung gestellt wurde, bevor die Mitteilung über die Zuschlagsentscheidung an die betroffenen Bieter ergangen ist. (2) Ein Vertrag darf erst 15 Kalendertage nach Absendung der Information nach Absatz 1 geschlossen werden. Wird die Information auf elektronischem Weg oder per Fax versendet, verkürzt sich die Frist auf zehn Kalendertage. Die Frist beginnt am Tag nach der Absendung der Information durch den Auftraggeber; auf den Tag des Zugangs beim betroffenen Bieter und Bewerber kommt es nicht an. (3) Die Informationspflicht entfällt in Fällen, in denen das Verhandlungsverfahren ohne Teilnahmewettbewerb wegen besonderer Dringlichkeit gerechtfertigt ist..." § 135 GWB Unwirksamkeit. "(1) Ein öffentlicher Auftrag ist von Anfang an unwirksam, wenn der öffentliche Auftraggeber: 1. gegen § 134 verstoßen hat..." § 160 GWB Einleitung, Antrag. "(1) Die Vergabekammer leitet ein Nachprüfungsverfahren nur auf Antrag ein. (2) Antragsbefugt ist jedes Unternehmen, das ein Interesse an dem öffentlichen Auftrag oder der Konzession hat und eine Verletzung in seinen Rechten nach § 97 Absatz 6 durch Nichtbeachtung von Vergabevorschriften geltend macht. Dabei ist darzulegen, dass dem Unternehmen durch die behauptete Verletzung der Vergabevorschriften ein Schaden entstanden ist oder zu entstehen droht. (3) Der Antrag ist unzulässig, soweit: 1. der Antragsteller den geltend gemachten Verstoß gegen Vergabevorschriften vor Einreichen des Nachprüfungsantrags erkannt und gegenüber dem Auftraggeber nicht innerhalb einer Frist von 10 Kalendertagen gerügt hat; der Ablauf der Frist nach § 134 Absatz 2 bleibt unberührt, 2. Verstöße gegen Vergabevorschriften, die aufgrund der Bekanntmachung erkennbar sind, nicht spätestens bis zum Ablauf der in der Bekanntmachung benannten Frist zur Bewerbung oder zur Angebotsabgabe gegenüber dem Auftraggeber gerügt werden, 3. Verstöße gegen Vergabevorschriften, die erst in den Vergabeunterlagen erkennbar sind, nicht spätestens bis zum Ablauf der Frist zur Bewerbung oder zur Angebotsabgabe gegenüber dem Auftraggeber gerügt werden, 4. mehr als 15 Kalendertage nach Eingang der Mitteilung des Auftraggebers, einer Rüge nicht abhelfen zu wollen, vergangen sind. Satz 1 gilt nicht bei einem Antrag auf Feststellung der Unwirksamkeit des Vertrags nach § 135 Absatz 1 Nummer 2. § 134 Absatz 1 Satz 2 bleibt unberührt." § 168 GWB Entscheidung der Vergabekammer. "(1) Die Vergabekammer entscheidet, ob der Antragsteller in seinen Rechten verletzt ist und trifft die geeigneten Maßnahmen, um eine Rechtsverletzung zu beseitigen und eine Schädigung der betroffenen Interessen zu verhindern. Sie ist an die Anträge nicht gebunden und kann auch unabhängig davon auf die Rechtmäßigkeit des Vergabeverfahrens einwirken. (2) Ein wirksam erteilter Zuschlag kann nicht aufgehoben werden...".</cbc:Description>
+				</cac:PresentationPeriod>
+				<cac:AppealReceiverParty>
+					<cac:PartyIdentification>
+						<cbc:ID schemeName="organization">ORG-0002</cbc:ID>
+					</cac:PartyIdentification>
+				</cac:AppealReceiverParty>
+			</cac:AppealTerms>
+			<cac:Language>
+				<cbc:ID>DEU</cbc:ID>
+			</cac:Language>
+			<cac:LotDistribution>
+				<cbc:MaximumLotsAwardedNumeric>3</cbc:MaximumLotsAwardedNumeric>
+				<cbc:MaximumLotsSubmittedNumeric>3</cbc:MaximumLotsSubmittedNumeric>
+			</cac:LotDistribution>
+			<cac:PostAwardProcess>
+				<cbc:ElectronicOrderUsageIndicator>true</cbc:ElectronicOrderUsageIndicator>
+				<cbc:ElectronicPaymentUsageIndicator>true</cbc:ElectronicPaymentUsageIndicator>
+			</cac:PostAwardProcess>
+			<cac:SecurityClearanceTerm>
+				<cbc:Code listName="required">false</cbc:Code>
+			</cac:SecurityClearanceTerm>
+		</cac:TenderingTerms>
+		<cac:TenderingProcess>
+			<cbc:SubmissionMethodCode listName="esubmission">required</cbc:SubmissionMethodCode>
+			<cbc:CandidateReductionConstraintIndicator>true</cbc:CandidateReductionConstraintIndicator>
+			<cbc:GovernmentAgreementConstraintIndicator>true</cbc:GovernmentAgreementConstraintIndicator>
+			<cbc:AccessToolsURI>https://www.dtvp.de/Satellite/notice/CXP4Y6LMT88</cbc:AccessToolsURI>
+			<cac:InvitationSubmissionPeriod>
+				<cbc:StartDate>2027-01-29+01:00</cbc:StartDate>
+			</cac:InvitationSubmissionPeriod>
+			<cac:ParticipationRequestReceptionPeriod>
+				<cbc:EndDate>2026-12-16+01:00</cbc:EndDate>
+				<cbc:EndTime>09:00:00+01:00</cbc:EndTime>
+			</cac:ParticipationRequestReceptionPeriod>
+			<cac:AdditionalInformationRequestPeriod>
+				<cbc:EndDate>2026-12-09+01:00</cbc:EndDate>
+				<cbc:EndTime>23:59:59+01:00</cbc:EndTime>
+			</cac:AdditionalInformationRequestPeriod>
+			<cac:EconomicOperatorShortList>
+				<cbc:LimitationDescription>true</cbc:LimitationDescription>
+				<cbc:MaximumQuantity>8</cbc:MaximumQuantity>
+				<cbc:MinimumQuantity>3</cbc:MinimumQuantity>
+			</cac:EconomicOperatorShortList>
+			<cac:AuctionTerms>
+				<cbc:AuctionConstraintIndicator>false</cbc:AuctionConstraintIndicator>
+			</cac:AuctionTerms>
+			<cac:FrameworkAgreement>
+				<cbc:MaximumOperatorQuantity>11</cbc:MaximumOperatorQuantity>
+			</cac:FrameworkAgreement>
+			<cac:ContractingSystem>
+				<cbc:ContractingSystemTypeCode listName="framework-agreement">fa-mix</cbc:ContractingSystemTypeCode>
+			</cac:ContractingSystem>
+			<cac:ContractingSystem>
+				<cbc:ContractingSystemTypeCode listName="dps-usage">none</cbc:ContractingSystemTypeCode>
+			</cac:ContractingSystem>
+		</cac:TenderingProcess>
+		<cac:ProcurementProject>
+			<cbc:ID schemeName="internalID">3</cbc:ID>
+			<cbc:Name languageID="DEU">Prozessunterstützung und Lösungsumsetzung</cbc:Name>
+			<cbc:Description languageID="DEU">Die AOK NordWest beabsichtigt den Auftrag an einen Dienstleister zu erteilen, um spezifische Kenntnisse abzurufen (vgl. hierzu Ziffer 3.3). Die Leistungen sollen in Form von einzelnen Arbeitspaketen bedarfsorientiert erbracht werden.  Das Los 3 umfasst die konkrete Prozessunterstützung und Lösungsumsetzung. Ziel ist es, kurzfristig auf (neue) fachliche und technische Anforderungen reagieren zu können sowie den Wissensaufbau der AOK NordWest u. a. bei der Einführung neuer (IT-)Produkte sowie bei Prozessanpassungen sicherzustellen.  Die Leistungen in Los 3 sind in folgenden fünf übergeordneten Profilen zu erbringen: - Profil 1: Projekt-, Programm- und Agile Delivery Management (Planung, Durchführung und Überwachung von Projekten inkl. agilem Coaching). - Profil 2: Entwicklung, insbesondere Frontend/Backend Developer, Datenarchitektur, Dashboard Design, RPA (Technische Lösungsverantwortung für Architektur, Entwicklung, Integration und Optimierung von Anwendungen/Plattformen). - Profil 3: Data und AI (DataScientist/GenAI Engineer/ML Engineer (datengetriebene Themen einschließlich Entwicklung von KI)). - Profil 4: Qualität und Sicherheit ((Weiter-) Entwicklung von Qualitäts-, Sicherheitskonzepten sowie -strategien). - Profil 5: Kundenzentrierung, Nutzererlebnis und Omnikanalmanagement ((Weiter-) Entwicklung von UX-Konzepten sowie Omnikanalstrategie).  Eine Konkretisierung der Teamzusammensetzung und Qualifikation der Profilinhalte sind unter Ziffer 3.3 zu finden. Die dort beschriebenen Qualifikationen bzw. Kompetenzen sind nicht abschließend, vielmehr können sich diese im Laufe der Vertragslaufzeit innerhalb des genannten Qualifikations- bzw. Kompetenzrahmens dynamisch fortentwickeln. Eine Anpassung innerhalb dieses Rahmens berechtigt den Rahmenvertragspartner nicht zu einer Neubestimmung des jeweiligen Angebotspreises. Im Rahmen des Vergabeverfahrens dienen diese als Eingangsvoraussetzung.</cbc:Description>
+			<cbc:ProcurementTypeCode listName="contract-nature">services</cbc:ProcurementTypeCode>
+			<cbc:Note languageID="DEU">Begrenzung der Bieter: Abweichend von der in Los 3 aufgeführten Höchstzahl von Bewerbern, die für die zweite Phase des Verfahrens eingeladen werden, beträgt diese maximal 3 anstelle von 8 Bewerbern. Systemseitig kann keine losweise Angabe getätigt werden.</cbc:Note>
+			<cbc:SMESuitableIndicator>false</cbc:SMESuitableIndicator>
+			<cac:ProcurementAdditionalType>
+				<cbc:ProcurementTypeCode listName="strategic-procurement">none</cbc:ProcurementTypeCode>
+			</cac:ProcurementAdditionalType>
+			<cac:MainCommodityClassification>
+				<cbc:ItemClassificationCode listName="cpv">72224000</cbc:ItemClassificationCode>
+			</cac:MainCommodityClassification>
+			<cac:AdditionalCommodityClassification>
+				<cbc:ItemClassificationCode listName="cpv">72000000</cbc:ItemClassificationCode>
+			</cac:AdditionalCommodityClassification>
+			<cac:RealizedLocation>
+				<cbc:Description languageID="DEU">Der Erfüllungsort richtet sich nach dem konkreten Einzelauftrag und kann im Bereich Westfalen-Lippe oder Schleswig-Holstein liegen. Abstimmungsgespräche erfolgen sowohl remote als auch vor Ort.</cbc:Description>
+				<cac:Address>
+					<cbc:Region>anyw</cbc:Region>
+				</cac:Address>
+			</cac:RealizedLocation>
+			<cac:PlannedPeriod>
+				<cbc:DurationMeasure unitCode="YEAR">2</cbc:DurationMeasure>
+			</cac:PlannedPeriod>
+			<cac:ContractExtension>
+				<cbc:OptionsDescription languageID="DEU">Für den Fall, dass wegen eines Nachprüfungsverfahrens die Vergabe des Anschlussauftrags nicht spätestens am 30.04.2031 erfolgen kann, verlängert sich die Vertragslaufzeit bis zum Ablauf des auf den bestands- oder rechtskräftigen Abschluss des Nachprüfungsverfahrens folgenden Monats, wenn die Auftraggeberin bis zum 30.04.2031 eine entsprechende Erklärung gegenüber dem Auftragnehmer abgibt, längstens aber bis zum 30.11.2031 oder bei Erreichen der Höchstgrenze gem. Ziffer 10.3 des Vertrags (B1) bzw. Ziffer 22 des EVB-IT Vertrages (B1).</cbc:OptionsDescription>
+				<cbc:MaximumNumberNumeric>2</cbc:MaximumNumberNumeric>
+				<cac:Renewal>
+					<cac:Period>
+						<cbc:Description languageID="DEU">Der Vertrag läuft vom 01.06.2027 bis zum 31.05.2029. Er kann zweimalig um jeweils ein Jahr durch einseitige Erklärung der Auftraggeberin verlängert werden bis maximal zum 31.05.2031.</cbc:Description>
+					</cac:Period>
+				</cac:Renewal>
+			</cac:ContractExtension>
+		</cac:ProcurementProject>
+	</cac:ProcurementProjectLot>
+</ContractNotice>
