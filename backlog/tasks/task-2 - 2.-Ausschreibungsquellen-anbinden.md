@@ -1,10 +1,10 @@
 ---
 id: TASK-2
 title: 2. TED-Bekanntmachungen fuer den ersten PDF-Lauf beschaffen
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-13T17:25:00Z'
-updated_date: '2026-11-16T15:39:00Z'
+updated_date: '2026-11-17T11:47:00Z'
 labels:
   - roadmap
 dependencies:
@@ -22,10 +22,10 @@ Ersten echten Recherchefall vorbereiten: Das konfigurierbare Profil liefert Kand
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Ein ohne Codeaenderung anpassbares Suchprofil liefert echte TED-Kandidaten. Verwendetes Profil, Suchgrenzen, Herkunft und Abrufzeit sind nachvollziehbar; eine geaenderte Konfiguration wirkt auf die Suche.
-- [ ] #2 Fuer mindestens einen echten Kandidaten liegt die vollstaendige Bekanntmachung fuer die weitere Auswertung vor. Eingaben und abgerufene Inhalte bleiben dem jeweiligen Lauf nachvollziehbar zugeordnet und fuer dessen spaetere Pruefung erhalten.
-- [ ] #3 Sichere Mehrfachtreffer derselben Bekanntmachung werden zusammengefuehrt. Vorhandene Identitaets-, Los- und Versionshinweise bleiben erhalten; unsichere Zusammenhaenge werden nicht als geklaert ausgegeben.
-- [ ] #4 Vorhandene Links auf zusaetzliche Unterlagen bleiben erhalten. Nicht abgerufene zusaetzliche Unterlagen, fehlende Angaben, Abruffehler und eine leere Suche bleiben unterscheidbar. Es werden nur zulaessige oeffentliche Quellen verwendet; die Zugangs- und Nutzungsgrundlage ist dokumentiert.
+- [x] #1 Ein ohne Codeaenderung anpassbares Suchprofil liefert echte TED-Kandidaten. Verwendetes Profil, Suchgrenzen, Herkunft und Abrufzeit sind nachvollziehbar; eine geaenderte Konfiguration wirkt auf die Suche.
+- [x] #2 Fuer mindestens einen echten Kandidaten liegt die vollstaendige Bekanntmachung fuer die weitere Auswertung vor. Eingaben und abgerufene Inhalte bleiben dem jeweiligen Lauf nachvollziehbar zugeordnet und fuer dessen spaetere Pruefung erhalten.
+- [x] #3 Sichere Mehrfachtreffer derselben Bekanntmachung werden zusammengefuehrt. Vorhandene Identitaets-, Los- und Versionshinweise bleiben erhalten; unsichere Zusammenhaenge werden nicht als geklaert ausgegeben.
+- [x] #4 Vorhandene Links auf zusaetzliche Unterlagen bleiben erhalten. Nicht abgerufene zusaetzliche Unterlagen, fehlende Angaben, Abruffehler und eine leere Suche bleiben unterscheidbar. Es werden nur zulaessige oeffentliche Quellen verwendet; die Zugangs- und Nutzungsgrundlage ist dokumentiert.
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -56,3 +56,9 @@ T2-08 - Nach Programmende die Ergebnisübersicht und heruntergeladenen Bekanntma
 
 Zusätzliche echte TED-Abnahme: Mindestens eine vollständige Bekanntmachung aus aktueller konfigurierter Suche abrufen, lokal öffnen und Identität sowie ausgewählte Inhalte mit Quelle vergleichen. Geänderte Konfiguration ebenfalls live ausführen und dokumentieren; unterschiedliche Trefferzahlen sind keine Voraussetzung. Offizielle Zugangs- und Nutzungsgrundlage für P-01/P-10 prüfen und dokumentieren. Live-Nachweise ergänzen automatisierte Tests für P-01/P-02/P-05.
 <!-- SECTION:PLAN:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Umgesetzt in c744f7c und 951c2a0: konfigurierbare TED-Suche mit getrennten Laufarchiven und vollstaendigen Bekanntmachungen. P-01/P-02/P-05/P-10: Standardlauf mit 20 Originalen unter reports/runs/20261117T110548605638Z-5e2b0549; geaendertes Copilot-Schulungsprofil mit einem Original unter reports/runs/20261116T155344846375Z-1aa8d91e. Dateien, Herkunft und Pruefsummen kontrolliert; oeffentliche TED-Zugangs- und Nutzungsgrundlage anhand offizieller Quellen geprueft, Links in README.md. T2-01 bis T2-09 sichern Konfigurationswirkung, Dubletten, Losbezuege, Unterlagenlinks und Fehlerfaelle ab. HTTP-Abbruchfehler behoben; 61 Tests, Ruff und Formatpruefung erfolgreich. Nutzer bestaetigt funktionierende Links in Chrome. Das Trefferlimit-Thema bleibt separat in TASK-10; KI-Auswertung und PDF sind nicht Teil dieses Tickets.
+<!-- SECTION:FINAL_SUMMARY:END -->
