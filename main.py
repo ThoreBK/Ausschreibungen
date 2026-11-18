@@ -7,6 +7,7 @@ from datetime import date
 from pathlib import Path
 
 from ausschreibungen.analysis import analyze_run
+from ausschreibungen.report import write_report
 from ausschreibungen.research import collect, save_json
 from ausschreibungen.ted import SearchError, load_profile, search
 
@@ -16,15 +17,17 @@ def main() -> int:
     parser.add_argument("--config", type=Path, default=Path("search-profile.toml"))
     parser.add_argument("--output", type=Path, default=Path("reports/ted-results.json"))
     parser.add_argument("--as-of", type=date.fromisoformat, help="Stichtag YYYY-MM-DD")
-    parser.add_argument("--search", action="store_true", help="Live-Suche starten")
-    parser.add_argument("--analyze", type=Path, help="Gespeicherten Laufordner auswerten")
+    actions = parser.add_mutually_exclusive_group()
+    actions.add_argument("--search", action="store_true", help="Live-Suche starten")
+    actions.add_argument("--report", action="store_true", help="Live suchen und PDF erstellen")
+    actions.add_argument("--analyze", type=Path, help="Gespeicherten Laufordner auswerten")
     parser.add_argument("--analysis-config", type=Path, default=Path("analysis-profile.toml"))
     parser.add_argument("--notice", help="Nur diese Veröffentlichungsnummer auswerten")
     parser.add_argument("--structured-only", action="store_true", help="Nur XML-Fakten, ohne KI")
     args = parser.parse_args()
+    if args.notice and args.report:
+        parser.error("--notice gilt für --analyze. Für --report das Trefferlimit im Profil wählen.")
     if args.analyze:
-        if args.search:
-            parser.error("--search und --analyze bitte getrennt starten.")
         try:
             directory = analyze_run(
                 args.analyze,
@@ -40,7 +43,7 @@ def main() -> int:
         print(f"Ergebnisdaten: {directory / 'analysis.json'}")
         print(f"Analysestatus: {status}")
         return 0 if status == "complete" else 1
-    if not args.search:
+    if not (args.search or args.report):
         parser.print_help()
         return 0
     try:
@@ -82,6 +85,25 @@ def main() -> int:
         print(
             "Abruffehler: Details und erhaltene Daten stehen in der Laufübersicht.", file=sys.stderr
         )
+    if args.report:
+        try:
+            analysis = None
+            destination = run_dir
+            if result["notices"]:
+                destination = analyze_run(
+                    run_dir, args.analysis_config, structured_only=args.structured_only
+                )
+                analysis = json.loads((destination / "analysis.json").read_text("utf-8"))
+                if analysis["status"] != "complete":
+                    print("Auswertung unvollständig. Offene Punkte stehen im PDF.", file=sys.stderr)
+            pdf = write_report(result, analysis, destination)
+            print(f"PDF-Bericht: {pdf}")
+            failed = result["status"] not in {"complete", "empty"} or (
+                analysis is not None and analysis["status"] != "complete"
+            )
+        except (ValueError, OSError, KeyError) as error:
+            print(f"Berichtsfehler: {error}", file=sys.stderr)
+            return 1
     return 1 if failed else 0
 
 

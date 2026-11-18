@@ -1,10 +1,10 @@
 ---
 id: TASK-6
 title: 4. Ersten vollstaendigen Lauf bis zum PDF ermoeglichen
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-13T17:25:00Z'
-updated_date: '2026-11-17T17:52:00Z'
+updated_date: '2026-11-18T20:57:00Z'
 labels:
   - roadmap
 dependencies:
@@ -28,6 +28,7 @@ Den ersten manuell startbaren Durchlauf vom konfigurierten Profil ueber eine ech
 - [ ] #4 Suchprofil, Recherchezeitpunkt, Quellenabdeckung und Recherchegrenzen sind angegeben. Vollstaendige TED-Bekanntmachungen sind als Analysegrundlage benannt. Links auf zusaetzliche Unterlagen tragen den Hinweis in dieser Version nicht abgerufen und nicht ausgewertet; diese Umfangsgrenze gilt nicht als Abruffehler oder erfolgte Pruefung.
 - [ ] #5 Erzeugte PDFs sind visuell auf Lesbarkeit, Vollstaendigkeit und brauchbare Belegverweise geprueft, auch bei langen Inhalten und mehreren Treffern. Eine leere Trefferliste und unvollstaendige Laeufe werden ehrlich dargestellt; ein fehlgeschlagener Abruf erscheint nicht als erfolgreiche Suche ohne Treffer.
 - [ ] #6 Die automatisch erzeugte Übersicht stellt Passung, Teilnahmestand und Teilnahmevoraussetzungen getrennt und verständlich dar.
+- [ ] #7 Ein dokumentierter Live-Durchlauf verarbeitet fünf echte Ausschreibungen von der TED-Suche bis zum visuell geprüften PDF.
 <!-- AC:END -->
 
 ## Implementation Notes

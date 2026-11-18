@@ -4,8 +4,30 @@ Der Agent sucht öffentliche Ausschreibungen auf TED anhand eigener Suchbegriffe
 Die Suche speichert vollständige TED-Bekanntmachungen samt Herkunft in getrennten
 Läufen. Eine lokale HTML-Übersicht und Lesekopien machen die Ergebnisse prüfbar.
 Gespeicherte Bekanntmachungen können anschließend mit belegten Pflichtangaben und
-einer KI-Einschätzung der thematischen Passung ausgewertet werden. PDF-Berichte
-sind noch in Entwicklung.
+einer KI-Einschätzung der thematischen Passung ausgewertet werden.
+
+## Von der Suche zum PDF
+
+Nach der Einrichtung und der ChatGPT-Anmeldung (`codex login`) im Projektordner starten:
+
+```powershell
+. .\dev.ps1
+uv run main.py --report
+```
+
+Für einen Lauf mit höchstens fünf Bekanntmachungen in `search-profile.toml`
+`max_results = 5` setzen. Das Programm sucht live auf TED, lädt die Originale,
+wertet die gefundenen Bekanntmachungen aus und zeigt den Pfad zu **bericht.pdf**.
+Bei der KI-Auswertung werden die Bekanntmachungstexte und das konfigurierte
+Unternehmensprofil über die bestehende ChatGPT-Anmeldung an OpenAI gesendet.
+Mit `--report --structured-only` bleibt die Auswertung lokal und die Passung ungeklärt.
+
+Die erste Übersicht zeigt je Los die fachliche Passung, den Teilnahmestand und den
+Stand der Teilnahmevoraussetzungen. Danach folgen Pflichtangaben und Prüfpunkte.
+Nummern in eckigen Klammern führen zum Belegverzeichnis der jeweiligen Bekanntmachung.
+Der Laufordner enthält die Originale. Auch eine erfolgreiche Suche ohne Treffer
+und ein unvollständiger Abruf erzeugen einen Bericht. Bei unvollständiger Recherche
+oder Analyse meldet das Programm Exitcode 1.
 
 ## Einrichten und starten
 
