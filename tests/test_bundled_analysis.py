@@ -184,10 +184,10 @@ def test_shared_sources_do_not_authorize_foreign_lot_citations(failure: str) -> 
         assert b["fit"]["status"] == "unpassend"
         assert [c["claim_id"] for c in model.requests[1]["claims"]] == ["u1/fit"]
     else:
-        assert a["processing_errors"] and b["processing_errors"]
-        assert b["fit"]["status"] == "unklar"
+        assert a["processing_errors"] and not b["processing_errors"]
+        assert b["fit"]["status"] == "unpassend"
         assert a["checkpoints"][0]["claim"]["reason"] == "KI-Beratung wird beauftragt."
-        assert b["checkpoints"][0]["claim"]["reason"] == "Bauarbeiten werden beauftragt."
+        assert b["checkpoints"] == []
 
 
 @pytest.mark.parametrize("comparison_in_proposal", [False, True])

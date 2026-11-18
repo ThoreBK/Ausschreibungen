@@ -39,6 +39,17 @@ def validate(value: Any, schema: dict[str, Any]) -> None:
             validate(item, schema["items"])
 
 
+def verification_claims(response: Any) -> list[Any]:
+    """Einzelurteile werden nach eindeutiger Zuordnung zur Aussage validiert."""
+    if (
+        not isinstance(response, dict)
+        or set(response) != {"claims"}
+        or not isinstance(response["claims"], list)
+    ):
+        raise ModelError("KI-Belegprüfung benötigt eine Liste von Einzelurteilen.")
+    return response["claims"]
+
+
 def object_schema(**properties: Any) -> dict[str, Any]:
     return {
         "type": "object",
@@ -194,7 +205,10 @@ class CodexModel:
                             "Codex-Auswertung fehlgeschlagen oder nicht abgeschlossen."
                         )
                     result = json.loads(response.final_response)
-                    validate(result, schema)
+                    if payload.get("stage") == "verification":
+                        verification_claims(result)
+                    else:
+                        validate(result, schema)
                     call["status"] = "ok"
                     return result
         except ModelError as error:

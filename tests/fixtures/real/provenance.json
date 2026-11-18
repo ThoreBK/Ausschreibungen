@@ -27,6 +27,11 @@
       "source_url": "https://ted.europa.eu/en/notice/794059-2026/xml",
       "retrieved_at": "2026-11-17T11:05:56.706271+00:00",
       "sha256": "3c79b204b4dc019a8730d3910a0a688a3123f3c886a4ed9ab57f77d618b975e6"
+    },
+    "791547-2026": {
+      "source_url": "https://ted.europa.eu/en/notice/791547-2026/xml",
+      "retrieved_at": "2026-11-17T11:05:57.622102+00:00",
+      "sha256": "c7dede3ec7a63fadbad644aa3a98ea6ea789f492e282cf81f6b9ba69e4741493"
     }
   }
 }

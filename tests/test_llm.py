@@ -10,6 +10,9 @@ from openai_codex import ApprovalMode, ExternalMessage, Sandbox
 from openai_codex.types import GetAccountResponse, ThreadTokenUsage, TurnStatus
 
 from ausschreibungen.analysis import (
+    CORRECTED_FIT,
+    PROPOSAL,
+    VERIFICATION,
     analyze_run,
     estimate_cost,
     extract,
@@ -295,3 +298,38 @@ def test_oversized_input_is_an_error_before_model_start(
         client("instructions", {"text": "ä" * MAX_MODEL_INPUT_BYTES}, object_schema())
     assert log["configs"] == log["threads"] == log["runs"] == []
     assert client.calls[0]["status"] == "error"
+
+
+@pytest.mark.parametrize("malformed", ["missing_reason", "wrong_claim_type"])
+def test_one_invalid_fit_correction_preserves_other_lot_through_adapter(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, malformed: str
+) -> None:
+    from tests.test_bundled_analysis import LotAnswers, two_lots
+
+    payload, _ = model_payload(two_lots(), load_analysis_profile(PROFILE))
+    fixture = LotAnswers()
+    first = fixture("", payload, PROPOSAL)
+    verdict = fixture("", payload, VERIFICATION)
+    # B ist unpassend. Eine positive Korrektur ist dort selbst bei gültigem Schema unzulässig.
+    bad = next(v for v in verdict["claims"] if v["claim_id"] == "u1/fit")
+    bad["status"] = CORRECTED_FIT
+    if malformed == "missing_reason":
+        del bad["reason"]
+    log = transport(monkeypatch, [response(first), response(verdict)])
+    run = saved_run(
+        tmp_path,
+        xml(
+            lot("LOT-A") + lot("LOT-B", subject="Bauarbeiten"),
+            extra="<cbc:Note>Gemeinsam 🙂</cbc:Note>",
+        ),
+    )
+    output = analyze_run(run, PROFILE, now=NOW)
+    result = json.loads((output / "analysis.json").read_text("utf8"))
+    a, b = result["documents"][0]["units"]
+    assert len(log["runs"]) == 2
+    assert result["status"] == "incomplete"
+    assert a["fit"]["status"] == "passend" and not a["processing_errors"]
+    assert a["fit"]["evidence"][0]["quote"] == "KI-Beratung"
+    assert b["fit"]["status"] == "unklar" and b["processing_errors"]
+    assert b["claim_reviews"][0]["model_check"]["status"] == "nicht entscheidbar"
+    assert b["checkpoints"][0]["claim"]["reason"] == "Bauarbeiten werden beauftragt."

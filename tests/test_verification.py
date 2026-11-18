@@ -9,6 +9,7 @@ from typing import Any
 import pytest
 
 from ausschreibungen.analysis import (
+    CORRECTED_FIT,
     PROPOSAL,
     VERIFICATION,
     analyze_run,
@@ -279,8 +280,12 @@ def test_invalid_verification_never_discards_locally_valid_claims(failure: str) 
     interpret(doc, load_analysis_profile(PROFILE), model)
     unit = doc["units"][0]
     assert unit["processing_errors"]
-    assert unit["fit"]["status"] == "unklar"
-    assert len(unit["checkpoints"]) == 2
+    if failure in {"quote", "lot"}:
+        assert unit["fit"]["status"] == "passend"
+        assert [c["claim_id"] for c in unit["checkpoints"]] == ["checkpoints:0"]
+    else:
+        assert unit["fit"]["status"] == "unklar"
+        assert len(unit["checkpoints"]) == 2
     assert all(c["verification"]["status"] == "nicht entscheidbar" for c in unit["checkpoints"])
     assert all(r["stage"] == "model" for r in unit["rejected_claims"])
 
@@ -380,3 +385,80 @@ def test_numeric_fact_preserves_qualifier_in_comparison_quote() -> None:
         {"path": "/note", "quote": correction},
         {"path": "/limit", "quote": "8"},
     ]
+
+
+@pytest.mark.parametrize(
+    "number,position,anchor,original,corrected",
+    [
+        (
+            "794059-2026",
+            2,
+            "Digitalisierung und Automatisierung von Prozessen",
+            "Das Los umfasst die Weiterentwicklung von KI-Anwendungen.",
+            "Die ausgeschriebene Prozessautomatisierung passt zum Automatisierungsangebot.",
+        ),
+        (
+            "791547-2026",
+            1,
+            "Moderierte Online-Workshops",
+            "Die beauftragten KI-Workshops passen zum Schulungsangebot.",
+            "Die ausgeschriebenen KI-Aufbauworkshops passen zum Schulungsangebot.",
+        ),
+    ],
+)
+def test_fit_verification_can_correct_reason_with_own_service_evidence(
+    number: str, position: int, anchor: str, original: str, corrected: str
+) -> None:
+    content = (FIXTURES / "real" / f"{number}.xml").read_bytes()
+    root = ET.fromstring(content)
+    lot_path = f"cac:ProcurementProjectLot[{position}]"
+    project = lot_path + "/cac:ProcurementProject[1]"
+    description = project + "/cbc:Description[1]"
+    assert anchor in root.findtext(description, namespaces=NS)
+    base = "/" + root.tag.split("}")[-1] + "/"
+    doc = extract(content, number, now=NOW)
+    unit = doc["units"][position - 1]
+    doc["units"] = [unit]
+    participation = deepcopy(unit["participation"])
+    claim = {
+        "status": "passend",
+        "reason": original,
+        "evidence": [
+            {"path": base + description, "quote": anchor},
+            {
+                "path": base + project + "/cbc:Name[1]",
+                "quote": root.findtext(project + "/cbc:Name[1]", namespaces=NS).strip(),
+            },
+        ],
+    }
+    verdict = {
+        "claim_id": "fit",
+        "status": CORRECTED_FIT,
+        "reason": corrected,
+        "evidence": [claim["evidence"][0]],
+    }
+    model = Answers({"facts": [], "fit": claim, "checkpoints": []}, {"claims": [verdict]})
+    interpret(doc, load_analysis_profile(PROFILE), model)
+    assert [q["stage"] for q in model.requests] == ["analysis", "verification"]
+    assert unit["fit"]["status"] == "passend"
+    assert unit["fit"]["reason"] == corrected
+    assert [(e["path"], e["lot_id"]) for e in unit["fit"]["evidence"]] == [
+        (base + description, unit["lot_id"])
+    ]
+    assert unit["claim_reviews"][0]["claim"]["reason"] == original
+    assert unit["claim_reviews"][0]["model_check"]["reason_corrected"] is True
+    assert unit["participation"] == participation
+    if number == "791547-2026":
+        assert participation["status"] == "nicht offen"
+
+
+@pytest.mark.parametrize("wrong_status", [True, False])
+def test_fit_correction_requires_positive_proposal_and_service_evidence(wrong_status: bool) -> None:
+    doc = extract(xml(lot()), "100-2026", now=NOW)
+    answer = proposal(doc, status="unklar" if wrong_status else "passend")
+    verdict = decision("fit", answer["fit"], CORRECTED_FIT)
+    if not wrong_status:
+        verdict["evidence"] = [citation(doc, "Referenz über zwei KI-Schulungen")]
+    interpret(doc, load_analysis_profile(PROFILE), Answers(answer, {"claims": [verdict]}))
+    assert doc["units"][0]["fit"]["status"] == "unklar"
+    assert doc["units"][0]["claim_reviews"][0]["model_check"]["status"] == "nicht entscheidbar"
