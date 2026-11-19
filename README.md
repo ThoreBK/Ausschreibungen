@@ -24,6 +24,8 @@ Mit `--report --structured-only` bleibt die Auswertung lokal und die Passung ung
 
 Die erste Übersicht zeigt je Los die fachliche Passung, den Teilnahmestand und den
 Stand der Teilnahmevoraussetzungen. Danach folgen Pflichtangaben und Prüfpunkte.
+Der Steckbrief zeigt je Los beleggeprüfte Kurzfassungen der Eignungs- und
+Zuschlagskriterien, soweit sie aus der Bekanntmachung bestätigt werden konnten.
 Nummern in eckigen Klammern führen zum Belegverzeichnis der jeweiligen Bekanntmachung.
 Der Laufordner enthält die Originale. Auch eine erfolgreiche Suche ohne Treffer
 und ein unvollständiger Abruf erzeugen einen Bericht. Bei unvollständiger Recherche

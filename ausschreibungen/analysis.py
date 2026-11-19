@@ -30,6 +30,7 @@ FIELDS = (
     "submission",
     "source_link",
 )
+CRITERIA_FIELDS = ("selection_criteria", "award_criteria")
 TEXT = {"type": "string"}
 CITATION = object_schema(source=TEXT)
 CITATIONS = {"type": "array", "items": CITATION}
@@ -41,6 +42,14 @@ UNIT_PROPOSAL = object_schema(
             field={"type": "string", "enum": list(FIELDS)},
             value=TEXT,
             state={"type": "string", "enum": ["present", "uncertain", "conflict"]},
+            evidence=CITATIONS,
+        ),
+    },
+    criteria_summaries={
+        "type": "array",
+        "items": object_schema(
+            field={"type": "string", "enum": list(CRITERIA_FIELDS)},
+            summary=TEXT,
             evidence=CITATIONS,
         ),
     },
@@ -116,6 +125,16 @@ Konkrete Fristen im Freitext immer im Original zitieren, auch ohne Zeitzone. Dan
 fehlende Zeitbestandteile niemals ergänzen. submission ist Einreichungsform/-kanal/-adresse,
 nicht die bloße Aufzählung einzureichender Inhalte. Prüfe insbesondere globale Note-Felder.
 Fehlendes nicht erfinden, dafür keine facts liefern. Keine Fristen aus Freitext normalisieren.
+criteria_summaries ergänzt je Los kurze Aussagen für den Steckbrief in eigenen Worten.
+Nutze strukturierte Angaben und Freitext. Fasse je Feld die wesentlichen Kriterien in
+höchstens drei kurzen Aussagen zusammen und belege jede Aussage mit den vollständigen relevanten
+Quellenreferenzen. Bei Eignung zuerst zwingende Mindestanforderungen und Nachweise nennen.
+Bei Zuschlag die Kriterien und ihre eindeutig belegten Gewichtungen nennen. Mindestanforderung,
+Punkte der Bewerberauswahl und Angebotswertung auseinanderhalten. Erhalte die Bedeutung von
+Zahlen, Einheiten, UND/ODER und Ausnahmen. Weitere Punktestufen und Details dürfen im Beleg
+bleiben. Lose anhand ihrer technischen und internen Kennungen zuordnen. Nennt der Quelltext
+mehrere Lose, verwende nur die für dieses Los geltenden Regeln. Unklare Losgeltung und
+Widersprüche als belegte checkpoints melden. Ohne belegte Kriterien die Liste leer lassen.
 Jede Behauptung in reason braucht tragfähige Quellenreferenzen aus records.
 Für fit muss mindestens ein Zitat aus cac:ProcurementProject/cbc:Description enthalten sein
 (Losbeschreibung oder globale Leistungsbeschreibung). Eignungsreferenzen, Änderungen oder
@@ -153,6 +172,12 @@ einzureichender Inhalte. deadlines sind konkrete Einreichungs-/Auskunftsfristen,
 allgemeinen Rechtsbehelfsfristen. Fehlende Zeitzonen erfordern Unsicherheit, nicht das
 Verwerfen des Originaldatums. Widersprüche zwischen Freitext und strukturierten Angaben
 als belegte offene Prüfpunkte bestätigen, wenn beide Fundstellen den Widerspruch tragen.
+Bei criteria_summaries (claim.summary) prüfe jede Teilbehauptung, insbesondere die fachliche
+Geltung für das konkrete Los, Zahlen, Einheiten, UND/ODER und Ausnahmen. Die Ablage im
+XML-Losabschnitt reicht dafür nicht. Unterscheide Mindestanforderung, Punkte der
+Bewerberauswahl und Zuschlagsgewichtung. Bestätige die Kurzfassung nur, wenn sie alle
+genannten Regeln korrekt und mit den nötigen Einschränkungen wiedergibt. Gib die Fundstellen
+für alle bestätigten Teile an. Bei unklarer Losgeltung keine Bestätigung.
 Thematische Passung bedeutet belegte fachliche Überschneidung, nicht vollständige Abdeckung
 aller Leistungen oder erfüllte Teilnahmevoraussetzungen. Konkret beauftragte profilbezogene
 Beratung, Schulung, Entwicklung und Automatisierung können passend sein, auch wenn zusätzlich
@@ -240,6 +265,36 @@ def berlin_time(day: str | None, clock: str | None) -> str | None:
         )
     except ValueError:
         return None
+
+
+def deadline_components(dates: list[str], times: list[str]) -> dict[str, Any]:
+    dates = list(dict.fromkeys(filter(None, dates)))
+    times = list(dict.fromkeys(filter(None, times)))
+    day = dates[0] if len(dates) == 1 else None
+    clock = times[0] if len(times) == 1 else None
+    berlin = berlin_time(day, clock)
+    status = "present" if berlin else "uncertain"
+    reason = ""
+    if len(dates) > 1 or len(times) > 1:
+        status = "conflict"
+    elif day and clock and not berlin:
+        zones = [re.search(r"(Z|[+-]\d{2}:\d{2})$", part) for part in (day, clock)]
+        offsets = {zone[0].replace("Z", "+00:00") for zone in zones if zone}
+        if len(offsets) > 1:
+            status, reason = "conflict", "Zeitzonenangaben widersprechen sich"
+        elif not offsets:
+            reason = "Zeitzone nicht angegeben"
+        else:
+            reason = "Zeitangabe nicht eindeutig lesbar"
+    return {
+        "dates": dates,
+        "times": times,
+        "original_date": day,
+        "original_time": clock,
+        "berlin": berlin,
+        "status": status,
+        "reason": reason,
+    }
 
 
 def labelled_deadlines(records: list[dict[str, Any]], lot_id: str | None) -> list[dict[str, Any]]:
@@ -400,24 +455,34 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
             "ParticipationRequestReceptionPeriod",
             "AdditionalInformationRequestPeriod",
         ):
-            for period in lot.findall(f"./cac:TenderingProcess/cac:{kind}", NS):
+            periods = lot.findall(f"./cac:TenderingProcess/cac:{kind}", NS)
+            period_values = []
+            for period in periods:
                 days = period.findall("./cbc:EndDate", NS)
                 times = period.findall("./cbc:EndTime", NS)
-                day = days[0].text if len(days) == 1 else None
-                clock = times[0].text if len(times) == 1 else None
-                deadlines.append(
+                descriptions = found(period, "./cbc:Description")
+                period_values.append(
                     {
                         "kind": kind,
-                        "original_date": day,
-                        "original_time": clock,
-                        "berlin": berlin_time(day, clock),
+                        **deadline_components(
+                            [nodes[n]["value"] for n in days], [nodes[n]["value"] for n in times]
+                        ),
+                        "period_path": nodes[period]["path"],
+                        "context": " · ".join(item["value"] for item in descriptions),
                         "lot_id": lot_id,
-                        "evidence": [fact(nodes[n])["evidence"][0] for n in days + times],
-                        "status": "conflict"
-                        if len(days) > 1 or len(times) > 1
-                        else ("present" if berlin_time(day, clock) else "uncertain"),
+                        "evidence": [fact(nodes[n])["evidence"][0] for n in days + times]
+                        + [e for item in descriptions for e in item["evidence"]],
                     }
                 )
+            variants = {(tuple(v["dates"]), tuple(v["times"])) for v in period_values}
+            for value in period_values:
+                if len(variants) > 1 and not value["context"]:
+                    value["reason"] = " · ".join(
+                        filter(None, [value["reason"], "Zuordnung zur Verfahrensphase prüfen"])
+                    )
+                    if value["status"] == "present":
+                        value["status"] = "uncertain"
+            deadlines.extend(period_values)
         # Globaler Freitext kann einzelne Lose nennen: Mehrlos-Zuordnung bleibt
         # der fachlichen Prüfung vorbehalten, statt die Frist pauschal zu verteilen.
         deadline_records = [r for r in records if r["lot_id"] is not None or len(lots) <= 1]
@@ -441,6 +506,10 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
                     value["status"] = "uncertain"
         if len({v["value"] for v in fields["procedure"]["values"]}) > 1:
             fields["procedure"]["status"] = "conflict"
+        for period in lot.findall("./cac:ProcurementProject/cac:PlannedPeriod", NS):
+            for component in ("StartDate", "EndDate"):
+                if len({v["value"] for v in found(period, f"./cbc:{component}")}) > 1:
+                    fields["duration"]["status"] = "conflict"
         if scope_checks and not fields["selection_criteria"]["values"]:
             fields["selection_criteria"].update(status="uncertain", display="Losgeltung ungeklärt")
         unit = {
@@ -466,7 +535,18 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
             unit["processing_errors"].append(
                 "Loskennung fehlt oder ist mehrfach vergeben; Zuordnung ungeklärt."
             )
-        unit["participation"] = participation(result, unit, now)
+        award_evidence = []
+        if result["notice_type"] == "ContractAwardNotice":
+            award_evidence = [
+                e for value in found(root, "./cbc:NoticeTypeCode") for e in value["evidence"]
+            ]
+            for outcome in root.findall(".//efac:NoticeResult/efac:LotResult", NS):
+                ref = outcome.find("./efac:TenderLot/cbc:ID", NS)
+                if ref is not None and ref.text == lot_id:
+                    award_evidence.extend(fact(nodes[ref])["evidence"])
+                    for value in found(outcome, "./cbc:TenderResultCode"):
+                        award_evidence.extend(value["evidence"])
+        unit["participation"] = participation(result, unit, now, award_evidence)
         result["units"].append(unit)
     for record in records:
         if any(
@@ -500,37 +580,53 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
     return result
 
 
-def participation(document: dict[str, Any], unit: dict[str, Any], now: datetime) -> dict[str, Any]:
+def participation(
+    document: dict[str, Any],
+    unit: dict[str, Any],
+    now: datetime,
+    award_evidence: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     answer: dict[str, Any] = {
         "status": "ungeklärt",
         "checked_at": now.isoformat(),
         "reason": "Keine eindeutige Grundlage für offene Teilnahme.",
     }
     if document["notice_type"] == "ContractAwardNotice":
-        answer.update(
-            status="nicht offen", reason="Ergebnisbekanntmachung, kein Aufruf zur Teilnahme."
-        )
-        return answer
+        return {
+            **answer,
+            "status": "nicht offen",
+            "reason": "Ergebnisbekanntmachung, kein Aufruf zur Teilnahme.",
+            "evidence": award_evidence or [],
+        }
     if document["notice_type"] != "ContractNotice":
         return answer
-    if unit["fields"]["procedure"]["status"] == "conflict" or unit["processing_errors"]:
-        return answer
-    if unit["fields"]["deadlines"]["status"] in {"uncertain", "conflict"}:
+    lot_id = unit["lot_id"]
+    lot_ids = document["metadata"]["lot_ids"]
+    if lot_id and (lot_id.startswith("unresolved:") or lot_ids.count(lot_id) != 1):
         return answer
     deadlines = [
         d
         for d in unit["fields"]["deadlines"]["values"]
-        if d["kind"] in {"TenderSubmissionDeadlinePeriod", "ParticipationRequestReceptionPeriod"}
+        if d["kind"]
+        in {
+            "TenderSubmissionDeadlinePeriod",
+            "ParticipationRequestReceptionPeriod",
+            "Einreichungsfrist (Freitext)",
+        }
+        and (len(lot_ids) <= 1 or all(e["lot_id"] == lot_id for e in d["evidence"]))
     ]
-    # Mehrere Arten/Varianten können verschiedene Verfahrensphasen bezeichnen.
-    if len(deadlines) == 1 and deadlines[0]["berlin"]:
+    answer["evidence"] = [e for d in deadlines for e in d["evidence"]]
+    # Identische strukturierte Termine derselben Phase sind kein Widerspruch.
+    terms = {(d["kind"], d["berlin"]) for d in deadlines}
+    if len(terms) == 1 and deadlines[0]["berlin"]:
         opened = datetime.fromisoformat(deadlines[0]["berlin"]) > now
         answer.update(
             status="Frist offen" if opened else "Frist abgelaufen",
             reason="Aufruf zur Teilnahme und eindeutig datierte Einreichungsfrist; "
             "keine Zusage der Teilnahmeberechtigung.",
-            evidence=deadlines[0]["evidence"],
         )
+    elif deadlines:
+        answer["reason"] = "Einreichungsfrist oder zugehörige Verfahrensphase nicht eindeutig."
     return answer
 
 
@@ -545,6 +641,13 @@ def checkpoint_anchors(claim: dict[str, Any]) -> set[str] | None:
     if "field" in claim or "status" in claim:
         return None
     return {e["path"] for e in claim["evidence"]}
+
+
+def uses_foreign_criterion(unit: dict[str, Any], evidence: list[dict[str, Any]]) -> bool:
+    excluded = tuple(
+        c["criterion_path"] + "/" for c in unit["checkpoints"] if c.get("method") == "xml_lot_scope"
+    )
+    return any(e["path"].startswith(excluded) for e in evidence)
 
 
 def checked_evidence(
@@ -576,14 +679,30 @@ def checked_evidence(
     return checked
 
 
-def text_deadline(item: dict[str, Any], evidence: list[dict[str, Any]]) -> dict[str, Any]:
+def text_deadline(
+    item: dict[str, Any], evidence: list[dict[str, Any]], records: list[dict[str, Any]]
+) -> dict[str, Any]:
     """Freitextzitat erhalten; selbst erkannte Zahlen sind noch keine eindeutige Zeitzone."""
     text = item["value"]
     day = re.search(r"\b\d{2}\.\d{2}\.\d{4}\b", text)
     clock = re.search(r"\b\d{1,2}:\d{2}(?::\d{2})?\s*Uhr\b", text)
+    # Nur eine eigenständige, datierte Quellenangabe darf einen XML-Termin
+    # infrage stellen. Ein Zitat aus einer Beispiel-, Rückfrage- oder Losnotiz reicht nicht.
+    paths = {e["path"] for e in evidence}
+    labelled = (
+        day
+        and re.fullmatch(
+            r"(?:Einreichungsfrist|Angebotsfrist|Teilnahmeantragsfrist):\s*"
+            r"(?:(?:Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag),?\s+)?"
+            r"(?:den\s+)?\d{2}\.\d{2}\.\d{4}(?:,?\s+\d{1,2}:\d{2}\s*Uhr)?\.?",
+            text,
+            re.IGNORECASE,
+        )
+        and any(r["path"] in paths and r["value"] == text for r in records)
+    )
     return {
         "kind": "Einreichungsfrist (Freitext)"
-        if "Einreichungsfrist" in text
+        if labelled
         else "Frist aus Freitext (Art ungeklärt)",
         "original": text,
         "original_date": day[0] if day else None,
@@ -701,7 +820,7 @@ def verification_payload(
 
 
 def structured_duplicate(item: dict[str, Any], unit: dict[str, Any]) -> bool:
-    if "field" not in item or item["state"] == "conflict":
+    if "state" not in item or item["state"] == "conflict":
         return False
     field = unit["fields"][item["field"]]
     evidence = [{"path": e["path"], "quote": e["quote"]} for e in item["evidence"]]
@@ -760,15 +879,20 @@ def retain_unconfirmed(unit: dict[str, Any], item: dict[str, Any], review: dict[
     )
     unit["checkpoints"].append(
         {
-            "reason": "Unbestätigte Aussage – manuell prüfen: " + verdict["reason"],
-            "claim": item,
+            "reason": (
+                "Kurzfassung der Kriterien nicht bestätigt – manuell prüfen: "
+                if "summary" in item
+                else "Unbestätigte Aussage – manuell prüfen: "
+            )
+            + verdict["reason"],
+            **({"claim": item} if "summary" not in item else {}),
             "claim_id": review["claim_id"],
             "evidence": item["evidence"],
             "verification": verdict,
             "method": "ai_unconfirmed",
         }
     )
-    if "field" in item:
+    if "state" in item:
         field = unit["fields"][item["field"]]
         field.setdefault("unconfirmed_values", []).append({**item, "verification": verdict})
         # Ein strittiger XML-Freitext bleibt als Quellenbeleg erhalten. Seine
@@ -790,11 +914,6 @@ def retain_unconfirmed(unit: dict[str, Any], item: dict[str, Any], review: dict[
             field["status"] = "uncertain"
         if not field["values"]:
             field["display"] = "unbestätigt – manuell prüfen"
-        if disputed and item["field"] in {"deadlines", "procedure"}:
-            unit["participation"].update(
-                status="ungeklärt",
-                reason="Unbestätigte Angabe zur Teilnahmefrist oder Verfahrensart.",
-            )
     elif "status" in item:
         unit["fit"] = {
             "status": "unklar",
@@ -805,18 +924,32 @@ def retain_unconfirmed(unit: dict[str, Any], item: dict[str, Any], review: dict[
 
 
 def apply_verified(
-    unit: dict[str, Any], item: dict[str, Any], records: list[dict[str, Any]]
+    unit: dict[str, Any],
+    item: dict[str, Any],
+    records: list[dict[str, Any]],
+    verification_evidence: list[dict[str, Any]],
 ) -> None:
     evidence = checked_evidence(
         item["evidence"], records, unit["lot_id"], comparison_anchors=checkpoint_anchors(item)
     )
-    if "field" in item:
+    if "summary" in item:
+        summaries = unit.setdefault("criteria_summaries", {})
+        summaries.setdefault(item["field"], []).append(
+            {
+                "summary": item["summary"],
+                "evidence": list(
+                    {(e["path"], e["quote"]): e for e in evidence + verification_evidence}.values()
+                ),
+            }
+        )
+    elif "field" in item:
         field = unit["fields"][item["field"]]
         value = {"value": item["value"], "evidence": evidence, "method": "ai_quote_verified"}
         state = item["state"]
         if item["field"] == "deadlines":
-            value = {**text_deadline(item, evidence), "lot_id": unit["lot_id"]}
+            value = {**text_deadline(item, evidence, records), "lot_id": unit["lot_id"]}
             state = "conflict" if state == "conflict" else "uncertain"
+            value["status"] = state
         # Geprüfte Freitextwiederholungen benötigen kein zweites Ergebnisexemplar.
         if not any(
             v.get("value") == item["value"] and v["evidence"] == evidence for v in field["values"]
@@ -825,11 +958,6 @@ def apply_verified(
         if field["status"] != "conflict" and (state != "present" or field["status"] == "missing"):
             field["status"] = state
         field["display"] = None
-        if item["field"] in {"deadlines", "procedure"} and state != "present":
-            unit["participation"].update(
-                status="ungeklärt",
-                reason="Belegter Konflikt/Unsicherheit zur Teilnahmefrist oder Verfahrensart.",
-            )
     elif "status" in item:
         unit["fit"] = {**item, "evidence": evidence, "method": "ai_verified"}
     else:
@@ -859,14 +987,13 @@ def interpret(document: dict[str, Any], profile: dict[str, Any], model: Model) -
         unit = units[unit_id]
         candidates = {
             **{f"facts:{i}": item for i, item in enumerate(answer["facts"])},
+            **{
+                f"criteria_summaries:{i}": item
+                for i, item in enumerate(answer["criteria_summaries"])
+            },
             "fit": answer["fit"],
             **{f"checkpoints:{i}": item for i, item in enumerate(answer["checkpoints"])},
         }
-        foreign_criteria = tuple(
-            c["criterion_path"] + "/"
-            for c in unit["checkpoints"]
-            if c.get("method") == "xml_lot_scope"
-        )
         for claim_id, raw in candidates.items():
             review = {"claim_id": claim_id, "claim": raw, "model_check": None}
             unit["claim_reviews"].append(review)
@@ -879,9 +1006,7 @@ def interpret(document: dict[str, Any], profile: dict[str, Any], model: Model) -
                     unit["lot_id"],
                     comparison_anchors=checkpoint_anchors(item),
                 )
-                if "field" in item and any(
-                    e["path"].startswith(foreign_criteria) for e in evidence
-                ):
+                if "field" in item and uses_foreign_criterion(unit, evidence):
                     raise ModelError("Eignungskriterium mit abweichender Losangabe im Original.")
                 if "value" in item and not any(item["value"] in e["quote"] for e in evidence):
                     raise ModelError("Zusätzliche Sachangabe ist kein belegtes Originalzitat.")
@@ -953,6 +1078,12 @@ def interpret(document: dict[str, Any], profile: dict[str, Any], model: Model) -
                 unit["lot_id"],
                 comparison_anchors=checkpoint_anchors(review["claim"]),
             )
+            if (
+                "summary" in review["claim"]
+                and decision["status"] == "bestätigt"
+                and uses_foreign_criterion(unit, decision["evidence"])
+            ):
+                raise ModelError("Kurzfassung verweist auf ein Kriterium eines anderen Loses.")
             if decision["status"] == CORRECTED_FIT:
                 if review["claim"].get("status") != "passend" or not has_service_description(
                     decision["evidence"]
@@ -975,8 +1106,25 @@ def interpret(document: dict[str, Any], profile: dict[str, Any], model: Model) -
                 "evidence": decision["evidence"],
                 "method": "ai_verified",
             }
+        elif (
+            review["claim"].get("field") == "deadlines"
+            and len(document["units"]) > 1
+            and not any(e["lot_id"] == unit["lot_id"] for e in decision["evidence"])
+        ):
+            unit["checkpoints"].append(
+                {
+                    "reason": "Fristangabe ohne eindeutigen Losbezug – manuell prüfen.",
+                    "claim": review["claim"],
+                    "evidence": decision["evidence"],
+                }
+            )
         else:
-            apply_verified(unit, review["claim"], records)
+            apply_verified(unit, review["claim"], records, decision["evidence"])
+
+    if document["notice_type"] == "ContractNotice":
+        for unit in units.values():
+            now = datetime.fromisoformat(unit["participation"]["checked_at"])
+            unit["participation"] = participation(document, unit, now)
 
 
 def record_verification_failure(

@@ -123,6 +123,7 @@ def wire_proposal(answer: Any, payload: dict[str, Any]) -> Any:
             {
                 "unit_id": u["unit_id"],
                 "facts": [wire_claim(f, payload) for f in answer["facts"]],
+                "criteria_summaries": [],
                 "fit": wire_claim(answer["fit"], payload),
                 "checkpoints": [wire_claim(c, payload) for c in answer["checkpoints"]],
             }
@@ -688,6 +689,10 @@ def test_conflicting_structured_deadlines_and_procedures_keep_both_values() -> N
     )
     unit = extract(content, "100-2026", now=NOW)["units"][0]
     assert unit["fields"]["deadlines"]["status"] == "conflict"
+    period = unit["fields"]["deadlines"]["values"][0]
+    assert period["dates"] == ["2026-12-01Z", "2026-12-10Z"]
+    assert period["times"] == ["12:00:00Z"]
+    assert period["original_date"] is None and period["berlin"] is None
     assert unit["fields"]["procedure"]["status"] == "conflict"
     assert [v["value"] for v in unit["fields"]["procedure"]["values"]] == ["open", "restricted"]
     assert [e["quote"] for e in unit["fields"]["deadlines"]["values"][0]["evidence"]] == [
@@ -696,6 +701,18 @@ def test_conflicting_structured_deadlines_and_procedures_keep_both_values() -> N
         "12:00:00Z",
     ]
     assert unit["participation"]["status"] == "ungeklärt"
+
+
+@pytest.mark.parametrize(("second", "status"), [("StartDate", "present"), ("EndDate", "conflict")])
+def test_duration_compares_only_same_component_in_same_period(second: str, status: str) -> None:
+    periods = (
+        "<cac:PlannedPeriod><cbc:EndDate>2027-12-01</cbc:EndDate>"
+        f"<cbc:{second}>2027-01-01</cbc:{second}></cac:PlannedPeriod>"
+        "<cac:PlannedPeriod><cbc:EndDate>2028-12-01</cbc:EndDate></cac:PlannedPeriod>"
+    )
+    content = lot().replace("</cac:ProcurementProject>", periods + "</cac:ProcurementProject>")
+    unit = extract(xml(content), "100-2026", now=NOW)["units"][0]
+    assert unit["fields"]["duration"]["status"] == status
 
 
 def test_freetext_deadline_preserves_date_clock_and_missing_timezone() -> None:
@@ -715,7 +732,70 @@ def test_freetext_deadline_preserves_date_clock_and_missing_timezone() -> None:
     assert value["berlin"] is None
     assert value["lot_id"] == "LOT-1"
     assert value["evidence"][0]["quote"] == text
-    assert doc["units"][0]["participation"]["status"] == "ungeklärt"
+    decision = doc["units"][0]["participation"]
+    assert decision["status"] == "ungeklärt"
+    assert {e["quote"] for e in decision["evidence"]} == {"2026-12-01Z", "12:00:00Z", text}
+
+
+@pytest.mark.parametrize(
+    ("day", "expected"),
+    [
+        ("2026-12-01Z", "Frist offen"),
+        ("2026-10-01Z", "Frist abgelaufen"),
+    ],
+)
+@pytest.mark.parametrize("confirmed", [True, False])
+def test_only_submission_deadlines_determine_participation(
+    day: str, expected: str, confirmed: bool
+) -> None:
+    question = "Bieterfragen bis zehn Tage vor Ablauf der Einreichungsfrist."
+    procedure = "Die genaue Verfahrensart ist der Anlage zu entnehmen."
+    extra = f"<cbc:Note>{question}</cbc:Note><cbc:Note>{procedure}</cbc:Note>"
+    period = (
+        "<cac:AdditionalInformationRequestPeriod><cbc:EndDate>2026-09-20Z</cbc:EndDate>"
+        "</cac:AdditionalInformationRequestPeriod>"
+    )
+    content = lot(day=day).replace("</cac:TenderingProcess>", period + "</cac:TenderingProcess>")
+    doc = extract(xml(content, extra=extra), "100-2026", now=NOW)
+    unit = doc["units"][0]
+    assert unit["participation"]["status"] == expected
+    answer = proposal(doc)
+    answer["facts"] = [
+        {"field": field, "value": text, "state": "uncertain", "evidence": [citation(doc, text)]}
+        for field, text in [("deadlines", question), ("procedure", procedure)]
+    ]
+    interpret(
+        doc,
+        load_analysis_profile(PROFILE),
+        ControlledModel(answer, {"facts": [confirmed, confirmed], "fit": True}),
+    )
+    assert unit["participation"]["status"] == expected
+    assert [e["quote"] for e in unit["participation"]["evidence"]] == [day, "12:00:00Z"]
+    reviews = unit["claim_reviews"][:2]
+    assert [r["model_check"]["status"] for r in reviews] == [
+        "bestätigt" if confirmed else "nicht entscheidbar"
+    ] * 2
+
+
+def test_global_deadline_without_lot_scope_does_not_change_either_lot() -> None:
+    text = "Einreichungsfrist: 09.12.2026, 09:00 Uhr"
+    doc = extract(
+        xml(lot() + lot("LOT-2", day="2026-10-01Z"), extra=f"<cbc:Note>{text}</cbc:Note>"),
+        "100-2026",
+        now=NOW,
+    )
+    answer = proposal(doc)
+    answer["facts"] = [
+        {"field": "deadlines", "value": text, "state": "present", "evidence": [citation(doc, text)]}
+    ]
+    interpret(doc, load_analysis_profile(PROFILE), ControlledModel(answer))
+    assert [u["participation"]["status"] for u in doc["units"]] == [
+        "Frist offen",
+        "Frist abgelaufen",
+    ]
+    for unit in doc["units"]:
+        assert len(unit["fields"]["deadlines"]["values"]) == 1
+        assert any(c.get("claim", {}).get("value") == text for c in unit["checkpoints"])
 
 
 def test_unconfirmed_existing_quote_is_not_reported_as_absent() -> None:

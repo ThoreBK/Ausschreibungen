@@ -1,6 +1,6 @@
 """Lesbare TED-Berichte mit kompakten Steckbriefen und auflösbaren XML-Belegen."""
 
-import re
+from collections.abc import Iterable
 from datetime import datetime
 from html import escape
 from pathlib import Path
@@ -11,11 +11,11 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import mm
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate
 
+from ausschreibungen.analysis import CRITERIA_FIELDS, deadline_components
+from ausschreibungen.report_fonts import BOLD, REGULAR, apply_fonts, font_runs, register_fonts
 from ausschreibungen.research import link, text_value
 
 LABELS = {
@@ -38,6 +38,7 @@ DEADLINES = {
 }
 LIMIT = "in dieser Version nicht abgerufen und nicht ausgewertet"
 Data = dict[str, Any]
+CriteriaDetails = tuple[str, str, list[int]]
 
 
 def local_time(value: str | None) -> str:
@@ -54,25 +55,46 @@ def excerpt(value: str, limit: int) -> str:
     return value if len(value) <= limit else value[:limit].rsplit(" ", 1)[0] + " […]"
 
 
-def field_value(item: Data) -> str:
-    if "kind" in item:
-        kind = DEADLINES.get(item["kind"], item["kind"])
-        original = item.get("original") or (
-            f"{item.get('original_date') or 'Datum nicht angegeben'}, "
-            f"{item.get('original_time') or 'Uhrzeit nicht angegeben'}"
+def deadline_text(item: Data) -> str:
+    kind = DEADLINES.get(item["kind"], item["kind"])
+    if context := item.get("context"):
+        kind += f" ({context})"
+    if original := item.get("original"):
+        return f"{kind}: {original} · {STATES.get(item['status'], item['status'])}"
+    if "dates" not in item:
+        # Ältere Analysen enthalten Alternativen nur als indizierte XML-Belege.
+        def originals(leaf: str, scalar: str) -> list[str]:
+            quotes = [
+                e["quote"]
+                for e in item["evidence"]
+                if e["path"].rsplit("/", 1)[-1].startswith(f"cbc:{leaf}[")
+            ]
+            return quotes or [item.get(scalar) or ""]
+
+        item = deadline_components(
+            originals("EndDate", "original_date"), originals("EndTime", "original_time")
         )
-        berlin = f" (Berlin: {local_time(item['berlin'])})" if item.get("berlin") else ""
-        return f"{kind}: {original}{berlin}"
+    parts = []
+    for values, label in ((item["dates"], "Datum"), (item["times"], "Uhrzeit")):
+        if len(values) > 1:
+            parts.append(f"{label} widersprüchlich ({' oder '.join(values)})")
+        else:
+            parts.append(values[0] if values else f"{label} nicht angegeben")
+    text = f"{kind}: " + ", ".join(parts)
+    if item["berlin"]:
+        text += f" (Berlin: {local_time(item['berlin'])})"
+    if item["reason"]:
+        text += " · " + item["reason"]
+    return text
+
+
+def field_value(item: Data) -> str:
     value = item["value"]
     if item.get("method") == "xml":
         leaf = item["evidence"][0]["path"].rsplit("/", 1)[-1].partition("[")[0]
         value = {
             ("cbc:ProcedureCode", "open"): "Offenes Verfahren",
             ("cbc:ProcedureCode", "restricted"): "Nichtoffenes Verfahren",
-            ("cbc:AwardingCriterionTypeCode", "quality"): "Qualität",
-            ("cbc:AwardingCriterionTypeCode", "cost"): "Kosten",
-            ("cbc:AwardingCriterionTypeCode", "price"): "Preis",
-            ("efbc:ParameterCode", "per-exa"): "Gewichtung in Prozent",
         }.get((leaf, value), value)
         prefix = {"cbc:StartDate": "Beginn", "cbc:EndDate": "Ende"}.get(leaf)
         if prefix:
@@ -83,12 +105,11 @@ def field_value(item: Data) -> str:
 
 
 def write_report(research: Data, analysis: Data | None, directory: Path) -> Path:
-    pdfmetrics.registerFont(TTFont("Vera", "Vera.ttf"))
-    pdfmetrics.registerFont(TTFont("VeraBold", "VeraBd.ttf"))
+    register_fonts()
     styles = {
         key: ParagraphStyle(
             key,
-            fontName="VeraBold" if heading else "Vera",
+            fontName=BOLD if heading else REGULAR,
             fontSize=size,
             leading=size * 1.4,
             spaceBefore=before,
@@ -106,8 +127,12 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
     }
     story = []
 
-    def paragraph(value: str, style: str = "body", *, markup: bool = False) -> None:
-        story.append(Paragraph(value if markup else escape(value), styles[style]))
+    def paragraph(
+        value: str, style: str = "body", *, markup: bool = False, field: str = ""
+    ) -> None:
+        content = Paragraph(value if markup else escape(value), styles[style])
+        apply_fonts(content, field or content.getPlainText()[:80])
+        story.append(content)
 
     profile = research["profile"]
     notices = research["notices"]
@@ -120,18 +145,41 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
         f"{'Auftraggeberland' if profile['country_field'] == 'buyer-country' else 'Leistungsort'}: "
         f"{', '.join(profile['countries']) or 'alle Länder'} · Suchbereich {profile['scope']}"
     )
-    paragraph("Suchgruppen: " + ", ".join(q["name"] for q in profile["queries"]))
+    codes = profile["cpv_codes"]
+    paragraph("CPV-Filter: " + (" ODER ".join(codes) if codes else "keiner"))
+    paragraph("Volltextsuche · mindestens eine Suchgruppe muss passen", "label")
+    for query in profile["queries"]:
+        conditions = [
+            terms[0] if len(terms) == 1 else "(" + " ODER ".join(terms) + ")"
+            for terms in query["term_groups"]
+        ]
+        paragraph(f"{query['name']}: " + " UND ".join(conditions))
     if analysis:
         paragraph("Unternehmensprofil: " + analysis["profile"]["company_profile"])
     paragraph(
         "Analysegrundlage sind die erfolgreich abgerufenen vollständigen "
         "TED-Bekanntmachungen. Zusätzliche Vergabeunterlagen: " + LIMIT + "."
     )
+    successful = [q for q in research["queries"] if q["status"] == "ok"]
     paragraph(
+        f"{len(successful)} von {len(profile['queries'])} Suchgruppen erfolgreich abgefragt. "
+        f"Nur neueste Fassungen, nach Veröffentlichungsdatum absteigend. "
         f"Auswahlgrenze: {profile['max_results']} Treffer je Suchgruppe und insgesamt."
-        + (" Trefferlimit erreicht." if research.get("limited") else "")
     )
-    paragraph("Die Suche berücksichtigt nur die von TED gelieferten neuesten Fassungen.")
+    if any(q.get("limited") for q in successful):
+        paragraph("TED meldete für mindestens eine Suchgruppe weitere Treffer.")
+    if research.get("unique_retrieved", 0) > len(notices):
+        paragraph(
+            f"Gesamtlimit: {len(notices)} von {research['unique_retrieved']} verschiedenen "
+            "gelieferten Bekanntmachungen ausgewählt."
+        )
+    overview_path = "../../overview.html" if analysis else "overview.html"
+    paragraph(
+        f'<a href="{overview_path}" color="#125B62"><u>Laufübersicht ({overview_path})</u></a>'
+        " · Suchanfragen und Rohantworten",
+        "source",
+        markup=True,
+    )
     if research["status"] == "empty":
         paragraph("Suche erfolgreich abgeschlossen. Keine Treffer im Suchbereich.", "heading")
     elif research["status"] != "complete":
@@ -158,7 +206,7 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
             title = f'<a href="#steckbrief-{number}">{title}</a>'
         else:
             title = f'<a name="steckbrief-{number}"/>{title}'
-        paragraph(title, "label", markup=True)
+        paragraph(title, "label", markup=True, field=f"Titel · TED {number}")
         url = f"https://ted.europa.eu/de/notice/-/detail/{number}"
         retrieved = local_time(notice.get("document", {}).get("retrieved_at"))
         paragraph(
@@ -176,20 +224,11 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                 f"Teilnahmestand: {unit['participation']['status']} · "
                 f"Teilnahmevoraussetzungen: {unit['participation_requirements']['status']}"
             )
-            eligibility = unit["fields"]["selection_criteria"]
-            if eligibility["status"] == "present":
-                descriptions = [
-                    v["value"]
-                    for v in eligibility["values"]
-                    if v.get("method") != "xml" or "/cbc:Description[" in v["evidence"][0]["path"]
-                ]
-                if descriptions:
-                    paragraph(
-                        "Eignung laut Bekanntmachung (Auszug): " + excerpt(descriptions[0], 130),
-                        "source",
-                    )
+    appendices: list[tuple[str, dict[tuple[str, str], int], list[CriteriaDetails]]] = []
 
-    appendices: list[tuple[str, dict[tuple[str, str], int]]] = []
+    def source_links(number: str, ids: Iterable[int]) -> str:
+        links = [f'<a href="#beleg-{number}-{i}" color="#125B62">{i}</a>' for i in ids]
+        return " [" + ", ".join(links) + "]" if links else ""
 
     def add_brief(notice: Data) -> None:
         number = notice["publication_number"]
@@ -208,14 +247,45 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                 + str(source.get("error") or doc.get("error") or "Keine auswertbaren Angaben.")
             )
         sources: dict[tuple[str, str], int] = {}
+        criteria_details: list[CriteriaDetails] = []
+
+        def source_ids(items: Iterable[Data]) -> list[int]:
+            return list(
+                dict.fromkeys(
+                    sources.setdefault((e["path"], e["quote"]), len(sources) + 1)
+                    for item in items
+                    for e in item.get("evidence", [])
+                )
+            )
 
         def refs(item: Data) -> str:
-            ids = []
-            for evidence in item.get("evidence", []):
-                key = (evidence["path"], evidence["quote"])
-                index = sources.setdefault(key, len(sources) + 1)
-                ids.append(f'<a href="#beleg-{number}-{index}" color="#125B62">{index}</a>')
-            return " [" + ", ".join(ids) + "]" if ids else ""
+            return source_links(number, source_ids([item]))
+
+        def add_criteria(unit: Data, key: str, label: str) -> None:
+            field = unit["fields"][key]
+            summaries = unit.get("criteria_summaries", {}).get(key, [])
+            rejected = any(
+                claim["claim"].get("field") == key and "summary" in claim["claim"]
+                for claim in unit["rejected_claims"]
+            )
+            state = field["status"]
+            if state == "missing" and (summaries or rejected):
+                state = "uncertain" if rejected else "present"
+            lines = [escape(summary["summary"]) + refs(summary) for summary in summaries]
+            raw_ids = source_ids(field["values"])
+            if not lines:
+                lines = ["keine geprüfte Kurzfassung" if state != "missing" else ""]
+            if set(raw_ids).difference(source_ids(summaries)):
+                anchor = f"kriterien-{number}-{len(criteria_details) + 1}"
+                scope = unit["lot_id"] or "Verfahren ohne Losaufteilung"
+                criteria_details.append((anchor, f"{scope} · {label}", raw_ids))
+                lines[-1] += f' · <a href="#{anchor}" color="#125B62">Originalangaben</a>'
+            paragraph(
+                f"{label}: " + " · ".join(filter(None, [STATES.get(state), lines[0]])),
+                markup=True,
+            )
+            for line in lines[1:]:
+                paragraph(line, markup=True)
 
         def checkpoint(point: Data) -> None:
             label = (point.get("lot_id") or "Bekanntmachung") + " · " if point.get("url") else ""
@@ -224,8 +294,7 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                 label += "Zu prüfen: " + str(claim.get("value") or claim.get("reason")) + ". "
             paragraph(
                 escape(label + point["reason"])
-                + refs(point)
-                + refs(point.get("verification") or {}),
+                + source_links(number, source_ids([point, point.get("verification") or {}])),
                 markup=True,
             )
             if url := point.get("url"):
@@ -247,37 +316,26 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                 )
             paragraph("Pflichtangaben", "label")
             for key, label in LABELS.items():
+                if key in CRITERIA_FIELDS:
+                    add_criteria(unit, key, label)
+                    continue
                 field = unit["fields"][key]
                 state = STATES.get(field["status"], "")
-                groups: dict[str, list[str]] = {}
-                further: list[str] = []
-                shown = 0
-                for v in field["values"]:
-                    if key == "selection_criteria" and len(field["values"]) > 6:
-                        if shown >= 3 or v.get("attributes", {}).get("listName"):
-                            further.append(refs(v))
-                            continue
-                        shown += 1
-                    group = ""
-                    if key == "award_criteria" and v.get("method") == "xml":
-                        match = re.match(
-                            r"(.*/cac:(?:Subordinate)?AwardingCriterion\[\d+\])/",
-                            v["evidence"][0]["path"],
+                if key == "deadlines" and field["values"]:
+                    grouped: dict[str, list[Data]] = {}
+                    for item in field["values"]:
+                        grouped.setdefault(deadline_text(item), []).append(item)
+                    for line, items in grouped.items():
+                        paragraph(
+                            escape(line) + source_links(number, source_ids(items)), markup=True
                         )
-                        group = match[1] if match else ""
-                    groups.setdefault(group, []).append(
-                        escape(excerpt(field_value(v), 240)) + refs(v)
-                    )
-                lines = [" · ".join(entries) for entries in groups.values()]
-                paragraph(f"{label}: " + " · ".join(filter(None, [state, *lines[:1]])), markup=True)
-                for line in lines[1:]:
-                    paragraph(line, markup=True)
-                if further:
-                    paragraph(
-                        "Weitere Angaben im Belegverzeichnis: " + " ".join(further),
-                        "source",
-                        markup=True,
-                    )
+                    if field["status"] in {"uncertain", "conflict"} and not any(
+                        item.get("status") == field["status"] for item in field["values"]
+                    ):
+                        paragraph(f"{label}: {state}")
+                    continue
+                values = [escape(excerpt(field_value(v), 240)) + refs(v) for v in field["values"]]
+                paragraph(f"{label}: " + " · ".join(filter(None, [state, *values])), markup=True)
             paragraph("Informationsqualität und Prüfpunkte", "label")
             for error in unit["processing_errors"]:
                 paragraph("Verarbeitungsfehler: " + error)
@@ -293,12 +351,12 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
             for point in doc["checkpoints"]:
                 checkpoint(point)
         if sources:
-            appendices.append((number, sources))
+            appendices.append((number, sources, criteria_details))
 
     for notice in notices:
         add_brief(notice)
 
-    for number, sources in appendices:
+    for number, sources, criteria_details in appendices:
         story.append(PageBreak())
         paragraph(f"Belegverzeichnis · TED {number}", "heading")
         paragraph(
@@ -306,6 +364,12 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
             "XML-Fundstellen dieser Bekanntmachung.",
             "source",
         )
+        for anchor, label, ids in criteria_details:
+            paragraph(
+                f'<a name="{anchor}"/>{escape(label)}' + source_links(number, ids),
+                "source",
+                markup=True,
+            )
         original_quotes: dict[str, int] = {}
         for (path, quote), index in sources.items():
             paragraph(
@@ -321,14 +385,18 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                     markup=True,
                 )
             else:
-                paragraph(quote, "body")
+                paragraph(quote, "body", field=f"Beleg {index} · TED {number} · {path}")
                 original_quotes[quote] = index
 
     def footer(canvas: Canvas, document: SimpleDocTemplate) -> None:
         canvas.saveState()
-        canvas.setFont("Vera", 8)
+        canvas.setFont(REGULAR, 8)
         canvas.setFillColor(colors.HexColor("#394E5C"))
-        canvas.drawString(18 * mm, 12 * mm, "TED-Recherche  /  " + research["run_id"])
+        line = canvas.beginText(18 * mm, 12 * mm)
+        for name, text in font_runs("TED-Recherche  /  " + research["run_id"], REGULAR, "Lauf-ID"):
+            line.setFont(name, 8)
+            line.textOut(text)
+        canvas.drawText(line)
         canvas.drawRightString(A4[0] - 18 * mm, 12 * mm, f"Seite {document.page}")
         canvas.restoreState()
 

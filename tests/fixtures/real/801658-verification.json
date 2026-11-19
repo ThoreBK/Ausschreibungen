@@ -1,0 +1,244 @@
+{
+  "claims": [
+    {
+      "claim_id": "u0/facts:0",
+      "status": "bestätigt",
+      "reason": "Angebote waren in Textform ausschließlich über DTVP einzureichen. Post und E-Mail waren ausgeschlossen.",
+      "evidence": [
+        {
+          "source": "r194"
+        }
+      ]
+    },
+    {
+      "claim_id": "u0/facts:1",
+      "status": "bestätigt",
+      "reason": "Bieterfragen waren spätestens zehn Kalendertage vor Fristablauf einzureichen. Das Datum des maßgeblichen Fristablaufs fehlt.",
+      "evidence": [
+        {
+          "source": "r194"
+        }
+      ]
+    },
+    {
+      "claim_id": "u0/facts:2",
+      "status": "bestätigt",
+      "reason": "Die Vorauswahl erfolgt je Los anhand des Umsatzes sowie der Anzahl und Qualität vergleichbarer Referenzen.",
+      "evidence": [
+        {
+          "source": "r150"
+        },
+        {
+          "source": "r192"
+        }
+      ]
+    },
+    {
+      "claim_id": "u0/facts:3",
+      "status": "bestätigt",
+      "reason": "Ein hoher Eigenleistungsanteil wird ausdrücklich auch für Los 3 positiv bewertet. Die Hinweise regeln zudem die Auswahl und Bewertung von höchstens drei Referenzen.",
+      "evidence": [
+        {
+          "source": "r150"
+        },
+        {
+          "source": "r192"
+        }
+      ]
+    },
+    {
+      "claim_id": "u0/facts:4",
+      "status": "bestätigt",
+      "reason": "Je Los werden die drei geeignetsten Bewerber nach Punktzahl zur Angebotsabgabe zugelassen. Bei Punktegleichstand entscheidet erforderlichenfalls das Los.",
+      "evidence": [
+        {
+          "source": "r150"
+        },
+        {
+          "source": "r192"
+        }
+      ]
+    },
+    {
+      "claim_id": "u0/fit",
+      "status": "bestätigt",
+      "reason": "Die Organisations- und Prozessberatung in Los 3 dient der Digitalisierung und Standardisierung interner Serviceprozesse. Das überschneidet sich mit der Beratung zur Automatisierung von Abläufen im Unternehmensprofil.",
+      "evidence": [
+        {
+          "source": "r192"
+        }
+      ]
+    },
+    {
+      "claim_id": "u0/checkpoints:0",
+      "status": "bestätigt",
+      "reason": "Das Ergebnis für Los 3 weist Deloitte Consulting GmbH als Zuschlagsempfängerin aus. Die Bekanntmachung enthält keinen datierten Einreichungstermin, und die Frist für Bieterfragen ist nur relativ angegeben.",
+      "evidence": [
+        {
+          "source": "r129"
+        },
+        {
+          "source": "r157"
+        },
+        {
+          "source": "r49"
+        },
+        {
+          "source": "r13"
+        },
+        {
+          "source": "r14"
+        },
+        {
+          "source": "r64"
+        },
+        {
+          "source": "r66"
+        },
+        {
+          "source": "r54"
+        },
+        {
+          "source": "r58"
+        },
+        {
+          "source": "r67"
+        },
+        {
+          "source": "r68"
+        },
+        {
+          "source": "r95"
+        },
+        {
+          "source": "r96"
+        },
+        {
+          "source": "r194"
+        }
+      ]
+    },
+    {
+      "claim_id": "u0/checkpoints:1",
+      "status": "bestätigt",
+      "reason": "Für den Vertrag zu Los 3 ist der 19.10.2026 als Zuschlagsdatum eingetragen. Das allgemeine Ergebnisfeld enthält ohne Erläuterung den abweichenden 01.01.2000.",
+      "evidence": [
+        {
+          "source": "r62"
+        },
+        {
+          "source": "r64"
+        },
+        {
+          "source": "r205"
+        }
+      ]
+    },
+    {
+      "claim_id": "u0/checkpoints:2",
+      "status": "bestätigt",
+      "reason": "Der Aufgabenanteil von Los 3 bei Schulung, technischer Automatisierung und Cloud-Migration bleibt in der übergreifenden Beschreibung offen. KI und Microsoft 365 sind für das Los nicht ausgewiesen. Für später anzubindende Fachbereiche liegen noch keine vollständigen Soll-Prozessbeschreibungen vor.",
+      "evidence": [
+        {
+          "source": "r191"
+        },
+        {
+          "source": "r192"
+        },
+        {
+          "source": "r148"
+        },
+        {
+          "source": "r150"
+        }
+      ]
+    },
+    {
+      "claim_id": "u0/checkpoints:3",
+      "status": "bestätigt",
+      "reason": "Die Low-Code/No-Code-Bewertung gilt für Los 1. Für Los 2 und Los 3 schließt die Leistungsbeschreibung sowohl die Vergabe an denselben Auftragnehmer als auch die Angebotsabgabe für beide Lose aus.",
+      "evidence": [
+        {
+          "source": "r150"
+        },
+        {
+          "source": "r192"
+        }
+      ]
+    },
+    {
+      "claim_id": "u0/checkpoints:4",
+      "status": "nicht entscheidbar",
+      "reason": "Die Abrufgrenze von 550 Personentagen, die fehlende Mindestabnahme oder Mindestbestellung und die Rahmenvereinbarung ohne erneuten Wettbewerb sind belegt. Der Optionshinweis kündigt eine Festlegung bei Bedarf an. Ob diese bei der Abfrage des finalen Angebots tatsächlich erfolgte, bleibt offen.",
+      "evidence": [
+        {
+          "source": "r192"
+        },
+        {
+          "source": "r188"
+        },
+        {
+          "source": "r204"
+        }
+      ]
+    },
+    {
+      "claim_id": "u0/checkpoints:5",
+      "status": "bestätigt",
+      "reason": "Die Bekanntmachung verweist für die Umsatz- und Referenzbewertung auf Anlage 0 und Anlage 2F5. Konkrete Mindestumsätze und Mindestanforderungen an Referenzen gehen aus dem vorliegenden Text nicht hervor.",
+      "evidence": [
+        {
+          "source": "r150"
+        },
+        {
+          "source": "r194"
+        }
+      ]
+    },
+    {
+      "claim_id": "u0/checkpoints:6",
+      "status": "bestätigt",
+      "reason": "Alle vier Zuschlagskriterien verweisen für Details auf die Vergabeunterlagen. DTVP war der ausschließliche Kanal für Unterlagen und Änderungen. Nach dem Teilnahmewettbewerb wurde die Vergabe auf drei getrennte Projekträume aufgeteilt.",
+      "evidence": [
+        {
+          "source": "r167"
+        },
+        {
+          "source": "r172"
+        },
+        {
+          "source": "r177"
+        },
+        {
+          "source": "r182"
+        },
+        {
+          "source": "r194"
+        }
+      ]
+    },
+    {
+      "claim_id": "u0/checkpoints:7",
+      "status": "bestätigt",
+      "reason": "Die Bekanntmachung verweist für die Erklärung zu Ausschlussgründen auf Anlage 2 und nennt die beschriebenen Erklärungs- und Formblattpflichten für Bietergemeinschaften, Nachunternehmen und Eignungsleihe.",
+      "evidence": [
+        {
+          "source": "r194"
+        }
+      ]
+    },
+    {
+      "claim_id": "u0/checkpoints:8",
+      "status": "bestätigt",
+      "reason": "Die Rechtsbehelfsbelehrung nennt Rüge- und Nachprüfungsfristen sowie für die Geltendmachung der Vertragsunwirksamkeit eine Höchstfrist von 30 Kalendertagen ab Veröffentlichung der Auftragsvergabe im EU-Amtsblatt.",
+      "evidence": [
+        {
+          "source": "r184"
+        },
+        {
+          "source": "r118"
+        }
+      ]
+    }
+  ]
+}

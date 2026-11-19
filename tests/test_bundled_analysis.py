@@ -76,6 +76,7 @@ class LotAnswers:
                 {
                     "unit_id": "u0",
                     "facts": [],
+                    "criteria_summaries": [],
                     "checkpoints": [],
                     "fit": {
                         "status": "passend",
@@ -86,6 +87,7 @@ class LotAnswers:
                 {
                     "unit_id": "u1",
                     "facts": [],
+                    "criteria_summaries": [],
                     "checkpoints": [],
                     "fit": {
                         "status": "unpassend",
@@ -201,6 +203,8 @@ def test_real_bundled_response_keeps_foreign_comparison_sources_out_of_lot_facts
         json.loads((FIXTURES / "real" / f"bundled-798622-{stage}.json").read_text("utf-8"))
         for stage in ("proposal", "verification")
     ]
+    for unit in replies[0]["units"]:
+        unit["criteria_summaries"] = []
 
     if comparison_in_proposal:
         # Regression aus dem Fünferlauf: Analyse und Prüfer nennen beide Lose.

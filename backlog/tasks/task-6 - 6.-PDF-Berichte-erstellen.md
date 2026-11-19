@@ -4,7 +4,7 @@ title: 4. Ersten vollstaendigen Lauf bis zum PDF ermoeglichen
 status: In Progress
 assignee: []
 created_date: '2026-11-13T17:25:00Z'
-updated_date: '2026-11-18T20:57:00Z'
+updated_date: '2026-11-19T23:08:00Z'
 labels:
   - roadmap
 dependencies:
@@ -26,7 +26,7 @@ Den ersten manuell startbaren Durchlauf vom konfigurierten Profil ueber eine ech
 - [ ] #2 Das PDF enthaelt vorne eine Uebersicht aller ausgewaehlten Treffer und danach je Ausschreibung einen kompakten Steckbrief mit saemtlichen Pflichtangaben nach P-04. Quellen und Abrufdaten sind jeweils enthalten. Die Darstellung funktioniert mit einem und mehreren Treffern; Losbezuege bleiben eindeutig.
 - [ ] #3 Je Treffer sind Passungsbegruendung, Belege, Informationsluecken und offene Pruefpunkte verstaendlich sichtbar. Fehlende Angaben heissen nicht angegeben; Unsicherheit, Widersprueche und Verarbeitungsfehler werden davon unterschieden. Fachliche Passung und Informationsqualitaet sind getrennt erkennbar.
 - [ ] #4 Suchprofil, Recherchezeitpunkt, Quellenabdeckung und Recherchegrenzen sind angegeben. Vollstaendige TED-Bekanntmachungen sind als Analysegrundlage benannt. Links auf zusaetzliche Unterlagen tragen den Hinweis in dieser Version nicht abgerufen und nicht ausgewertet; diese Umfangsgrenze gilt nicht als Abruffehler oder erfolgte Pruefung.
-- [ ] #5 Erzeugte PDFs sind visuell auf Lesbarkeit, Vollstaendigkeit und brauchbare Belegverweise geprueft, auch bei langen Inhalten und mehreren Treffern. Eine leere Trefferliste und unvollstaendige Laeufe werden ehrlich dargestellt; ein fehlgeschlagener Abruf erscheint nicht als erfolgreiche Suche ohne Treffer.
+- [ ] #5 Erzeugte PDFs sind visuell auf Lesbarkeit, Vollstaendigkeit und brauchbare Belegverweise geprueft, auch bei langen Inhalten und mehreren Treffern. Eine leere Trefferliste und unvollstaendige Laeufe werden ehrlich dargestellt; ein fehlgeschlagener Abruf erscheint nicht als erfolgreiche Suche ohne Treffer. Mehrsprachige Titel, Pflichtfelder und Belegzitate sind im fertigen PDF in Normal- und Fettschrift visuell lesbar und im Originalwortlaut kopierbar.
 - [ ] #6 Die automatisch erzeugte Übersicht stellt Passung, Teilnahmestand und Teilnahmevoraussetzungen getrennt und verständlich dar.
 - [ ] #7 Ein dokumentierter Live-Durchlauf verarbeitet fünf echte Ausschreibungen von der TED-Suche bis zum visuell geprüften PDF.
 <!-- AC:END -->

@@ -1,0 +1,217 @@
+{
+  "units": [
+    {
+      "unit_id": "u0",
+      "facts": [
+        {
+          "field": "submission",
+          "value": "Die Angebote sind in Textform ausschließlich über die Vergabeplattform DTVP einzureichen. Auf postalischem Wege oder per E-Mail übermittelte Angebote sind nicht zugelassen.",
+          "state": "present",
+          "evidence": [
+            {
+              "source": "r194"
+            }
+          ]
+        },
+        {
+          "field": "deadlines",
+          "value": "Fragen zu den Vergabeunterlagen (Bieterfragen) sind im Hinblick auf § 20 Abs. 3 Nr. 1 VgV spätestens 10 Kalendertage vor Ablauf der Frist in Textform über den entsprechenden Projektraum des Vergabeportals zu stellen.",
+          "state": "uncertain",
+          "evidence": [
+            {
+              "source": "r194"
+            }
+          ]
+        },
+        {
+          "field": "selection_criteria",
+          "value": "Der Auftraggeber fordert pro Los die drei Unternehmen mit den höchsten Punktzahlen in der Prüfung der Bewertungskriterien zur Angebotsabgabe auf. Die Punktzahlen ermittelt der Aufraggeber (sofern Lose gebildet sind im jeweiligen Los) wie folgt: Auswahlkriterien Max. Punkte Umsatz 10 Anzahl der vergleichbaren Referenzen 20 Qualität der vergleichbaren Referenzen 70 Max Gesamtpunkte 100 1. Auswahlkriterium 1: Umsatz  Gewertet wird der durchschnittliche jährliche Umsatz des Bewerbers in den letzten drei abgeschlossenen Geschäftsjahren mit vergleichbaren Leistungen je Los. Für die Bewertung wird auf die Tabellen in der Anlage 0 Ziffer 5.3.1 - 5.3.3 verwiesen. 2. Auswahlkriterium 2: Anzahl der vergleichbaren Referenzen je Los Für die Bewertung wird auf die Tabelle in der Anlage 0 Ziffer 5.3.4 verwiesen. Die Angabe erfolgt in Anlage 2F5. 3. Auswahlkriterium 3: Qualität der vergleichbaren Referenzen je Los Bewertet wird die Qualität der drei eingereichten Referenzen gemäß Anlage 2F5.",
+          "state": "present",
+          "evidence": [
+            {
+              "source": "r150"
+            }
+          ]
+        },
+        {
+          "field": "selection_criteria",
+          "value": "Los 2 und Los 3:  Positiv wird ein hoher Eigenleistungsanteil bewertet.  Die Vergabestelle wertet dabei max. 3 Referenzen gemäß den in Anlage 2F5 genannten Kriterien aus. Sollte ein Bieter mehr als drei Referenzmuster mittels der vorgegebenen Anlage einreichen und diese nicht mittels Nummerierung gekennzeichnet haben, wählt die Vergabestelle die ersten drei Referenzen aus den Unter-lagen in der Reihenfolge des übermittelten Antrags aus. Das Angebot mit der höchsten Punktzahl gemäß Anlage 2F5 erhält die höchste Bewertung entsprechend der dem Kriterium zugeordneten Maximalpunktzahl. Alle übrigen Angebote erhalten im Verhältnis weniger Punkte (inverser Dreisatz).",
+          "state": "present",
+          "evidence": [
+            {
+              "source": "r150"
+            }
+          ]
+        },
+        {
+          "field": "selection_criteria",
+          "value": "Haben mehrere Bewerber dieselbe Punktzahl, erhalten diese denselben Rang. Bei mehreren Bewerbern auf demselben Rang, werden diese zu-gelassen, bis drei Bewerber zugelassen sind. Soweit erforderlich entscheidet bei Punktegleichstand das Los.",
+          "state": "present",
+          "evidence": [
+            {
+              "source": "r150"
+            }
+          ]
+        }
+      ],
+      "fit": {
+        "status": "passend",
+        "reason": "Los 3 beauftragt Organisations- und Prozessberatung zur Digitalisierung und Standardisierung interner Serviceprozesse. Diese Beratungsleistung überschneidet sich fachlich mit der Beratung zur Automatisierung von Abläufen im Profil.",
+        "evidence": [
+          {
+            "source": "r192"
+          }
+        ]
+      },
+      "checkpoints": [
+        {
+          "reason": "Die Ex-post-Bekanntmachung meldet den Zuschlag für Los 3 an Deloitte Consulting GmbH. Ein datierter Einreichungstermin fehlt, und der Bezugstermin für die Bieterfragen bleibt offen.",
+          "evidence": [
+            {
+              "source": "r147"
+            },
+            {
+              "source": "r157"
+            },
+            {
+              "source": "r49"
+            },
+            {
+              "source": "r13"
+            },
+            {
+              "source": "r64"
+            },
+            {
+              "source": "r59"
+            },
+            {
+              "source": "r58"
+            },
+            {
+              "source": "r67"
+            },
+            {
+              "source": "r68"
+            },
+            {
+              "source": "r95"
+            },
+            {
+              "source": "r96"
+            },
+            {
+              "source": "r194"
+            }
+          ]
+        },
+        {
+          "reason": "Der Ergebnisblock nennt für den Vertrag von Los 3 den 19.10.2026 als Zuschlagsdatum. Das allgemeine Ergebnisfeld führt den 01.01.2000 ohne Erläuterung.",
+          "evidence": [
+            {
+              "source": "r62"
+            },
+            {
+              "source": "r64"
+            },
+            {
+              "source": "r205"
+            }
+          ]
+        },
+        {
+          "reason": "Die Losbeschreibung enthält auch Anforderungen des Gesamtprojekts. Der konkrete Aufgabenanteil von Los 3 bei Schulung, technischer Automatisierung und Cloud-Migration bleibt offen. Ein Einsatz von KI oder Microsoft 365 ist für Los 3 nicht ausgewiesen. Für später anzubindende Fachbereiche fehlen teilweise vollständige Soll-Prozessbeschreibungen.",
+          "evidence": [
+            {
+              "source": "r191"
+            },
+            {
+              "source": "r192"
+            },
+            {
+              "source": "r148"
+            }
+          ]
+        },
+        {
+          "reason": "Die Low-Code/No-Code-Bewertung ist ausdrücklich Los 1 zugeordnet. Die Tätigkeiten aus Los 2 und Los 3 dürfen laut Leistungsbeschreibung nicht an denselben Auftragnehmer vergeben werden, und die Angebotsabgabe ist zwischen diesen beiden Losen auf eines beschränkt.",
+          "evidence": [
+            {
+              "source": "r191"
+            },
+            {
+              "source": "r192"
+            },
+            {
+              "source": "r150"
+            }
+          ]
+        },
+        {
+          "reason": "Für Los 3 sind höchstens 550 Personentage abrufbar, ohne Mindestabnahme oder Mindestbestellung. Die Ausschreibung kennzeichnet Los 3 als Rahmenvereinbarung ohne erneuten Aufruf zum Wettbewerb. Der Umfang etwaiger Optionen bleibt offen und wurde laut Hinweis bei Bedarf mit dem finalen Angebot festgelegt.",
+          "evidence": [
+            {
+              "source": "r192"
+            },
+            {
+              "source": "r188"
+            },
+            {
+              "source": "r204"
+            }
+          ]
+        },
+        {
+          "reason": "Die Umsatz- und Referenztabellen sowie die Detailmaßstäbe für vergleichbare Referenzen hängen von Anlage 0 und Anlage 2F5 ab. Konkrete Mindestumsätze und Mindestanforderungen an die Referenzen lassen sich aus dem veröffentlichten Text nicht ableiten.",
+          "evidence": [
+            {
+              "source": "r150"
+            },
+            {
+              "source": "r194"
+            }
+          ]
+        },
+        {
+          "reason": "Die Detailbewertung aller vier Zuschlagskriterien ergibt sich aus den Vergabeunterlagen. Die Unterlagen und etwaige Änderungen wurden ausschließlich über DTVP bereitgestellt. Nach dem Teilnahmewettbewerb wurden drei getrennte Projekträume eingerichtet.",
+          "evidence": [
+            {
+              "source": "r167"
+            },
+            {
+              "source": "r172"
+            },
+            {
+              "source": "r177"
+            },
+            {
+              "source": "r182"
+            },
+            {
+              "source": "r194"
+            }
+          ]
+        },
+        {
+          "reason": "Die Ausschlusserklärung richtet sich nach Anlage 2. Bei Bietergemeinschaften sind eine gemeinsam unterzeichnete Erklärung mit Vertretungsbefugnis und gesamtschuldnerischer Haftung sowie Eignungsformblätter und Eigenerklärungen jedes Mitglieds erforderlich. Für Nachunternehmen und Eignungsleihe gelten zusätzliche Formblatt- und Erklärungspflichten.",
+          "evidence": [
+            {
+              "source": "r194"
+            }
+          ]
+        },
+        {
+          "reason": "Die Rechtsbehelfsbelehrung nennt Fristen für Rügen und Nachprüfungsanträge. Für die Geltendmachung der Unwirksamkeit des Vertragsschlusses nennt sie spätestens 30 Kalendertage nach Veröffentlichung der Auftragsvergabe im Amtsblatt der EU.",
+          "evidence": [
+            {
+              "source": "r184"
+            },
+            {
+              "source": "r118"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

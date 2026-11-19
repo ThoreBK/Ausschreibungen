@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><ContractAwardNotice xmlns="urn:oasis:names:specification:ubl:schema:xsd:ContractAwardNotice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ccts-cct="urn:un:unece:uncefact:data:specification:CoreComponentTypeSchemaModule:2" xmlns:efac="http://data.europa.eu/p27/eforms-ubl-extension-aggregate-components/1" xmlns:efbc="http://data.europa.eu/p27/eforms-ubl-extension-basic-components/1" xmlns:efext="http://data.europa.eu/p27/eforms-ubl-extensions/1" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2" xmlns:qdt="urn:oasis:names:specification:ubl:schema:xsd:QualifiedDataTypes-2" xmlns:udt="urn:oasis:names:specification:bdndr:schema:xsd:UnqualifiedDataTypes-1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<ext:UBLExtensions>
+		<ext:UBLExtension>
+			<ext:ExtensionContent>
+				<efext:EformsExtension>
+					<efac:NoticeResult>
+						<efac:FieldsPrivacy>
+							<efbc:FieldIdentifierCode listName="non-publication-identifier">not-max-val</efbc:FieldIdentifierCode>
+							<cbc:ReasonCode listName="non-publication-justification">eo-int</cbc:ReasonCode>
+						</efac:FieldsPrivacy>
+						<efac:FieldsPrivacy>
+							<efbc:FieldIdentifierCode listName="non-publication-identifier">not-app-val</efbc:FieldIdentifierCode>
+							<cbc:ReasonCode listName="non-publication-justification">eo-int</cbc:ReasonCode>
+						</efac:FieldsPrivacy>
+						<efbc:OverallApproximateFrameworkContractsAmount currencyID="EUR">-1</efbc:OverallApproximateFrameworkContractsAmount>
+						<efbc:OverallMaximumFrameworkContractsAmount currencyID="EUR">-1</efbc:OverallMaximumFrameworkContractsAmount>
+						<efac:LotResult>
+							<efac:FieldsPrivacy>
+								<efbc:FieldIdentifierCode listName="non-publication-identifier">ten-val-low</efbc:FieldIdentifierCode>
+								<cbc:ReasonCode listName="non-publication-justification">eo-int</cbc:ReasonCode>
+							</efac:FieldsPrivacy>
+							<efac:FieldsPrivacy>
+								<efbc:FieldIdentifierCode listName="non-publication-identifier">ten-val-hig</efbc:FieldIdentifierCode>
+								<cbc:ReasonCode listName="non-publication-justification">eo-int</cbc:ReasonCode>
+							</efac:FieldsPrivacy>
+							<cbc:ID>RES-0001</cbc:ID>
+							<cbc:HigherTenderAmount currencyID="EUR">-1</cbc:HigherTenderAmount>
+							<cbc:LowerTenderAmount currencyID="EUR">-1</cbc:LowerTenderAmount>
+							<cbc:TenderResultCode listName="winner-selection-status">selec-w</cbc:TenderResultCode>
+							<efac:LotTender>
+								<cbc:ID schemeName="tender">TEN-0001</cbc:ID>
+							</efac:LotTender>
+							<efac:FrameworkAgreementValues>
+								<efac:FieldsPrivacy>
+									<efbc:FieldIdentifierCode listName="non-publication-identifier">max-val</efbc:FieldIdentifierCode>
+									<cbc:ReasonCode listName="non-publication-justification">eo-int</cbc:ReasonCode>
+								</efac:FieldsPrivacy>
+								<efac:FieldsPrivacy>
+									<efbc:FieldIdentifierCode listName="non-publication-identifier">ree-val</efbc:FieldIdentifierCode>
+									<cbc:ReasonCode listName="non-publication-justification">eo-int</cbc:ReasonCode>
+								</efac:FieldsPrivacy>
+								<cbc:MaximumValueAmount currencyID="EUR">-1</cbc:MaximumValueAmount>
+								<efbc:ReestimatedValueAmount currencyID="EUR">-1</efbc:ReestimatedValueAmount>
+							</efac:FrameworkAgreementValues>
+							<efac:ReceivedSubmissionsStatistics>
+								<efbc:StatisticsCode listName="review-decision-type">tenders</efbc:StatisticsCode>
+								<efbc:StatisticsNumeric>1</efbc:StatisticsNumeric>
+							</efac:ReceivedSubmissionsStatistics>
+							<efac:ReceivedSubmissionsStatistics>
+								<efbc:StatisticsCode listName="review-decision-type">t-esubm</efbc:StatisticsCode>
+								<efbc:StatisticsNumeric>1</efbc:StatisticsNumeric>
+							</efac:ReceivedSubmissionsStatistics>
+							<efac:ReceivedSubmissionsStatistics>
+								<efbc:StatisticsCode listName="review-decision-type">part-req</efbc:StatisticsCode>
+								<efbc:StatisticsNumeric>4</efbc:StatisticsNumeric>
+							</efac:ReceivedSubmissionsStatistics>
+							<efac:ReceivedSubmissionsStatistics>
+								<efbc:StatisticsCode listName="review-decision-type">t-sme</efbc:StatisticsCode>
+								<efbc:StatisticsNumeric>0</efbc:StatisticsNumeric>
+							</efac:ReceivedSubmissionsStatistics>
+							<efac:ReceivedSubmissionsStatistics>
+								<efbc:StatisticsCode listName="review-decision-type">t-med</efbc:StatisticsCode>
+								<efbc:StatisticsNumeric>0</efbc:StatisticsNumeric>
+							</efac:ReceivedSubmissionsStatistics>
+							<efac:ReceivedSubmissionsStatistics>
+								<efbc:StatisticsCode listName="review-decision-type">t-small</efbc:StatisticsCode>
+								<efbc:StatisticsNumeric>0</efbc:StatisticsNumeric>
+							</efac:ReceivedSubmissionsStatistics>
+							<efac:ReceivedSubmissionsStatistics>
+								<efbc:StatisticsCode listName="review-decision-type">t-micro</efbc:StatisticsCode>
+								<efbc:StatisticsNumeric>0</efbc:StatisticsNumeric>
+							</efac:ReceivedSubmissionsStatistics>
+							<efac:ReceivedSubmissionsStatistics>
+								<efbc:StatisticsCode listName="review-decision-type">t-oth-eea</efbc:StatisticsCode>
+								<efbc:StatisticsNumeric>0</efbc:StatisticsNumeric>
+							</efac:ReceivedSubmissionsStatistics>
+							<efac:ReceivedSubmissionsStatistics>
+								<efbc:StatisticsCode listName="review-decision-type">t-no-eea</efbc:StatisticsCode>
+								<efbc:StatisticsNumeric>0</efbc:StatisticsNumeric>
+							</efac:ReceivedSubmissionsStatistics>
+							<efac:ReceivedSubmissionsStatistics>
+								<efbc:StatisticsCode listName="review-decision-type">t-verif-inad</efbc:StatisticsCode>
+								<efbc:StatisticsNumeric>0</efbc:StatisticsNumeric>
+							</efac:ReceivedSubmissionsStatistics>
+							<efac:ReceivedSubmissionsStatistics>
+								<efbc:StatisticsCode listName="review-decision-type">t-no-verif</efbc:StatisticsCode>
+								<efbc:StatisticsNumeric>0</efbc:StatisticsNumeric>
+							</efac:ReceivedSubmissionsStatistics>
+							<efac:ReceivedSubmissionsStatistics>
+								<efbc:StatisticsCode listName="review-decision-type">t-verif-inad-low</efbc:StatisticsCode>
+								<efbc:StatisticsNumeric>0</efbc:StatisticsNumeric>
+							</efac:ReceivedSubmissionsStatistics>
+							<efac:SettledContract>
+								<cbc:ID schemeName="contract">CON-0001</cbc:ID>
+							</efac:SettledContract>
+							<efac:StrategicProcurement>
+								<efbc:ApplicableLegalBasis listName="cvd-scope">false</efbc:ApplicableLegalBasis>
+							</efac:StrategicProcurement>
+							<efac:StrategicProcurement>
+								<efbc:ApplicableLegalBasis listName="eed-scope">false</efbc:ApplicableLegalBasis>
+							</efac:StrategicProcurement>
+							<efac:StrategicProcurement>
+								<efbc:ApplicableLegalBasis listName="ipi-scope">false</efbc:ApplicableLegalBasis>
+							</efac:StrategicProcurement>
+							<efac:TenderLot>
+								<cbc:ID schemeName="Lot">LOT-0001</cbc:ID>
+							</efac:TenderLot>
+						</efac:LotResult>
+						<efac:LotTender>
+							<efac:FieldsPrivacy>
+								<efbc:FieldIdentifierCode listName="non-publication-identifier">win-ten-var</efbc:FieldIdentifierCode>
+								<cbc:ReasonCode listName="non-publication-justification">eo-int</cbc:ReasonCode>
+							</efac:FieldsPrivacy>
+							<efac:FieldsPrivacy>
+								<efbc:FieldIdentifierCode listName="non-publication-identifier">win-ten-val</efbc:FieldIdentifierCode>
+								<cbc:ReasonCode listName="non-publication-justification">eo-int</cbc:ReasonCode>
+							</efac:FieldsPrivacy>
+							<cbc:ID schemeName="tender">TEN-0001</cbc:ID>
+							<efbc:TenderVariantIndicator>0</efbc:TenderVariantIndicator>
+							<cac:LegalMonetaryTotal>
+								<cbc:PayableAmount currencyID="EUR">-1</cbc:PayableAmount>
+							</cac:LegalMonetaryTotal>
+							<efac:SubcontractingTerm>
+								<efbc:TermCode listName="applicability">no</efbc:TermCode>
+							</efac:SubcontractingTerm>
+							<efac:TenderingParty>
+								<cbc:ID schemeName="tenderingparty">TPA-0001</cbc:ID>
+							</efac:TenderingParty>
+							<efac:TenderLot>
+								<cbc:ID schemeName="Lot">LOT-0001</cbc:ID>
+							</efac:TenderLot>
+							<efac:TenderReference>
+								<cbc:ID>DE 180108746</cbc:ID>
+							</efac:TenderReference>
+						</efac:LotTender>
+						<efac:SettledContract>
+							<cbc:ID schemeName="contract">CON-0001</cbc:ID>
+							<cbc:AwardDate>2026-10-19+02:00</cbc:AwardDate>
+							<cbc:IssueDate>2026-11-13+01:00</cbc:IssueDate>
+							<cbc:Title languageID="DEU">Los 3 Organisation-/Prozessberatung für ESM</cbc:Title>
+							<efac:ContractReference>
+								<cbc:ID>3015/26-3</cbc:ID>
+							</efac:ContractReference>
+							<efac:LotTender>
+								<cbc:ID>TEN-0001</cbc:ID>
+							</efac:LotTender>
+						</efac:SettledContract>
+						<efac:TenderingParty>
+							<cbc:ID schemeName="tendering-party">TPA-0001</cbc:ID>
+							<efac:Tenderer>
+								<cbc:ID schemeName="organization">ORG-0003</cbc:ID>
+							</efac:Tenderer>
+						</efac:TenderingParty>
+					</efac:NoticeResult>
+					<efac:NoticeSubType>
+						<cbc:SubTypeCode listName="notice-subtype">29</cbc:SubTypeCode>
+					</efac:NoticeSubType>
+					<efac:Organizations>
+						<efac:Organization>
+							<efac:Company>
+								<cac:PartyIdentification>
+									<cbc:ID>ORG-0001</cbc:ID>
+								</cac:PartyIdentification>
+								<cac:PartyName>
+									<cbc:Name languageID="DEU">München Klinik gGmbH</cbc:Name>
+								</cac:PartyName>
+								<cac:PostalAddress>
+									<cbc:StreetName>Thalkirchner Straße 48</cbc:StreetName>
+									<cbc:CityName>München</cbc:CityName>
+									<cbc:PostalZone>80337</cbc:PostalZone>
+									<cbc:CountrySubentityCode listName="nuts-lvl3">DE212</cbc:CountrySubentityCode>
+									<cac:Country>
+										<cbc:IdentificationCode listName="country">DEU</cbc:IdentificationCode>
+									</cac:Country>
+								</cac:PostalAddress>
+								<cac:PartyLegalEntity>
+									<cbc:CompanyID>DE814184919</cbc:CompanyID>
+								</cac:PartyLegalEntity>
+								<cac:Contact>
+									<cbc:Telephone>089452279312</cbc:Telephone>
+									<cbc:ElectronicMail>katja.leppich@muenchen-klinik.de</cbc:ElectronicMail>
+								</cac:Contact>
+							</efac:Company>
+						</efac:Organization>
+						<efac:Organization>
+							<efac:Company>
+								<cac:PartyIdentification>
+									<cbc:ID>ORG-0002</cbc:ID>
+								</cac:PartyIdentification>
+								<cac:PartyName>
+									<cbc:Name languageID="DEU">Regierung von Oberbayern - Vergabekammer Südbayern</cbc:Name>
+								</cac:PartyName>
+								<cac:PostalAddress>
+									<cbc:StreetName>Maximilianstr. 39</cbc:StreetName>
+									<cbc:CityName>München</cbc:CityName>
+									<cbc:PostalZone>80538</cbc:PostalZone>
+									<cbc:CountrySubentityCode listName="nuts-lvl3">DE212</cbc:CountrySubentityCode>
+									<cac:Country>
+										<cbc:IdentificationCode listName="country">DEU</cbc:IdentificationCode>
+									</cac:Country>
+								</cac:PostalAddress>
+								<cac:PartyLegalEntity>
+									<cbc:CompanyID>t:8921762411</cbc:CompanyID>
+								</cac:PartyLegalEntity>
+								<cac:Contact>
+									<cbc:Telephone>+49 8921762411</cbc:Telephone>
+									<cbc:Telefax>+49 8921762847</cbc:Telefax>
+									<cbc:ElectronicMail>vergabekammer.suedbayern@reg-ob.bayern.de</cbc:ElectronicMail>
+								</cac:Contact>
+							</efac:Company>
+						</efac:Organization>
+						<efac:Organization>
+							<efbc:ListedOnRegulatedMarketIndicator>false</efbc:ListedOnRegulatedMarketIndicator>
+							<efac:UltimateBeneficialOwner>
+								<cbc:ID>UBO-0001</cbc:ID>
+							</efac:UltimateBeneficialOwner>
+							<efac:Company>
+								<cbc:WebsiteURI>http://deloitte.de</cbc:WebsiteURI>
+								<efbc:CompanySizeCode listName="economic-operator-size">medium</efbc:CompanySizeCode>
+								<cac:PartyIdentification>
+									<cbc:ID>ORG-0003</cbc:ID>
+								</cac:PartyIdentification>
+								<cac:PartyName>
+									<cbc:Name languageID="DEU">Deloitte Consulting GmbH</cbc:Name>
+								</cac:PartyName>
+								<cac:PostalAddress>
+									<cbc:StreetName>Erna-Scheffler-Str. 2</cbc:StreetName>
+									<cbc:CityName>Düsseldorf</cbc:CityName>
+									<cbc:PostalZone>40476</cbc:PostalZone>
+									<cbc:CountrySubentityCode listName="nuts-lvl3">DEA11</cbc:CountrySubentityCode>
+									<cac:Country>
+										<cbc:IdentificationCode listName="country">DEU</cbc:IdentificationCode>
+									</cac:Country>
+								</cac:PostalAddress>
+								<cac:PartyLegalEntity>
+									<cbc:CompanyID>DE 180108746</cbc:CompanyID>
+								</cac:PartyLegalEntity>
+								<cac:Contact>
+									<cbc:Telephone>+49302546801</cbc:Telephone>
+									<cbc:ElectronicMail>consultingausschreibung@deloitte.de</cbc:ElectronicMail>
+								</cac:Contact>
+							</efac:Company>
+						</efac:Organization>
+						<efac:Organization><efac:Company><cac:PartyIdentification><cbc:ID schemeName="organization">ORG-0004</cbc:ID></cac:PartyIdentification><cac:PartyName><cbc:Name languageID="DEU">Datenservice Öffentlicher Einkauf (in Verantwortung des Beschaffungsamts des BMI)</cbc:Name></cac:PartyName><cac:PostalAddress><cbc:CityName>Bonn</cbc:CityName><cbc:PostalZone>53119</cbc:PostalZone><cbc:CountrySubentityCode listName="nuts">DEA22</cbc:CountrySubentityCode><cac:Country><cbc:IdentificationCode listName="country">DEU</cbc:IdentificationCode></cac:Country></cac:PostalAddress><cac:PartyLegalEntity><cbc:CompanyID schemeID="002">0204:994-DOEVD-83</cbc:CompanyID></cac:PartyLegalEntity><cac:Contact><cbc:Telephone>+49228996100</cbc:Telephone><cbc:ElectronicMail>noreply.esender_hub@bescha.bund.de</cbc:ElectronicMail></cac:Contact></efac:Company></efac:Organization><efac:UltimateBeneficialOwner>
+							<cbc:ID>UBO-0001</cbc:ID>
+							<efac:Nationality>
+								<cbc:NationalityID>DEU</cbc:NationalityID>
+							</efac:Nationality>
+						</efac:UltimateBeneficialOwner>
+					</efac:Organizations>
+				<efac:Publication><efbc:NoticePublicationID schemeName="ojs-notice-id">00801658-2026</efbc:NoticePublicationID><efbc:GazetteID schemeName="ojs-id">224/2026</efbc:GazetteID><efbc:PublicationDate>2026-11-18+01:00</efbc:PublicationDate></efac:Publication></efext:EformsExtension>
+			</ext:ExtensionContent>
+		</ext:UBLExtension>
+	</ext:UBLExtensions>
+	<cbc:UBLVersionID>2.3</cbc:UBLVersionID>
+	<cbc:CustomizationID>eforms-sdk-1.13</cbc:CustomizationID>
+	<cbc:ProfileID>eforms-sdk-1.13</cbc:ProfileID>
+	<cbc:ID schemeName="notice-id">e5a133af-780c-4771-b491-d82ea43ad678</cbc:ID>
+	<cbc:ContractFolderID>205a1fbb-81d6-45a2-bcdc-e5ed8f670eee</cbc:ContractFolderID>
+	<cbc:IssueDate>2026-11-16+01:00</cbc:IssueDate>
+	<cbc:IssueTime>16:37:22+01:00</cbc:IssueTime>
+	<cbc:VersionID>01</cbc:VersionID>
+	<cbc:RequestedPublicationDate>2026-11-16+01:00</cbc:RequestedPublicationDate>
+	<cbc:RegulatoryDomain>32014L0024</cbc:RegulatoryDomain>
+	<cbc:NoticeTypeCode listName="result">can-standard</cbc:NoticeTypeCode>
+	<cbc:NoticeLanguageCode listID="eu-official-language">DEU</cbc:NoticeLanguageCode>
+	<cac:ContractingParty>
+		<cac:ContractingPartyType>
+			<cbc:PartyTypeCode listName="buyer-legal-type">pub-undert-ra</cbc:PartyTypeCode>
+		</cac:ContractingPartyType>
+		<cac:ContractingActivity>
+			<cbc:ActivityTypeCode listName="authority-activity">health</cbc:ActivityTypeCode>
+		</cac:ContractingActivity>
+		<cac:Party>
+			<cac:PartyIdentification>
+				<cbc:ID>ORG-0001</cbc:ID>
+			</cac:PartyIdentification>
+		<cac:ServiceProviderParty><cbc:ServiceTypeCode listName="organisation-role">ted-esen</cbc:ServiceTypeCode><cac:Party><cac:PartyIdentification><cbc:ID schemeName="organization">ORG-0004</cbc:ID></cac:PartyIdentification></cac:Party></cac:ServiceProviderParty></cac:Party>
+	</cac:ContractingParty>
+	<cac:TenderingTerms>
+		<ext:UBLExtensions>
+			<ext:UBLExtension>
+				<ext:ExtensionContent>
+					<efext:EformsExtension>
+						<efac:StrategicProcurement>
+							<efbc:ApplicableLegalBasis listName="cvd-scope">false</efbc:ApplicableLegalBasis>
+						</efac:StrategicProcurement>
+						<efac:StrategicProcurement>
+							<efbc:ApplicableLegalBasis listName="eed-scope">false</efbc:ApplicableLegalBasis>
+						</efac:StrategicProcurement>
+						<efac:StrategicProcurement>
+							<efbc:ApplicableLegalBasis listName="ipi-scope">false</efbc:ApplicableLegalBasis>
+						</efac:StrategicProcurement>
+					</efext:EformsExtension>
+				</ext:ExtensionContent>
+			</ext:UBLExtension>
+		</ext:UBLExtensions>
+		<cbc:FundingProgramCode listName="eu-funded">no-eu-funds</cbc:FundingProgramCode>
+		<cac:ProcurementLegislationDocumentReference>
+			<cbc:ID>vgv</cbc:ID>
+		</cac:ProcurementLegislationDocumentReference>
+		<cac:AppealTerms>
+			<cac:PresentationPeriod>
+				<cbc:Description languageID="DEU">1) Rügeerfordernis Es wird darauf hingewiesen, dass bei Beanstandungen im Hinblick auf das hiesige Vergabeverfahren die Bewerber Verstöße gegen Vergabevorschriften, die sie erkannt haben, gegenüber der Vergabestelle innerhalb von 10 Kalendertagen zu rügen haben und weiterhin Verstöße gegen Vergabevorschriften, die erst in diesen Teilnahmeunterlagen für diesen Teilnahmewettbewerb oder den Vergabeunterlagen zur Abforderung der Erstangebote erkennbar sind, von den Bewerbern spätestens bis zum Ablauf der Frist zur Bewerbung oder Abgabe der Erstangebote gegenüber der Vergabestelle zu rügen sind (vgl. § 160 Abs. 3 Satz 1 Nr. 1, 2 und Nr. 3 GWB), damit die Bewerber für den Fall, dass der Rüge nicht abgeholfen wird, ein Nachprüfungsverfahren vor der Vergabekammer anstreben können. Sofern die Vergabestelle einer Rüge nicht abhilft, kann der betreffende Bewerber nur innerhalb von längstens 15 Kalendertagen nach Eingang des Antwortschreibens an den Rügenden diesbezüglich ein Nachprüfungsverfahren vor der Vergabekammer einleiten (vgl. § 160 Abs. 3 Satz 1 Nr. 4 GWB) *** 2) Ein Nachprüfungsantrag zur Vergabekammer ist nach § 160 Abs. 3 S. 1 Nr. 4 GWB unzulässig, soweit mehr als 15 Kalendertage nach Eingang der Mitteilung des Auftraggebers, einer Rüge nicht abhelfen zu wollen, vergangen sind. *** 3) Insbesondere § 160 Abs. 3 Satz 1 Nr. 1, Nr. 2 und 3 GWB sowie § 134 Abs. 2 GWB sind zu beachten. *** 4) Die Frist zur Geltendmachung der Unwirksamkeit des Vertragsschlusses nach § 135 GWB endet spätestens 30 Kalendertage nach Veröffentlichung der Bekanntmachung der Auftragsvergabe im Amtsblatt der Europäischen Union, vgl. § 135 Abs. 2 Satz 2 GWB.</cbc:Description>
+			</cac:PresentationPeriod>
+			<cac:AppealReceiverParty>
+				<cac:PartyIdentification>
+					<cbc:ID schemeName="organization">ORG-0002</cbc:ID>
+				</cac:PartyIdentification>
+			</cac:AppealReceiverParty>
+		</cac:AppealTerms>
+	</cac:TenderingTerms>
+	<cac:TenderingProcess>
+		<cbc:ProcedureCode listName="procurement-procedure-type">neg-w-call</cbc:ProcedureCode>
+		<cac:ProcessJustification>
+			<cbc:ProcessReasonCode listName="accelerated-procedure">false</cbc:ProcessReasonCode>
+		</cac:ProcessJustification>
+		<cac:AuctionTerms>
+			<cbc:AuctionConstraintIndicator>false</cbc:AuctionConstraintIndicator>
+		</cac:AuctionTerms>
+	</cac:TenderingProcess>
+	<cac:ProcurementProject>
+		<cbc:ID schemeName="internalID">3015/26-3</cbc:ID>
+		<cbc:Name languageID="DEU">Ex-Post: Enterprise Service Management (ESM) Los 3</cbc:Name>
+		<cbc:Description languageID="DEU">Ziel der Ausschreibung ist die Beschaffung, Einführung und Betrieb eines skalierbaren Enterprise Service Management-Systems (ESM-Systems) das aktuellen Standards genügt und die aktuellen sowie zukünftigen Anforderungen der Geschäftsbereiche der MüK erfüllen kann. Es soll Serviceprozesse im Technologiemanagement / IT-Umfeld (IT Service Management, IT Operations Management, IT Asset Management) unterstützen und für andere Unternehmensprozesse und -bereiche ausbaubar sein. Das System soll alle Funktionen auf einer gemeinsamen Plattform integrieren und in einer Private Cloud gehostet werden, da die MüK vorsieht, langfristig die Entwicklung und den Betrieb selbst zu übernehmen und daher eine volle Integration aller Systemkomponenten benötigt wird.</cbc:Description>
+		<cbc:ProcurementTypeCode listName="contract-nature">services</cbc:ProcurementTypeCode>
+		<cbc:Note languageID="DEU">#Bekanntmachungs-ID: CXP4YL54YLC#
+
+
+Bei allen Verfahrensarten mit Ausnahme des offenen Verfahrens kann der öffentliche Auftraggeber die Zahl der geeigneten Bewerber, die zur Abgabe eines Angebots aufgefordert oder zur Verhandlung eingeladen werden, begrenzen, sofern genügend geeignete Bewerber zur Verfügung stehen. Dazu gibt der öffentliche Auftraggeber in der Auftragsbekanntmachung oder der Aufforderung zur Interessensbestätigung die von ihm vorgesehenen objektiven und nicht-diskriminierenden Eignungskriterien für die Begrenzung der Zahl, die vorgesehene Mindestzahl und gegebenenfalls auch die Höchstzahl der einzuladenden Bewerber an. Der Auftraggeber fordert pro Los die drei Unternehmen mit den höchsten Punktzahlen in der Prüfung der Bewertungskriterien zur Angebotsabgabe auf. Die Punktzahlen ermittelt der Aufraggeber (sofern Lose gebildet sind im jeweiligen Los) wie folgt: Auswahlkriterien Max. Punkte Umsatz 10 Anzahl der vergleichbaren Referenzen 20 Qualität der vergleichbaren Referenzen 70 Max Gesamtpunkte 100 1. Auswahlkriterium 1: Umsatz  Gewertet wird der durchschnittliche jährliche Umsatz des Bewerbers in den letzten drei abgeschlossenen Geschäftsjahren mit vergleichbaren Leistungen je Los. Für die Bewertung wird auf die Tabellen in der Anlage 0 Ziffer 5.3.1 - 5.3.3 verwiesen. 2. Auswahlkriterium 2: Anzahl der vergleichbaren Referenzen je Los Für die Bewertung wird auf die Tabelle in der Anlage 0 Ziffer 5.3.4 verwiesen. Die Angabe erfolgt in Anlage 2F5. 3. Auswahlkriterium 3: Qualität der vergleichbaren Referenzen je Los Bewertet wird die Qualität der drei eingereichten Referenzen gemäß Anlage 2F5.  Hinweise zur Bewertung: Los 1:  Die Lösung ermöglicht die Abbildung von IT-Services auf Basis einer zentralen CMDB mit integriertem Service-Datenmodell (CSDM) und stellt eine durchgängige Verknüpfung zu Incident-, Problem- und Change-Vorgängen sicher. Bewertet wird der Umfang einer integrierten Low-Code/No-Code-Workflow-Plattform, die eine plattformübergreifende Prozessautomatisierung mit grafischer Modellierung, Standard-Komponenten, Wiederverwendbarkeit von Workflows sowie zentraler Governance über den gesamten Workflow-Lebenszyklus ermöglicht. Ebenso wird positiv ein hoher Eigenleistungsanteil bewertet.  Los 2 und Los 3:  Positiv wird ein hoher Eigenleistungsanteil bewertet.  Die Vergabestelle wertet dabei max. 3 Referenzen gemäß den in Anlage 2F5 genannten Kriterien aus. Sollte ein Bieter mehr als drei Referenzmuster mittels der vorgegebenen Anlage einreichen und diese nicht mittels Nummerierung gekennzeichnet haben, wählt die Vergabestelle die ersten drei Referenzen aus den Unter-lagen in der Reihenfolge des übermittelten Antrags aus. Das Angebot mit der höchsten Punktzahl gemäß Anlage 2F5 erhält die höchste Bewertung entsprechend der dem Kriterium zugeordneten Maximalpunktzahl. Alle übrigen Angebote erhalten im Verhältnis weniger Punkte (inverser Dreisatz). 4. Gesamtauswahlentscheidung Es werden pro Los die drei geeignetsten Unternehmen zur Angebotsabgabe zugelassen. Die Reihenfolge bestimmt sich nach den Punktzahlen in der Prüfung der Bewertungskriterien. Haben mehrere Bewerber dieselbe Punktzahl, erhalten diese denselben Rang. Bei mehreren Bewerbern auf demselben Rang, werden diese zu-gelassen, bis drei Bewerber zugelassen sind. Soweit erforderlich entscheidet bei Punktegleichstand das Los. 5. Benachrichtigung Teilnahmeanträge Die Vergabestelle teilt jedem erfolglosen Bewerber die Ablehnung seines Teilnahmeantrages entsprechend den rechtlichen Vorgaben mit.</cbc:Note>
+		<cac:MainCommodityClassification>
+			<cbc:ItemClassificationCode listName="cpv">72260000</cbc:ItemClassificationCode>
+		</cac:MainCommodityClassification>
+		<cac:RealizedLocation>
+			<cac:Address>
+				<cbc:StreetName>Thalkirchner Straße 48</cbc:StreetName>
+				<cbc:CityName>München</cbc:CityName>
+				<cbc:PostalZone>80337</cbc:PostalZone>
+				<cbc:CountrySubentityCode listName="nuts">DE212</cbc:CountrySubentityCode>
+				<cac:Country>
+					<cbc:IdentificationCode listName="country">DEU</cbc:IdentificationCode>
+				</cac:Country>
+			</cac:Address>
+		</cac:RealizedLocation>
+	</cac:ProcurementProject>
+	<cac:ProcurementProjectLot>
+		<cbc:ID schemeName="Lot">LOT-0001</cbc:ID>
+		<cac:TenderingTerms>
+			<ext:UBLExtensions>
+				<ext:UBLExtension>
+					<ext:ExtensionContent>
+						<efext:EformsExtension>
+							<efac:StrategicProcurement>
+								<efbc:ApplicableLegalBasis listName="cvd-scope">false</efbc:ApplicableLegalBasis>
+							</efac:StrategicProcurement>
+							<efac:StrategicProcurement>
+								<efbc:ApplicableLegalBasis listName="eed-scope">false</efbc:ApplicableLegalBasis>
+							</efac:StrategicProcurement>
+							<efac:StrategicProcurement>
+								<efbc:ApplicableLegalBasis listName="ipi-scope">false</efbc:ApplicableLegalBasis>
+							</efac:StrategicProcurement>
+						</efext:EformsExtension>
+					</ext:ExtensionContent>
+				</ext:UBLExtension>
+			</ext:UBLExtensions>
+			<cbc:FundingProgramCode listName="eu-funded">no-eu-funds</cbc:FundingProgramCode>
+			<cac:ContractExecutionRequirement>
+				<cbc:ExecutionRequirementCode listName="fsr">false</cbc:ExecutionRequirementCode>
+			</cac:ContractExecutionRequirement>
+			<cac:AwardingTerms>
+				<cac:AwardingCriterion>
+					<cac:SubordinateAwardingCriterion>
+						<ext:UBLExtensions>
+							<ext:UBLExtension>
+								<ext:ExtensionContent>
+									<efext:EformsExtension>
+										<efac:AwardCriterionParameter>
+											<efbc:ParameterCode listName="number-weight">per-exa</efbc:ParameterCode>
+											<efbc:ParameterNumeric>40.0</efbc:ParameterNumeric>
+										</efac:AwardCriterionParameter>
+									</efext:EformsExtension>
+								</ext:ExtensionContent>
+							</ext:UBLExtension>
+						</ext:UBLExtensions>
+						<cbc:AwardingCriterionTypeCode listName="award-criterion-type">price</cbc:AwardingCriterionTypeCode>
+						<cbc:Name languageID="DEU">Preis</cbc:Name>
+						<cbc:Description languageID="DEU">Gemäß Vergabeunterlagen</cbc:Description>
+					</cac:SubordinateAwardingCriterion>
+					<cac:SubordinateAwardingCriterion>
+						<ext:UBLExtensions>
+							<ext:UBLExtension>
+								<ext:ExtensionContent>
+									<efext:EformsExtension>
+										<efac:AwardCriterionParameter>
+											<efbc:ParameterCode listName="number-weight">per-exa</efbc:ParameterCode>
+											<efbc:ParameterNumeric>10.0</efbc:ParameterNumeric>
+										</efac:AwardCriterionParameter>
+									</efext:EformsExtension>
+								</ext:ExtensionContent>
+							</ext:UBLExtension>
+						</ext:UBLExtensions>
+						<cbc:AwardingCriterionTypeCode listName="award-criterion-type">quality</cbc:AwardingCriterionTypeCode>
+						<cbc:Name languageID="DEU">Erfüllungsgrad Leistungsverzeichnis</cbc:Name>
+						<cbc:Description languageID="DEU">Gemäß Vergabeunterlagen</cbc:Description>
+					</cac:SubordinateAwardingCriterion>
+					<cac:SubordinateAwardingCriterion>
+						<ext:UBLExtensions>
+							<ext:UBLExtension>
+								<ext:ExtensionContent>
+									<efext:EformsExtension>
+										<efac:AwardCriterionParameter>
+											<efbc:ParameterCode listName="number-weight">per-exa</efbc:ParameterCode>
+											<efbc:ParameterNumeric>25.0</efbc:ParameterNumeric>
+										</efac:AwardCriterionParameter>
+									</efext:EformsExtension>
+								</ext:ExtensionContent>
+							</ext:UBLExtension>
+						</ext:UBLExtensions>
+						<cbc:AwardingCriterionTypeCode listName="award-criterion-type">quality</cbc:AwardingCriterionTypeCode>
+						<cbc:Name languageID="DEU">Qualifikation und Erfahrung des mit der Ausführung des Auftrags betrauten Personals</cbc:Name>
+						<cbc:Description languageID="DEU">Gemäß Vergabeunterlagen</cbc:Description>
+					</cac:SubordinateAwardingCriterion>
+					<cac:SubordinateAwardingCriterion>
+						<ext:UBLExtensions>
+							<ext:UBLExtension>
+								<ext:ExtensionContent>
+									<efext:EformsExtension>
+										<efac:AwardCriterionParameter>
+											<efbc:ParameterCode listName="number-weight">per-exa</efbc:ParameterCode>
+											<efbc:ParameterNumeric>25.0</efbc:ParameterNumeric>
+										</efac:AwardCriterionParameter>
+									</efext:EformsExtension>
+								</ext:ExtensionContent>
+							</ext:UBLExtension>
+						</ext:UBLExtensions>
+						<cbc:AwardingCriterionTypeCode listName="award-criterion-type">quality</cbc:AwardingCriterionTypeCode>
+						<cbc:Name languageID="DEU">Fachgespräch</cbc:Name>
+						<cbc:Description languageID="DEU">Gemäß Vergabeunterlagen</cbc:Description>
+					</cac:SubordinateAwardingCriterion>
+				</cac:AwardingCriterion>
+			</cac:AwardingTerms>
+			<cac:AdditionalInformationParty>
+				<cac:PartyIdentification>
+					<cbc:ID>ORG-0001</cbc:ID>
+				</cac:PartyIdentification>
+			</cac:AdditionalInformationParty>
+			<cac:AppealTerms>
+				<cac:PresentationPeriod>
+					<cbc:Description languageID="DEU">1) Rügeerfordernis Es wird darauf hingewiesen, dass bei Beanstandungen im Hinblick auf das hiesige Vergabeverfahren die Bewerber Verstöße gegen Vergabevorschriften, die sie erkannt haben, gegenüber der Vergabestelle innerhalb von 10 Kalendertagen zu rügen haben und weiterhin Verstöße gegen Vergabevorschriften, die erst in diesen Teilnahmeunterlagen für diesen Teilnahmewettbewerb oder den Vergabeunterlagen zur Abforderung der Erstangebote erkennbar sind, von den Bewerbern spätestens bis zum Ablauf der Frist zur Bewerbung oder Abgabe der Erstangebote gegenüber der Vergabestelle zu rügen sind (vgl. § 160 Abs. 3 Satz 1 Nr. 1, 2 und Nr. 3 GWB), damit die Bewerber für den Fall, dass der Rüge nicht abgeholfen wird, ein Nachprüfungsverfahren vor der Vergabekammer anstreben können. Sofern die Vergabestelle einer Rüge nicht abhilft, kann der betreffende Bewerber nur innerhalb von längstens 15 Kalendertagen nach Eingang des Antwortschreibens an den Rügenden diesbezüglich ein Nachprüfungsverfahren vor der Vergabekammer einleiten (vgl. § 160 Abs. 3 Satz 1 Nr. 4 GWB) *** 2) Ein Nachprüfungsantrag zur Vergabekammer ist nach § 160 Abs. 3 S. 1 Nr. 4 GWB unzulässig, soweit mehr als 15 Kalendertage nach Eingang der Mitteilung des Auftraggebers, einer Rüge nicht abhelfen zu wollen, vergangen sind. *** 3) Insbesondere § 160 Abs. 3 Satz 1 Nr. 1, Nr. 2 und 3 GWB sowie § 134 Abs. 2 GWB sind zu beachten. *** 4) Die Frist zur Geltendmachung der Unwirksamkeit des Vertragsschlusses nach § 135 GWB endet spätestens 30 Kalendertage nach Veröffentlichung der Bekanntmachung der Auftragsvergabe im Amtsblatt der Europäischen Union, vgl. § 135 Abs. 2 Satz 2 GWB.</cbc:Description>
+				</cac:PresentationPeriod>
+				<cac:AppealReceiverParty>
+					<cac:PartyIdentification>
+						<cbc:ID schemeName="organization">ORG-0002</cbc:ID>
+					</cac:PartyIdentification>
+				</cac:AppealReceiverParty>
+			</cac:AppealTerms>
+		</cac:TenderingTerms>
+		<cac:TenderingProcess>
+			<cbc:GovernmentAgreementConstraintIndicator>false</cbc:GovernmentAgreementConstraintIndicator>
+			<cac:AuctionTerms>
+				<cbc:AuctionConstraintIndicator>false</cbc:AuctionConstraintIndicator>
+			</cac:AuctionTerms>
+			<cac:ContractingSystem>
+				<cbc:ContractingSystemTypeCode listName="framework-agreement">fa-wo-rc</cbc:ContractingSystemTypeCode>
+			</cac:ContractingSystem>
+			<cac:ContractingSystem>
+				<cbc:ContractingSystemTypeCode listName="dps-usage">none</cbc:ContractingSystemTypeCode>
+			</cac:ContractingSystem>
+		</cac:TenderingProcess>
+		<cac:ProcurementProject>
+			<cbc:ID schemeName="internalID">3</cbc:ID>
+			<cbc:Name languageID="DEU">Organisations-/Prozessberatung</cbc:Name>
+			<cbc:Description languageID="DEU">Durch die stetig steigenden Anfragen der Anwender und Anforderungen der Geschäftsbereiche der MüK ist es notwendig, das Management von Vorgängen und weiterer Aspekte im gesamten End-to-End Lifecycle Management von Enterprise Services und Assets zu verbessern.  In einer ersten Phase soll das ESM-System für das Technologiemanagement, die Arbeitssicherheit, die Unternehmenskommunikation sowie die Stabstelle für Medizinproduktesicherheit eingeführt werden, in weiteren Ausbaustufen sollen weitere Geschäftsbereiche hinzukommen. Für die später anzubindenden Fachbereiche liegen noch keine vollständigen Soll-Prozessbeschreibungen vor. Das bestehende Ticketsystem muss für alle bisherigen Nutzer bis spätestens Ende 2026 durch das neue ESM-System abgelöst werden.  Gegenstand der Ausschreibung ist die Beschaffung, Einführung und der Betrieb eines Enterprise Service Management (ESM)-Systems mit zentralem Anwenderportal zur Standardisierung und Digitalisierung interner Serviceprozesse der MüK. Die Lösung muss prozessübergreifend nutzbar sein, bestehende IT-Assets, Services, Operationen und Portfolio-Informationen konsolidieren und den vollständigen Lebenszyklus abbilden.  Die Ausschreibung umfasst sowohl Cloud-basierte Bereitstellung als auch Dienstleistungen zur Implementierung, Konfiguration, Integration und Beratung. Ziel ist die sukzessive Einführung eines umfassenden ESM zur Modernisierung der Servicebereitstellung und Verbesserung des Serviceerlebnisses für Mitarbeitende und Kunden.  Der Auftragnehmer schuldet die Vorbereitung der Organisation auf die Veränderung, die Bereitstellung der Lizenzen, die funktionsfähige Inbetriebnahme, die Dokumentation, einen geordneten Betriebsübergang sowie die rollenbasierte Schulung der Systemanwender*innen und -administrator*innen.  Kernpunkte des Leistungsgegenstands sind:  - Der Anbieter muss die geforderten Cloud-Computing-Dienste in einer nutzerbeschränkten Cloud-Lösung (private Cloud) bereitstellen und diese an zwei Standorten in Deutschland besitzen und betreiben.  - Perspektivisch plant die MüK den Aufbau einer eigenen souveränen private-Cloud in die das ausgeschriebene ESM umgezogen werden muss. - die Umsetzung einer Lösung für Enterprise Service Management zur Digitalisierung und Standardisierung interner Prozesse und Services - die Bereitstellung eines zentralen, benutzerfreundlichen und personalisierten Serviceportals für alle Anwender*innen - die Sicherstellung der Integrationsfähigkeit mit internen Systemen über eine lokal betriebene Integrationskomponente - die schrittweise Erweiterbarkeit auf weitere Geschäftsbereiche, Prozesse und Services ohne grundlegende Systemanpassungen  Der Vergabegegenstand wird in 3 Lose aufgeteilt:   Los 1: Lizenzbereitstellung (Lieferung)  Los 2: Implementierung, Einführung und Betrieb Los 3: Organisations-/Prozessberatung  Es besteht für die Lose 1, 2 und 3 keine (Mindest-)Abnahme- oder (Mindest-)Bestellverpflichtung des Auftraggebers. § 132 GWB bleibt unberührt.   Über die gesamte Laufzeit des Vertrages können insgesamt höchstens 830 PT für Los 2 und 550 PT für Los 3 (Höchstmenge) abgerufen werden.   Es gilt zu beachten, dass die ausgeschriebenen Dienstleistungen in den Losen 2 und 3 nicht an einen Auftragnehmer vergeben werden. Es ist daher nur eine Abgabe in jeweils einem Los zulässig.</cbc:Description>
+			<cbc:ProcurementTypeCode listName="contract-nature">services</cbc:ProcurementTypeCode>
+			<cbc:Note languageID="DEU">Zusätzliche Angaben A) Die Vergabeunterlagen stehen ausschließlich auf der Vergabeplattform DTVP zum Herunterladen zur Verfügung. Sofern während des Vergabeverfahrens Änderungen an den Vergabeunterlagen vorgenommen oder zusätzliche Informationen bereitgestellt werden, erfolgt dies ebenfalls ausschließlich auf elektronischem Weg über die Vergabeplattform. Die potentiellen Bieter werden hierüber nur gesondert informiert, wenn Sie sich auf der Vergabeplattform registrieren. Anderenfalls obliegt es den Bietern selbst, regelmäßig zu prüfen, ob auf der Vergabeplattform neue Informationen zum Verfahren bereitstehen. ***** B) Die Angebote sind in Textform ausschließlich über die Vergabeplattform DTVP einzureichen. Auf postalischem Wege oder per E-Mail übermittelte Angebote sind nicht zugelassen. ***** C) Die Bieter haben eine Eigenerklärung darüber einzureichen, ob Ausschlussgründe nach § 123 Abs. 1 bis 4 GWB und § 124 Abs. 1 GWB, nach §§ 21 Abs. 1 und Abs. 3 i. V. m. § 23 Abs. 2 und Abs. 3 AEntG, nach §§ 19 Abs. 1 und Abs. 3 i. V. m. § 21 MiLoG , § 21 SchwarzArbG und nach Bekanntmachung der Bayerischen Staatsregierung Vom 29. Oktober 1996 Nr. 476-2-151 (AllMBl. S.701, StAnz. Nr. 44) vorliegen (s. Anlage 2 Eigenerklärungen Eignung). ***** D) Sofern sich Bietergemeinschaften beteiligen, ist mit dem Angebot eine von allen Mitgliedern der Bietergemeinschaft unterzeichnete Bietergemeinschaftserklärung vorzulegen, in der u. a. ein bevollmächtigter Vertreter benannt wird und die gesamtschuldnerische Haftung der Mitglieder im Auftragsfall erklärt wird. Das Formblatt Eignung und die weiteren Eigenerklärungen sind in diesem Fall von jedem Mitglied der Bietergemeinschaft vorzulegen. Die Eignung der Mitglieder einer ordnungsgemäß teilnehmenden Bietergemeinschaft (Referenzen, Umsatzzahlen etc.) wird kumulativ berücksichtigt. ***** E) Das Formblatt Eignung (Anlage 2F2.1) sowie die Anlage 2F3 Eigenerklärung Russlandsanktionen sind auch zu verwenden von Nachunternehmen, welche Teile des Auftrags erbringen sollen (Unteraufträge gemäß § 36 VgV), und Drittunternehmen, auf deren Eignung sich der Bieter/die Bietergemeinschaft beruft (Eignungsleihe gemäß § 47 VgV). Drittunternehmen müssen ebenfalls die Eigenerklärung zum Nichtvorliegen von Ausschlussgründen abgeben. Darüber hinaus sind Angaben zu denjenigen Eignungskriterien zu machen, die der Bieter/die Bietergemeinschaft im Rahmen der Eignungsleihe in Anspruch nehmen will. ***** F) Fragen zu den Vergabeunterlagen (Bieterfragen) sind im Hinblick auf § 20 Abs. 3 Nr. 1 VgV spätestens 10 Kalendertage vor Ablauf der Frist in Textform über den entsprechenden Projektraum des Vergabeportals zu stellen. **** Aus technischen Gründen wurde die Vergabe nach Durchführung des Teilnahmewettbewerbs losweise in drei getrennte Projekträume (Maske "Verhandlungsverfahren") aufgeteilt.</cbc:Note>
+			<cac:ProcurementAdditionalType>
+				<cbc:ProcurementTypeCode listName="strategic-procurement">none</cbc:ProcurementTypeCode>
+			</cac:ProcurementAdditionalType>
+			<cac:MainCommodityClassification>
+				<cbc:ItemClassificationCode listName="cpv">72000000</cbc:ItemClassificationCode>
+			</cac:MainCommodityClassification>
+			<cac:RealizedLocation>
+				<cac:Address>
+					<cbc:StreetName>Thalkirchner Straße 48</cbc:StreetName>
+					<cbc:CityName>München</cbc:CityName>
+					<cbc:PostalZone>80337</cbc:PostalZone>
+					<cbc:CountrySubentityCode listName="nuts">DE212</cbc:CountrySubentityCode>
+					<cac:Country>
+						<cbc:IdentificationCode listName="country">DEU</cbc:IdentificationCode>
+					</cac:Country>
+				</cac:Address>
+			</cac:RealizedLocation>
+			<cac:PlannedPeriod>
+				<cbc:StartDate>2026-11-13+01:00</cbc:StartDate>
+				<cbc:EndDate>2031-11-02+01:00</cbc:EndDate>
+			</cac:PlannedPeriod>
+			<cac:ContractExtension>
+				<cbc:OptionsDescription languageID="DEU">Sofern erforderlich werden diese abschließen mit der Abfrage zum finalen Angebot festgelegt.</cbc:OptionsDescription>
+			</cac:ContractExtension>
+		</cac:ProcurementProject>
+	</cac:ProcurementProjectLot>
+	<cac:TenderResult>
+		<cbc:AwardDate>2000-01-01Z</cbc:AwardDate>
+	</cac:TenderResult>
+</ContractAwardNotice>

@@ -154,6 +154,9 @@ def test_same_saved_proposals_with_full_and_reduced_context(
             ("798622-2026", bundled, bundle_expectations),
             ("788030-2026", reference, reference_expectations),
         ):
+            if number == "798622-2026":
+                for unit in answer["units"]:
+                    unit["criteria_summaries"] = []
             for mode in ("full", "reduced"):
                 doc = extract((FIXTURES / "real" / f"{number}.xml").read_bytes(), number, now=NOW)
                 (directory / number / mode).mkdir(parents=True)
