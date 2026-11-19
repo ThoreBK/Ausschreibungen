@@ -11,10 +11,10 @@ import pytest
 from pypdf import PageObject, PdfReader
 
 import main
-from ausschreibungen.analysis import PROPOSAL, analyze_run
+from ausschreibungen.analysis import PROPOSAL, analyze_run, extract
 from ausschreibungen.report import write_report
 from ausschreibungen.ted import Profile, Query, SearchError
-from tests.test_analysis import NOW, PROFILE, lot, xml
+from tests.test_analysis import NOW, PROFILE, ControlledModel, citation, lot, proposal, xml
 from tests.test_research import Network, execute, response, row
 
 
@@ -138,6 +138,18 @@ def test_pdf_names_both_limits_and_links_from_analysis(tmp_path: Path, profile: 
             "Frist offen",
         ),
         ([], ["12:00:00Z"], "Datum nicht angegeben, 12:00:00Z", "ungeklärt"),
+        (
+            ["2026-12-01Z", "2026-12-01+00:00"],
+            ["12:00:00+00:00", "12:00:00Z"],
+            "2026-12-01Z, 12:00:00+00:00 (Berlin: 01.12.2026, 13:00 CET)",
+            "Frist offen",
+        ),
+        (
+            ["2026-12-01Z", "2026-12-01+01:00"],
+            ["12:00:00Z"],
+            "Datum widersprüchlich (2026-12-01Z oder 2026-12-01+01:00), 12:00:00Z",
+            "ungeklärt",
+        ),
         (["2026-12-01Z"], [], "2026-12-01Z, Uhrzeit nicht angegeben", "ungeklärt"),
         (
             ["2026-12-01"],
@@ -292,6 +304,55 @@ def test_report_includes_scoped_decisions_fields_and_sources(
         if "/Dest" in (ann := annotation.get_object())
     ]
     assert reader.pages[-1].indirect_reference.idnum in destinations
+
+
+@pytest.mark.parametrize(
+    ("label", "confirmed", "expected"),
+    [
+        ("Angebotsfrist", True, "ungeklärt"),
+        ("Angebotsfrist", False, "Frist offen"),
+        ("Rückfragefrist", True, "Frist offen"),
+    ],
+)
+def test_conflicting_deadline_excerpt_in_pdf(
+    tmp_path: Path, profile: Profile, label: str, confirmed: bool, expected: str
+) -> None:
+    quote = f"{label}: 05.11.2026, 09:00 Uhr"
+    note = f"Termine für dieses Verfahren. {quote}. Die Abgabe erfolgt elektronisch."
+    content = xml(lot(), extra=f"<cbc:Note>{note}</cbc:Note>")
+    research, run = execute(
+        tmp_path,
+        profile,
+        Network(
+            [response(row(100, 14)), response()],
+            {"https://ted.europa.eu/en/notice/100-2026/xml": content},
+        ),
+    )
+    doc = extract(content, "100-2026", now=NOW)
+    answer = proposal(doc)
+    answer["facts"] = [
+        {
+            "field": "deadlines",
+            "value": quote,
+            "state": "conflict",
+            "evidence": [citation(doc, quote)],
+        }
+    ]
+    model = ControlledModel(answer, {"facts": [confirmed], "fit": True})
+    directory = analyze_run(run, PROFILE, now=NOW, model=model)
+    analysis = json.loads((directory / "analysis.json").read_bytes())
+    pages = PdfReader(write_report(research, analysis, directory)).pages
+    overview, brief = [" ".join(p.extract_text().split()) for p in pages[:2]]
+    assert f"Teilnahmestand: {expected} ·" in overview
+    assert f"Teilnahmestand: {expected}." in brief
+    if confirmed and label == "Angebotsfrist":
+        assert f"{quote} · Widerspruch" in brief
+        unit = analysis["documents"][0]["units"][0]
+        assert {e["quote"] for e in unit["participation"]["evidence"]} == {
+            "2026-12-01Z",
+            "12:00:00Z",
+            quote,
+        }
 
 
 def test_award_with_historical_questions_stays_closed_in_pdf(

@@ -267,9 +267,21 @@ def berlin_time(day: str | None, clock: str | None) -> str | None:
         return None
 
 
+def deadline_component_key(value: str) -> str:
+    return value.removesuffix("Z") + "+00:00" if value.endswith("Z") else value
+
+
+def distinct_deadline_values(values: list[str]) -> list[str]:
+    originals: dict[str, str] = {}
+    for value in values:
+        if value:
+            originals.setdefault(deadline_component_key(value), value)
+    return list(originals.values())
+
+
 def deadline_components(dates: list[str], times: list[str]) -> dict[str, Any]:
-    dates = list(dict.fromkeys(filter(None, dates)))
-    times = list(dict.fromkeys(filter(None, times)))
+    dates = distinct_deadline_values(dates)
+    times = distinct_deadline_values(times)
     day = dates[0] if len(dates) == 1 else None
     clock = times[0] if len(times) == 1 else None
     berlin = berlin_time(day, clock)
@@ -474,7 +486,13 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
                         + [e for item in descriptions for e in item["evidence"]],
                     }
                 )
-            variants = {(tuple(v["dates"]), tuple(v["times"])) for v in period_values}
+            variants = {
+                (
+                    frozenset(map(deadline_component_key, v["dates"])),
+                    frozenset(map(deadline_component_key, v["times"])),
+                )
+                for v in period_values
+            }
             for value in period_values:
                 if len(variants) > 1 and not value["context"]:
                     value["reason"] = " · ".join(
@@ -686,8 +704,8 @@ def text_deadline(
     text = item["value"]
     day = re.search(r"\b\d{2}\.\d{2}\.\d{4}\b", text)
     clock = re.search(r"\b\d{1,2}:\d{2}(?::\d{2})?\s*Uhr\b", text)
-    # Nur eine eigenständige, datierte Quellenangabe darf einen XML-Termin
-    # infrage stellen. Ein Zitat aus einer Beispiel-, Rückfrage- oder Losnotiz reicht nicht.
+    # Bei bestätigtem Konflikt kann die datierte Frist ein belegter Ausschnitt
+    # einer längeren Notiz sein. Sonst verlangen wir eine eigenständige Quellenangabe.
     paths = {e["path"] for e in evidence}
     labelled = (
         day
@@ -698,7 +716,10 @@ def text_deadline(
             text,
             re.IGNORECASE,
         )
-        and any(r["path"] in paths and r["value"] == text for r in records)
+        and (
+            (item["state"] == "conflict" and any(text in e["quote"] for e in evidence))
+            or any(r["path"] in paths and r["value"] == text for r in records)
+        )
     )
     return {
         "kind": "Einreichungsfrist (Freitext)"
