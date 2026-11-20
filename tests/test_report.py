@@ -134,14 +134,14 @@ def test_pdf_names_both_limits_and_links_from_analysis(tmp_path: Path, profile: 
         (
             ["2026-12-01Z"] * 2,
             ["12:00:00Z"] * 2,
-            "2026-12-01Z, 12:00:00Z (Berlin: 01.12.2026, 13:00 CET)",
+            "01.12.2026, 13:00 CET",
             "Frist offen",
         ),
         ([], ["12:00:00Z"], "Datum nicht angegeben, 12:00:00Z", "ungeklärt"),
         (
             ["2026-12-01Z", "2026-12-01+00:00"],
             ["12:00:00+00:00", "12:00:00Z"],
-            "2026-12-01Z, 12:00:00+00:00 (Berlin: 01.12.2026, 13:00 CET)",
+            "01.12.2026, 13:00 CET",
             "Frist offen",
         ),
         (
@@ -194,7 +194,7 @@ def test_deadline_in_finished_pdf(
     analysis = json.loads((directory / "analysis.json").read_bytes())
     reader = PdfReader(write_report(research, analysis, directory))
     overview = " ".join(reader.pages[0].extract_text().split())
-    assert f"LOT-1 · Passung: unklar · Teilnahmestand: {participation}" in overview
+    assert re.search(rf"LOT-1 · TED 100-2026 unklar {participation}\b", overview)
     text = " ".join(" ".join(p.extract_text() for p in reader.pages[1:]).split())
     briefs, sources = text.split("Belegverzeichnis · TED")
     first, second = briefs.split("LOT-2", 1)
@@ -215,7 +215,7 @@ def test_deadline_in_finished_pdf(
         entry = re.split(r"\[\d+\] TED ", sources.split(f"[{ref}] TED ", 1)[1], maxsplit=1)[0]
         assert f"cbc:{leaf}[{index}] {value}" in entry
     assert "2027-03-04Z" not in first
-    assert "Angebotsfrist: 2027-03-04Z, 12:00:00Z" in second
+    assert "Angebotsfrist: 04.03.2027, 13:00 CET" in second
 
 
 def test_pdf_separates_deadline_periods_and_kinds(tmp_path: Path, profile: Profile) -> None:
@@ -243,9 +243,9 @@ def test_pdf_separates_deadline_periods_and_kinds(tmp_path: Path, profile: Profi
     directory = analyze_run(run, PROFILE, structured_only=True, now=NOW)
     analysis = json.loads((directory / "analysis.json").read_bytes())
     reader = PdfReader(write_report(research, analysis, directory))
-    assert "Teilnahmestand: ungeklärt" in reader.pages[0].extract_text()
+    assert "unklar ungeklärt" in " ".join(reader.pages[0].extract_text().split())
     brief = " ".join(reader.pages[1].extract_text().split())
-    assert "Angebotsfrist: 2026-12-01Z, 12:00:00Z" in brief
+    assert "Angebotsfrist: 01.12.2026, 13:00 CET" in brief
     assert (
         "Angebotsfrist: 2026-12-15Z, Uhrzeit nicht angegeben · Zuordnung zur Verfahrensphase prüfen"
         in brief
@@ -271,8 +271,8 @@ def test_report_includes_scoped_decisions_fields_and_sources(
     analysis: dict[str, Any] = json.loads((directory / "analysis.json").read_bytes())
     reader = PdfReader(write_report(research, analysis, directory))
     first = " ".join(reader.pages[0].extract_text().split())
-    assert "LOT-1 · Passung: unklar · Teilnahmestand: Frist offen" in first
-    assert "LOT-2 · Passung: unklar" in first
+    assert "LOT-1 · TED 100-2026 unklar Frist offen" in first
+    assert "LOT-2 · TED 100-2026 unklar" in first
     assert "Teilnahmevoraussetzungen: ungeklärt" in first
     assert "16.11.2026, 16:00" in first
     assert "in dieser Version nicht abgerufen und nicht ausgewertet" in first
@@ -293,7 +293,7 @@ def test_report_includes_scoped_decisions_fields_and_sources(
         assert "Eignungskriterien: keine geprüfte Kurzfassung · Originalangaben" in section
         assert "Zuschlagskriterien: nicht angegeben" in section
     assert "Auftraggeber: nicht angegeben" in lot1
-    assert "Angebotsfrist: 2026-12-01Z, 12:00:00Z" in lot1
+    assert "Angebotsfrist: 01.12.2026, 13:00 CET" in lot1
     assert "Referenz über zwei KI-Schulungen" in sources
     assert "Meisterbrief" in sources
     assert "/cbc:Description[1]" in sources
@@ -303,7 +303,7 @@ def test_report_includes_scoped_decisions_fields_and_sources(
         for annotation in page.get("/Annots", [])
         if "/Dest" in (ann := annotation.get_object())
     ]
-    assert reader.pages[-1].indirect_reference.idnum in destinations
+    assert reader.pages[-2].indirect_reference.idnum in destinations
 
 
 @pytest.mark.parametrize(
@@ -343,7 +343,7 @@ def test_conflicting_deadline_excerpt_in_pdf(
     analysis = json.loads((directory / "analysis.json").read_bytes())
     pages = PdfReader(write_report(research, analysis, directory)).pages
     overview, brief = [" ".join(p.extract_text().split()) for p in pages[:2]]
-    assert f"Teilnahmestand: {expected} ·" in overview
+    assert f"LOT-1 · TED 100-2026 passend {expected}" in overview
     assert f"Teilnahmestand: {expected}." in brief
     if confirmed and label == "Angebotsfrist":
         assert f"{quote} · Widerspruch" in brief
@@ -397,7 +397,7 @@ def test_award_with_historical_questions_stays_closed_in_pdf(
     pages = PdfReader(write_report(research, analysis, directory)).pages
     overview, brief = [" ".join(p.extract_text().split()) for p in pages[:2]]
     assert "801658-2026" in overview and "801658-2026" in brief
-    assert "LOT-0001 · Passung: passend · Teilnahmestand: nicht offen" in overview
+    assert "LOT-0001 · TED 801658-2026 passend nicht offen" in overview
     assert "Steckbrief" in brief and "Teilnahmestand: nicht offen." in brief
     assert (
         "Teilnahmevoraussetzungen: ungeklärt" in overview
@@ -422,7 +422,7 @@ def test_partial_download_keeps_success_and_failed_notice(tmp_path: Path, profil
     assert all(number in pages[0] for number in ["100-2026", "101-2026"])
     assert "Recherche unvollständig" in pages[0]
     assert "Gegenstand: KI-Beratung" in pages[1]
-    assert "Referenz über zwei KI-Schulungen" in pages[-1]
+    assert "Referenz über zwei KI-Schulungen" in pages[-2]
     assert "TED-Download abgebrochen" in pages[2]
     assert "TED 101-2026" in pages[2]
 
@@ -600,7 +600,7 @@ def test_report_uses_confirmed_criteria_and_links_to_unabridged_originals(
     pages = [" ".join(p.extract_text().split()) for p in reader.pages]
     appendix = next(i for i, text in enumerate(pages) if "Belegverzeichnis · TED" in text)
     brief = " ".join(pages[1:appendix])
-    first, second = re.split(r"LOT-[12] Fachliche Passung", brief)[1:]
+    first, second = re.split(r"LOT-[12] Teilnahmestand", brief)[1:]
     assert wrong_rule not in brief and foreign_rule not in brief
     assert "Kurzfassung der Kriterien nicht bestätigt" in second
     assert "gehört zu anderem Los" in second
@@ -638,3 +638,47 @@ def test_report_uses_confirmed_criteria_and_links_to_unabridged_originals(
             target = destinations[0]
             assert target[0].idnum == target_page.indirect_reference.idnum
             assert 0 <= target[3] - target_y < 15
+
+
+def test_overview_prioritizes_open_matches_and_links_to_each_lot(
+    tmp_path: Path, profile: Profile
+) -> None:
+    research, run = execute(
+        tmp_path,
+        profile,
+        Network(
+            [response(row(100, 14)), response()],
+            {
+                "https://ted.europa.eu/en/notice/100-2026/xml": xml(
+                    lot("LOT-1", subject="Reinigung") + lot("LOT-2", subject="IT-Beratung")
+                )
+            },
+        ),
+    )
+    directory = analyze_run(run, PROFILE, structured_only=True, now=NOW)
+    analysis = json.loads((directory / "analysis.json").read_bytes())
+    first, second = analysis["documents"][0]["units"]
+    first["fit"]["status"] = "unpassend"
+    second["fit"]["status"] = "passend"
+    second["checkpoints"] = [
+        {
+            "method": "ai_verified",
+            "reason": reason,
+            "evidence": second["fields"]["subject"]["values"][0]["evidence"],
+        }
+        for reason in ["Referenzen prüfen.", "Einzelheiten der Wertung prüfen."]
+    ]
+    reader = PdfReader(write_report(research, analysis, directory))
+    overview, _, brief = [" ".join(page.extract_text().split()) for page in reader.pages[:3]]
+    assert "1 fachlich passend mit offener Frist" in overview
+    assert overview.index("LOT-2") < overview.index("LOT-1")
+    assert overview.count("Teilnahmevoraussetzungen: ungeklärt") == 1
+    assert "Referenzen prüfen." in brief and "Einzelheiten der Wertung prüfen." not in brief
+    assert "Alle 2 geprüften Hinweise" in brief
+    assert "Einzelheiten der Wertung prüfen." in reader.pages[3].extract_text()
+    links = [
+        ref.get_object()["/Dest"][0].idnum
+        for ref in reader.pages[0]["/Annots"]
+        if "/Dest" in ref.get_object()
+    ]
+    assert links[:2] == [reader.pages[i].indirect_reference.idnum for i in (2, 1)]

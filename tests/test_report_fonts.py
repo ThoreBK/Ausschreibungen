@@ -47,7 +47,9 @@ def rendered_lines(pdf: Path) -> dict[str, Image.Image]:
 
 def test_unicode_report(tmp_path: Path, profile: Profile) -> None:
     pdf = sample_report(tmp_path, profile)
-    overview, brief, quotes = [page.extract_text().splitlines() for page in PdfReader(pdf).pages]
+    overview, brief, quotes = [
+        page.extract_text().splitlines() for page in PdfReader(pdf).pages[:3]
+    ]
     assert SAMPLE in overview
     assert SAMPLE in brief
     assert f"Gegenstand: {SAMPLE} [3]" in brief
