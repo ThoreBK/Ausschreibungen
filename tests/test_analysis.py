@@ -175,6 +175,43 @@ class ControlledModel:
         return {"claims": deepcopy(decisions)}
 
 
+@pytest.mark.parametrize("global_description", [False, True])
+def test_missing_service_description_is_decided_per_lot(global_description: bool) -> None:
+    extra = "<cbc:Note>Einreichung per E-Mail für alle Lose.</cbc:Note>"
+    if global_description:
+        extra += (
+            "<cac:ProcurementProject><cbc:Description>KI-Beratung für alle Lose</cbc:Description>"
+            "</cac:ProcurementProject>"
+        )
+    doc = extract(xml(lot(subject="") + lot("LOT-2"), extra=extra), "100-2026", now=NOW)
+    answer = proposal(doc)
+    note = "Einreichung per E-Mail für alle Lose."
+    answer["facts"].append(
+        {
+            "field": "submission",
+            "state": "present",
+            "value": note,
+            "evidence": [citation(doc, note)],
+        }
+    )
+    model = ControlledModel(answer)
+    interpret(doc, load_analysis_profile(PROFILE), model)
+
+    first, second = doc["units"]
+    assert any(v["value"] == note for v in first["fields"]["submission"]["values"])
+    assert second["fit"]["status"] == "passend"
+    fit_claims = {c["claim_id"] for c in model.payloads[1]["claims"] if "fit" in c["claim_id"]}
+    if global_description:
+        assert fit_claims == {"u0/fit", "u1/fit"}
+        assert first["fit"]["status"] == "passend"
+    else:
+        assert fit_claims == {"u1/fit"}
+        assert first["fit"]["status"] == "unklar"
+        assert "fehlt eine Leistungsbeschreibung" in first["fit"]["reason"]
+        assert first["fit"]["evidence"] == []
+        assert first["rejected_claims"] == []
+
+
 def saved_run(tmp_path: Path, content: bytes, number: str = "100-2026") -> Path:
     (tmp_path / "documents").mkdir()
     (tmp_path / "documents" / f"{number}.xml").write_bytes(content)
