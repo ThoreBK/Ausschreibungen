@@ -98,6 +98,7 @@ def test_t2_01_changed_config_is_sent_and_archived(tmp_path: Path, profile_path:
     result, directory = execute(tmp_path, load_profile(config), network, config.read_bytes())
     assert network.search_requests[1]["query"] == (
         "publication-date >= 20261110 AND publication-date <= 20261116 "
+        "AND form-type != result "
         'AND buyer-country IN (AUT) AND (FT ~ "Power Automate") SORT BY publication-date DESC'
     )
     assert result["profile"]["countries"] == ["AUT"]

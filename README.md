@@ -172,8 +172,9 @@ Tokenverbrauch stehen in `analysis.json`; unbekannter Verbrauch bleibt gekennzei
 
 ## Wichtige Grenzen
 
-- Die Suchtreffer sind eine Vorauswahl; auch Ergebnisbekanntmachungen können
-  enthalten sein. Erst die Analyse prüft Passung und interpretierbare Fristen.
+- Die Suche schließt von TED als Ergebnisbekanntmachung gekennzeichnete Meldungen
+  vor dem Trefferlimit aus. Nur die verbleibenden Kandidaten gelangen zur Analyse
+  und in den Bericht. Eine unklare Bekanntmachungsart bleibt für die Prüfung erhalten.
 - Bei erreichtem Trefferlimit zeigt die Liste nur einen Ausschnitt. Ein vollständig
   abgerufener Lauf bedeutet keine vollständige Abdeckung aller Ausschreibungen.
 - Zusätzliche Vergabeunterlagen werden **nicht heruntergeladen oder ausgewertet**.

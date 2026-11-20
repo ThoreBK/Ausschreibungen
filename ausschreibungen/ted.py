@@ -118,6 +118,7 @@ def build_query(profile: Profile, query: Query, today: date) -> str:
     # Inklusive heute genau days_back Kalendertage.
     start = today - timedelta(days=profile.days_back - 1)
     parts = [f"publication-date >= {start:%Y%m%d}", f"publication-date <= {today:%Y%m%d}"]
+    parts.append("form-type != result")
     if profile.countries:
         parts.append(f"{profile.country_field} IN ({' '.join(profile.countries)})")
     if profile.cpv_codes:

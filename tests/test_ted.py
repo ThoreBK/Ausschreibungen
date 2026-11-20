@@ -45,7 +45,9 @@ def test_term_groups_query_and_recorded_profile(
     query = build_query(profile, profile.queries[0], date(2026, 11, 15))
     assert query == (
         "publication-date >= 20260818 AND publication-date <= 20261115 "
-        "AND buyer-country IN (DEU) AND " + expected + " SORT BY publication-date DESC"
+        "AND form-type != result AND buyer-country IN (DEU) AND "
+        + expected
+        + " SORT BY publication-date DESC"
     )
     result = search(profile, transport=lambda *_: {"notices": [], "totalNoticeCount": 0})
     assert result["profile"]["queries"] == [
@@ -194,6 +196,15 @@ def test_individual_search_limit(profile: Profile, total: int, limited: bool) ->
     assert result["queries"][0]["total"] == total
     assert result["queries"][0]["limited"] is limited
     assert result["limited"] is limited
+
+
+@pytest.mark.parametrize("metadata", [{}, {"notice-type": "unbekannt"}])
+def test_unclear_notice_type_remains_a_candidate(
+    profile: Profile, metadata: dict[str, str]
+) -> None:
+    row = {"publication-number": "123-2026", **metadata}
+    result = search(profile, transport=lambda *_: {"notices": [row], "totalNoticeCount": 1})
+    assert [notice["publication_number"] for notice in result["notices"]] == ["123-2026"]
 
 
 def test_fetch_posts_json_and_decodes_response(monkeypatch: pytest.MonkeyPatch) -> None:
