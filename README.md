@@ -211,3 +211,5 @@ Der Programmcode liegt in `ausschreibungen/`, der Einstieg bleibt `main.py`.
 Ergebnisse und `tmp/` temporäre Arbeits- und Review-Dateien.
 
 Das fachliche Ziel und den geplanten Ablauf beschreibt [PROJECT.md](PROJECT.md).
+
+Für die Generalprobe gibt es eine [Kurzanleitung mit angepasstem Suchprofil](demo/README.md).

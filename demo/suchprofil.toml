@@ -1,0 +1,38 @@
+# Enges Suchprofil für die Generalprobe. Die fachliche Auswertung bleibt
+# beim Unternehmensprofil in analysis-profile.toml.
+name = "Generalprobe: KI-Leistungen und Kontrolltreffer"
+countries = ["DEU"]
+country_field = "buyer-country"
+days_back = 24
+max_results = 3
+report_limit = 8
+# Historische Bekanntmachungen mitnehmen, um die Berichtsauswahl zu prüfen.
+scope = "ALL"
+language = "deu"
+timeout_seconds = 30
+cpv_codes = []
+
+[[queries]]
+name = "KI-Beratung und Enablement"
+term_groups = [
+    ["Multi-LLM", "KI-Beratung"],
+    ["KI-Beratung", "Enablement"],
+]
+
+[[queries]]
+name = "KI-Assistenten und Dokumentenautomation"
+term_groups = [
+    ["KI-Assistenzplattform", "Posteingänge", "Einführung KI-Assistent"],
+    ["KI-Assistenzplattform", "Large Language Model", "KI-Assistent"],
+]
+
+[[queries]]
+name = "Assistenten und Beratung"
+term_groups = [
+    ["Multi-LLM", "KI-Assistenzplattform"],
+    ["Enablement", "KI-Assistent"],
+]
+
+[[queries]]
+name = "Kontrolle: Microsoft 365 im Freitext"
+term_groups = [["Microsoft 365"], ["Maststahl"]]
