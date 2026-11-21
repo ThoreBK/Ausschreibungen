@@ -157,22 +157,41 @@ def verified_fit(unit: Data) -> Data:
     return fit
 
 
+def participation_terms(unit: Data) -> set[tuple[str, datetime]]:
+    paths = {e["path"] for e in unit["participation"].get("evidence", [])}
+    return {
+        (d["kind"], datetime.fromisoformat(d["berlin"]))
+        for d in unit["fields"]["deadlines"]["values"]
+        if d["berlin"] and any(e["path"] in paths for e in d["evidence"])
+    }
+
+
 def priority(entry: Data, unit: Data) -> tuple[bool, bool, datetime, str, int]:
     opened = entry["participation"]["status"] == "Frist offen"
-    # Für die Sortierung zählt nur die Frist, auf die sich der Teilnahmestand stützt.
-    paths = {e["path"] for e in entry["participation"].get("evidence", [])}
-    due = [
-        datetime.fromisoformat(d["berlin"])
-        for d in unit["fields"]["deadlines"]["values"]
-        if opened and d["berlin"] and any(e["path"] in paths for e in d["evidence"])
-    ]
+    deadlines = participation_terms(unit) if opened else set()
     return (
         not opened,
         entry["fit"]["status"] != "passend",
-        min(due, default=datetime.max.replace(tzinfo=UTC)),
+        min((due for _, due in deadlines), default=datetime.max.replace(tzinfo=UTC)),
         entry["publication_number"],
         entry["unit_index"],
     )
+
+
+def additional_duplicate_checkpoints(
+    index: int, aliases: list[str], copies: list[Data]
+) -> list[Data]:
+    points: dict[str, Data] = {}
+    for number, copy in zip(aliases[1:], copies[1:], strict=True):
+        for point in copy["checkpoints"]:
+            if point.get("method") != "ai_verified" or point in copies[0]["checkpoints"]:
+                continue
+            reason = point["reason"]
+            additional = points.setdefault(reason, {"reason": reason, "sources": []})
+            origin = {**reference((number, index)), "evidence": point["evidence"]}
+            if origin not in additional["sources"]:
+                additional["sources"].append(origin)
+    return list(points.values())
 
 
 def select_results(research: Data, documents: list[Data], limit: int) -> Data:
@@ -280,6 +299,7 @@ def select_results(research: Data, documents: list[Data], limit: int) -> Data:
             fit = verified_fit(unit)
             participation = unit["participation"]
             copies = [all_docs[n]["units"][index] for n in aliases[number]]
+            checkpoints.extend(additional_duplicate_checkpoints(index, aliases[number], copies))
             if len({verified_fit(u)["status"] for u in copies}) > 1:
                 reason = "Auswertungen der Dubletten widersprechen sich bei der Passung."
                 fit = {"status": "unklar", "reason": reason, "evidence": []}
@@ -318,17 +338,11 @@ def select_results(research: Data, documents: list[Data], limit: int) -> Data:
                     "status": "ungeklärt",
                     "reason": "Aktueller Dokumentstand für dieses Los oder Verfahren ungeklärt.",
                 }
-            reasons = []
-            if fit["status"] == "unpassend":
-                reasons.append("Fachlich unpassend")
-            if participation["status"] in {"nicht offen", "Frist abgelaufen"}:
-                reasons.append(participation["status"])
             entry = {
                 **reference(current_ref),
                 "lot_id": unit["lot_id"],
                 "fit": fit,
                 "participation": participation,
-                "exclusion_reasons": reasons,
                 "history": stages,
                 "checkpoints": checkpoints,
             }
@@ -337,16 +351,33 @@ def select_results(research: Data, documents: list[Data], limit: int) -> Data:
                 possible_links[procedure, doc["notice_type"], unit["lot_id"]].append(entry)
 
     for group in possible_links.values():
-        if len(group) > 1:
-            point = {
-                "reason": "Gleicher Verfahrens- und Losbezug. "
-                "Zuordnung der Bekanntmachungen ungeklärt.",
-                "sources": [
-                    identification(docs[e["publication_number"]], e["lot_id"]) for e in group
-                ],
-            }
-            for entry in group:
-                entry["checkpoints"].append(point)
+        if len(group) < 2:
+            continue
+        sources = []
+        terms = set()
+        for entry in group:
+            doc = docs[entry["publication_number"]]
+            terms.update(participation_terms(doc["units"][entry["unit_index"]]))
+            origin = identification(doc, entry["lot_id"])
+            origin["evidence"].extend(entry["participation"].get("evidence", []))
+            sources.append(origin)
+
+        reason = "Gleicher Verfahrens- und Losbezug. Zuordnung der Bekanntmachungen ungeklärt."
+        if len(terms) > 1:
+            reason += " Widersprüchliche Einreichungsfristen. Aktuelle Frist ungeklärt."
+        for entry in group:
+            participation = entry["participation"]
+            if len(terms) > 1 and participation["status"] in {"Frist offen", "Frist abgelaufen"}:
+                entry["participation"] = {**participation, "status": "ungeklärt", "reason": reason}
+            entry["checkpoints"].append({"reason": reason, "sources": sources})
+
+    for entry in entries:
+        reasons = []
+        if entry["fit"]["status"] == "unpassend":
+            reasons.append("Fachlich unpassend")
+        if entry["participation"]["status"] in {"nicht offen", "Frist abgelaufen"}:
+            reasons.append(entry["participation"]["status"])
+        entry["exclusion_reasons"] = reasons
 
     eligible = [e for e in entries if not e["exclusion_reasons"]]
     eligible.sort(

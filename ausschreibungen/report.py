@@ -14,7 +14,7 @@ from reportlab.lib.units import mm
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate, Table, TableStyle
 
-from ausschreibungen.analysis import CRITERIA_FIELDS, deadline_components
+from ausschreibungen.analysis import CRITERIA_FIELDS, PARTICIPATION_PERIODS, deadline_components
 from ausschreibungen.report_fonts import BOLD, REGULAR, apply_fonts, font_runs, register_fonts
 from ausschreibungen.research import link, text_value
 
@@ -35,6 +35,7 @@ STATES = {"missing": "nicht angegeben", "uncertain": "unsicher", "conflict": "Wi
 DEADLINES = {
     "TenderSubmissionDeadlinePeriod": "Angebotsfrist",
     "ParticipationRequestReceptionPeriod": "Frist für Teilnahmeanträge",
+    "InterestExpressionReceptionPeriod": "Frist für Interessenbekundungen",
     "AdditionalInformationRequestPeriod": "Frist für Rückfragen",
 }
 LIMIT = "in dieser Version nicht abgerufen und nicht ausgewertet"
@@ -362,10 +363,7 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
             details = []
             if unit and status == "Frist offen":
                 for entry in unit["fields"]["deadlines"]["values"]:
-                    if entry["kind"] in (
-                        "TenderSubmissionDeadlinePeriod",
-                        "ParticipationRequestReceptionPeriod",
-                    ):
+                    if entry["kind"] in PARTICIPATION_PERIODS:
                         details.append(deadline_text(entry))
             if not shared:
                 details.append(
@@ -717,21 +715,33 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                     )
                 if key == "duration":
                     story.extend(checkpoint_line(p) for p in duration_checks if p not in related)
+            entry = unit.get("selection_entry", {})
+            history = entry.get("history", [])
+            show_history = len(history) > 1 or any(
+                stage.get("duplicate_reason") for stage in history
+            )
             if (
                 duration_checks
                 and not related
                 and not unit["processing_errors"]
                 and not unit["rejected_claims"]
+                and not entry.get("checkpoints")
+                and not show_history
                 and all(p in duration_checks for p in unit["checkpoints"])
             ):
                 continue
             paragraph("Informationsqualität und Prüfpunkte", "label")
-            entry = unit.get("selection_entry", {})
             for point in entry.get("checkpoints", []):
-                numbers = ", ".join(f"TED {s['publication_number']}" for s in point["sources"])
-                paragraph(f"{point['reason']} ({numbers})")
-            history = entry.get("history", [])
-            if len(history) > 1 or any(stage.get("duplicate_reason") for stage in history):
+                citations = []
+                for origin in point["sources"]:
+                    pub = escape(origin["publication_number"])
+                    if "unit_index" in origin:
+                        anchor = f"los-{pub}-{origin['unit_index']}"
+                        citations.append(f'<a href="analysis.html#{anchor}">TED {pub}</a>')
+                    else:
+                        citations.append(f"TED {pub}")
+                paragraph(f"{escape(point['reason'])} ({', '.join(citations)})", markup=True)
+            if show_history:
                 paragraph("Dokumentstände und Herkunft", "label")
                 for stage in history:
                     pub, old_index = stage["publication_number"], stage["unit_index"]
@@ -741,12 +751,7 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                     dates = ", ".join(
                         deadline_text(d)
                         for d in old_unit["fields"]["deadlines"]["values"]
-                        if d["kind"]
-                        in (
-                            "TenderSubmissionDeadlinePeriod",
-                            "ParticipationRequestReceptionPeriod",
-                            "Einreichungsfrist (Freitext)",
-                        )
+                        if d["kind"] in (*PARTICIPATION_PERIODS, "Einreichungsfrist (Freitext)")
                     )
                     paragraph(f"{label} · {source_link} · {escape(dates)}", "source", markup=True)
                     if stage.get("duplicate_reason"):

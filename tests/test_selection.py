@@ -11,7 +11,8 @@ import pytest
 from pypdf import PdfReader
 
 import main
-from ausschreibungen.analysis import PROPOSAL, analyze_run, extract
+from ausschreibungen.analysis import PROPOSAL, Model, analyze_run, extract
+from ausschreibungen.report import write_report
 from ausschreibungen.research import collect
 from ausschreibungen.ted import Profile, search
 from tests.test_analysis import FIXTURES, NOW, PROFILE, lot, xml
@@ -376,3 +377,150 @@ def test_cancellation_code_takes_precedence_over_unchanged_deadline(
     participation = document["units"][0]["participation"]
     assert participation["status"] == expected
     assert [e["quote"] for e in participation["evidence"]] == [code]
+
+
+def analyze_notices(
+    tmp_path: Path, profile: Profile, documents: dict[int, bytes], model: Model | None = None
+) -> tuple[Data, Data, Path]:
+    network = Network(
+        [response(*(row(n, 14) for n in documents)), response()], download_urls(documents)
+    )
+    research, run = execute(tmp_path, profile, network)
+    directory = analyze_run(run, PROFILE, now=NOW, structured_only=model is None, model=model)
+    return research, json.loads((directory / "analysis.json").read_bytes()), directory
+
+
+def test_cancel_intent_only_affects_referenced_lot(tmp_path: Path, profile: Profile) -> None:
+    lots = lot() + lot("LOT-2", day="2026-11-01Z") + lot("LOT-3")
+    correction = notice(101, "change", lots, previous=ORIGINAL + "-01").replace(
+        b"</efac:Changes>",
+        b'<efac:ChangeReason><cbc:ReasonCode listName="change-corrig-justification">'
+        b"cancel-intent</cbc:ReasonCode></efac:ChangeReason></efac:Changes>",
+    )
+    _, analysis, _ = analyze_notices(
+        tmp_path, profile, {100: notice(100, ORIGINAL, lots), 101: correction}
+    )
+    selection = analysis["selection"]
+    assert [(e["lot_id"], e["participation"]["status"]) for e in selection["selected"]] == [
+        ("LOT-3", "Frist offen"),
+        ("LOT-1", "ungeklärt"),
+    ]
+    evidence = selection["selected"][1]["participation"]["evidence"]
+    assert {e["quote"] for e in evidence} >= {"LOT-1", "cancel-intent"}
+    assert [(e["lot_id"], e["exclusion_reasons"]) for e in selection["excluded"]] == [
+        ("LOT-2", ["Frist abgelaufen"])
+    ]
+
+
+def test_pin_competition_selects_by_expression_of_interest_deadline(
+    tmp_path: Path, profile: Profile
+) -> None:
+    lots = lot(day="2026-11-01Z") + lot("LOT-2", day="2026-12-02Z")
+    lots = lots.replace(
+        "<cac:TenderSubmissionDeadlinePeriod>",
+        "<ext:UBLExtensions><ext:UBLExtension><ext:ExtensionContent><efext:EformsExtension>"
+        "<efac:InterestExpressionReceptionPeriod>",
+    ).replace(
+        "</cac:TenderSubmissionDeadlinePeriod>",
+        "</efac:InterestExpressionReceptionPeriod></efext:EformsExtension></ext:ExtensionContent>"
+        "</ext:UBLExtension></ext:UBLExtensions>",
+    )
+    pin = xml(
+        lots,
+        extra='<cbc:NoticeTypeCode listName="competition">pin-cfc-standard</cbc:NoticeTypeCode>',
+    ).replace(b"ContractNotice", b"PriorInformationNotice")
+    research, analysis, directory = analyze_notices(tmp_path, profile, {100: pin})
+    selection = analysis["selection"]
+    assert [(e["lot_id"], e["participation"]["status"]) for e in selection["selected"]] == [
+        ("LOT-2", "Frist offen")
+    ]
+    assert [(e["lot_id"], e["exclusion_reasons"]) for e in selection["excluded"]] == [
+        ("LOT-1", ["Frist abgelaufen"])
+    ]
+    evidence = selection["selected"][0]["participation"]["evidence"]
+    assert {e["quote"] for e in evidence if "InterestExpressionReceptionPeriod" in e["path"]} == {
+        "2026-12-02Z",
+        "12:00:00Z",
+    }
+    page = PdfReader(write_report(research, analysis, directory)).pages[0]
+    assert "Frist für Interessenbekundungen: 02.12.2026, 13:00 MEZ" in " ".join(
+        page.extract_text().split()
+    )
+
+
+def test_verified_checkpoint_from_duplicate_reaches_brief(tmp_path: Path, profile: Profile) -> None:
+    note = "Der Termin der verpflichtenden Ortsbesichtigung wird gesondert bekannt gegeben."
+    reason = "Termin für die verpflichtende Ortsbesichtigung klären."
+    lots = lot(subject="Schulung zu Microsoft 365").replace(
+        "</cac:ProcurementProject>", f"</cac:ProcurementProject><cbc:Note>{note}</cbc:Note>"
+    )
+
+    def model(instructions: str, payload: Data, schema: Data) -> Data:
+        result = evaluate(instructions, payload, schema)
+        if schema == PROPOSAL and payload["document"]["publication_number"] == "101-2026":
+            record = next(r for r in payload["records"] if payload["texts"][r["text_id"]] == note)
+            result["units"][0]["checkpoints"].append(
+                {"reason": reason, "evidence": [{"source": record["id"]}]}
+            )
+        return result
+
+    research, analysis, directory = analyze_notices(
+        tmp_path, profile, {n: notice(n, ORIGINAL, lots) for n in (100, 101)}, model
+    )
+    assert analysis["status"] == "complete"
+    [entry] = analysis["selection"]["selected"]
+    [point] = [p for p in entry["checkpoints"] if p["reason"] == reason]
+    [source] = point["sources"]
+    assert source["publication_number"] == "101-2026"
+    assert [e["quote"] for e in source["evidence"]] == [note]
+    brief = PdfReader(write_report(research, analysis, directory)).pages[1]
+    text = " ".join(brief.extract_text().split())
+    assert reason in text and "Keine zusätzlichen Prüfpunkte" not in text
+    assert "analysis.html#los-101-2026-0" in {
+        ref.get_object().get("/A", {}).get("/URI") for ref in brief["/Annots"]
+    }
+
+
+def test_unlinked_conflicting_deadlines_keep_both_stands_unclear(
+    tmp_path: Path, profile: Profile
+) -> None:
+    content = {100: notice(100, ORIGINAL, lot()), 101: notice(101, "other", lot(day="2026-11-01Z"))}
+    _, analysis, _ = analyze_notices(tmp_path, profile, content)
+    selection = analysis["selection"]
+    assert selection["excluded"] == []
+    assert [
+        (e["publication_number"], e["participation"]["status"]) for e in selection["selected"]
+    ] == [("100-2026", "ungeklärt"), ("101-2026", "ungeklärt")]
+    for entry in selection["selected"]:
+        dates = {
+            (s["publication_number"], e["quote"])
+            for p in entry["checkpoints"]
+            for s in p["sources"]
+            for e in s["evidence"]
+            if "EndDate" in e["path"]
+        }
+        assert dates == {("100-2026", "2026-12-01Z"), ("101-2026", "2026-11-01Z")}
+
+
+def test_namespace_alias_does_not_split_identical_lots(tmp_path: Path, profile: Profile) -> None:
+    lots = lot() + lot("LOT-2", day="2026-12-03Z")
+    alias = (
+        notice(101, ORIGINAL, lots)
+        .replace(b"xmlns:cbc=", b"xmlns:common=")
+        .replace(b"cbc:", b"common:")
+    )
+    _, analysis, _ = analyze_notices(
+        tmp_path, profile, {100: notice(100, ORIGINAL, lots), 101: alias}
+    )
+    selected = analysis["selection"]["selected"]
+    assert [(e["lot_id"], e["participation"]["status"]) for e in selected] == [
+        ("LOT-1", "Frist offen"),
+        ("LOT-2", "Frist offen"),
+    ]
+    for entry in selected:
+        [stage] = entry["history"]
+        assert {n["publication_number"] for n in stage["ted_occurrences"]} == {
+            "100-2026",
+            "101-2026",
+        }
+        assert entry["checkpoints"] == []

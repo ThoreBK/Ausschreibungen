@@ -20,6 +20,12 @@ from ausschreibungen.notices import NS, NoDoctype, html_page, inspect_document, 
 from ausschreibungen.research import save_json, text_value
 from ausschreibungen.selection import render_selection, select_results
 
+PARTICIPATION_PERIODS = (
+    "TenderSubmissionDeadlinePeriod",
+    "ParticipationRequestReceptionPeriod",
+    "InterestExpressionReceptionPeriod",
+)
+
 FIELDS = (
     "buyer",
     "subject",
@@ -414,7 +420,11 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
         # TED ergänzt die Publikationsdaten unabhängig vom Inhalt der Bekanntmachung.
         "content_sha256": hashlib.sha256(
             ET.canonicalize(
-                content, strip_text=True, exclude_tags={f"{{{NS['efac']}}}Publication"}
+                content,
+                strip_text=True,
+                rewrite_prefixes=True,
+                qname_aware_attrs={"{http://www.w3.org/2001/XMLSchema-instance}type"},
+                exclude_tags={f"{{{NS['efac']}}}Publication"},
             ).encode("utf-8")
         ).hexdigest(),
         "records": records,
@@ -517,12 +527,14 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
                 ):
                     selection.setdefault("document_sources", []).append(fact(nodes[code]))
         deadlines = []
-        for kind in (
-            "TenderSubmissionDeadlinePeriod",
-            "ParticipationRequestReceptionPeriod",
-            "AdditionalInformationRequestPeriod",
+        for period_path in (
+            "cac:TenderSubmissionDeadlinePeriod",
+            "cac:ParticipationRequestReceptionPeriod",
+            "cac:AdditionalInformationRequestPeriod",
+            "ext:UBLExtensions/ext:UBLExtension/ext:ExtensionContent/"
+            "efext:EformsExtension/efac:InterestExpressionReceptionPeriod",
         ):
-            periods = lot.findall(f"./cac:TenderingProcess/cac:{kind}", NS)
+            periods = lot.findall(f"./cac:TenderingProcess/{period_path}", NS)
             period_values = []
             for period in periods:
                 days = period.findall("./cbc:EndDate", NS)
@@ -530,7 +542,7 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
                 descriptions = found(period, "./cbc:Description")
                 period_values.append(
                     {
-                        "kind": kind,
+                        "kind": period.tag.rsplit("}", 1)[-1],
                         **deadline_components(
                             [nodes[n]["value"] for n in days], [nodes[n]["value"] for n in times]
                         ),
@@ -689,6 +701,8 @@ def participation(
             "reason": "Vorinformation zur Planung.",
             "evidence": [e for r in type_records for e in fact(r)["evidence"]],
         }
+    lot_id = unit["lot_id"]
+    lot_ids = document["metadata"]["lot_ids"]
     cancellations = [
         r
         for r in document["records"]
@@ -696,32 +710,45 @@ def participation(
         and r["attributes"].get("listName") == "change-corrig-justification"
         and r["value"] in {"cancel", "cancel-intent"}
     ]
-    if cancellations:
+    applicable = []
+    sections = []
+    for code in cancellations:
+        if code["value"] == "cancel-intent":
+            change_path = code["path"].rsplit("/efac:ChangeReason[", 1)[0] + "/efac:Change["
+            changes = [r for r in document["records"] if r["path"].startswith(change_path)]
+            targets = [r for r in changes if "/efbc:ChangedSectionIdentifier[" in r["path"]]
+            # Nur eine vollständig losbezogene Änderungsangabe entlastet andere Lose.
+            changed_groups = {r["path"][len(change_path) :].partition("]")[0] for r in changes}
+            targeted_groups = {r["path"][len(change_path) :].partition("]")[0] for r in targets}
+            if (
+                targets
+                and targeted_groups == changed_groups
+                and all(lot_ids.count(r["value"]) == 1 for r in targets)
+            ):
+                targets = [r for r in targets if r["value"] == lot_id]
+                if not targets:
+                    continue
+            sections.extend(targets)
+        applicable.append(code)
+    if applicable:
         return {
             **answer,
             "status": "nicht offen"
-            if all(r["value"] == "cancel" for r in cancellations)
+            if all(r["value"] == "cancel" for r in applicable)
             else "ungeklärt",
             "reason": "Annullierung der Bekanntmachung oder angekündigte Aufhebung prüfen.",
-            "evidence": [e for r in cancellations for e in fact(r)["evidence"]],
+            "evidence": [e for r in applicable + sections for e in fact(r)["evidence"]],
         }
     if document["notice_type"] != "ContractNotice" and not any(
         r["value"] in {"pin-cfc-standard", "pin-cfc-social"} for r in type_records
     ):
         return answer
-    lot_id = unit["lot_id"]
-    lot_ids = document["metadata"]["lot_ids"]
     if lot_id and (lot_id.startswith("unresolved:") or lot_ids.count(lot_id) != 1):
         return answer
     deadlines = [
         d
         for d in unit["fields"]["deadlines"]["values"]
-        if d["kind"]
-        in {
-            "TenderSubmissionDeadlinePeriod",
-            "ParticipationRequestReceptionPeriod",
-            "Einreichungsfrist (Freitext)",
-        }
+        if d["kind"] in (*PARTICIPATION_PERIODS, "Einreichungsfrist (Freitext)")
         and (len(lot_ids) <= 1 or all(e["lot_id"] == lot_id for e in d["evidence"]))
     ]
     answer["evidence"] = [e for d in deadlines for e in d["evidence"]]
