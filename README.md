@@ -15,15 +15,20 @@ Nach der Einrichtung und der ChatGPT-Anmeldung (`codex login`) im Projektordner 
 uv run main.py --report
 ```
 
-Für einen Lauf mit höchstens fünf Bekanntmachungen in `search-profile.toml`
-`max_results = 5` setzen. Das Programm sucht live auf TED, lädt die Originale,
+Für höchstens fünf Lose oder Verfahren im PDF in `search-profile.toml`
+`report_limit = 5` setzen. Das Programm sucht live auf TED, lädt die Originale,
 wertet die gefundenen Bekanntmachungen aus und zeigt den Pfad zu **bericht.pdf**.
 Bei der KI-Auswertung werden die Bekanntmachungstexte und das konfigurierte
 Unternehmensprofil über die bestehende ChatGPT-Anmeldung an OpenAI gesendet.
 Mit `--report --structured-only` bleibt die Auswertung lokal und die Passung ungeklärt.
 
-Die erste Übersicht zeigt je Los die fachliche Passung, den Teilnahmestand und den
-Stand der Teilnahmevoraussetzungen. Danach folgen Pflichtangaben und Prüfpunkte.
+Die Übersicht zeigt je Los die fachliche Passung, den Teilnahmestand und den
+Stand der Teilnahmevoraussetzungen. Zuerst kommen Einträge mit offener Frist,
+innerhalb dieser Gruppe zuerst die belegten Treffer und dann die jeweils nächste
+eindeutige Einreichungsfrist. Fachlich unklare Fälle sind gekennzeichnet.
+Die verlinkte `analysis.html` enthält auch ausgeschlossene Einträge und solche
+außerhalb des Berichtslimits. Sie verknüpft bei eindeutig zugeordneten
+Berichtigungen die im Lauf verfügbaren alten und neuen Dokumentstände.
 Der Steckbrief zeigt je Los beleggeprüfte Kurzfassungen der Eignungs- und
 Zuschlagskriterien, soweit sie aus der Bekanntmachung bestätigt werden konnten.
 Nummern in eckigen Klammern führen zum Belegverzeichnis der jeweiligen Bekanntmachung.
@@ -54,7 +59,7 @@ uv run main.py --search
 
 [search-profile.toml](search-profile.toml) im Texteditor bearbeiten, speichern und
 die Suche erneut starten. Standard: KI- und Microsoft-365-Themen, Auftraggeber
-in Deutschland, letzte 90 Kalendertage, höchstens 20 Treffer.
+in Deutschland, letzte 90 Kalendertage, höchstens 20 Treffer je Suchgruppe.
 
 Die allgemeinen Einstellungen stehen vor dem ersten `[[queries]]`-Block:
 
@@ -64,7 +69,8 @@ Die allgemeinen Einstellungen stehen vor dem ersten `[[queries]]`-Block:
 | `countries = ["DEU"]` | Ländercodes, z. B. `["DEU", "AUT"]`; `[]` für alle Länder. |
 | `country_field = "buyer-country"` | Land des Auftraggebers; `"place-of-performance"` für den Leistungsort. |
 | `days_back = 90` | Zeitraum in Kalendertagen einschließlich heute. |
-| `max_results = 20` | 1–250 Treffer; begrenzt jede Suche und die gemeinsame Ergebnisliste. |
+| `max_results = 20` | 1–250 Bekanntmachungen je Suchgruppe. Bei `--search` auch Obergrenze für die gemeinsame Kandidatenliste. |
+| `report_limit = 20` | 1–250 Lose oder Verfahren im PDF, nach fachlicher Auswahl, Zusammenführung und Sortierung. |
 | `scope = "ACTIVE"` | Laut TED aktive Bekanntmachungen; `"ALL"` einschließlich historischer, `"LATEST"` nur aktuelle Amtsblattausgabe. |
 | `language = "deu"` | Bevorzugte Sprache für Ergebnisse und Links; kein Sprachfilter und keine Übersetzung. |
 
@@ -172,11 +178,10 @@ Tokenverbrauch stehen in `analysis.json`; unbekannter Verbrauch bleibt gekennzei
 
 ## Wichtige Grenzen
 
-- Die Suche schließt von TED als Ergebnisbekanntmachung gekennzeichnete Meldungen
-  vor dem Trefferlimit aus. Nur die verbleibenden Kandidaten gelangen zur Analyse
-  und in den Bericht. Eine unklare Bekanntmachungsart bleibt für die Prüfung erhalten.
-- Bei erreichtem Trefferlimit zeigt die Liste nur einen Ausschnitt. Ein vollständig
-  abgerufener Lauf bedeutet keine vollständige Abdeckung aller Ausschreibungen.
+- Die TED-Suche filtert als Ergebnisbekanntmachung gekennzeichnete Meldungen aus.
+  Die Berichtsauswahl prüft zusätzlich die ausgewertete Passung und den Teilnahmestand.
+- TED-Suchbereich und Abruflimit begrenzen den Kandidatenbestand. Fehlt bei einer
+  Berichtigung der frühere Stand im Lauf, erscheint die Zuordnung als Prüfpunkt.
 - Zusätzliche Vergabeunterlagen werden **nicht heruntergeladen oder ausgewertet**.
   Vorhandene Unterlagenlinks lassen sich in der Übersicht öffnen.
 - Nicht alle älteren Bekanntmachungsformate werden unterstützt. Fehlgeschlagene

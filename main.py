@@ -4,6 +4,7 @@ import argparse
 import json
 import sys
 from datetime import date
+from functools import partial
 from pathlib import Path
 
 from ausschreibungen.analysis import analyze_run
@@ -26,7 +27,7 @@ def main() -> int:
     parser.add_argument("--structured-only", action="store_true", help="Nur XML-Fakten, ohne KI")
     args = parser.parse_args()
     if args.notice and args.report:
-        parser.error("--notice gilt für --analyze. Für --report das Trefferlimit im Profil wählen.")
+        parser.error("--notice gilt für --analyze. Für --report report_limit im Profil wählen.")
     if args.analyze:
         try:
             directory = analyze_run(
@@ -53,7 +54,7 @@ def main() -> int:
             args.config.read_bytes(),
             args.output.parent / "runs",
             today=args.as_of,
-            search_fn=search,
+            search_fn=partial(search, all_returned=True) if args.report else search,
         )
         if not result["search_incomplete"]:
             save_json(args.output, result)

@@ -16,7 +16,8 @@ from zoneinfo import ZoneInfo
 
 from ausschreibungen.llm import CodexModel, ModelError, object_schema, validate, verification_claims
 from ausschreibungen.notices import NS, NoDoctype, html_page, inspect_document, short_tag
-from ausschreibungen.research import save_json
+from ausschreibungen.research import save_json, text_value
+from ausschreibungen.selection import render_selection, select_results
 
 FIELDS = (
     "buyer",
@@ -361,6 +362,12 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
         "publication_number": number,
         "notice_type": short_tag(root.tag),
         "metadata": metadata,
+        # TED ergänzt die Publikationsdaten unabhängig vom Inhalt der Bekanntmachung.
+        "content_sha256": hashlib.sha256(
+            ET.canonicalize(
+                content, strip_text=True, exclude_tags={f"{{{NS['efac']}}}Publication"}
+            ).encode("utf-8")
+        ).hexdigest(),
         "records": records,
         "units": [],
         "checkpoints": [],
@@ -557,18 +564,18 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
         unit["participation"] = participation(result, unit, now, award_evidence)
         result["units"].append(unit)
     for record in records:
-        if any(
-            tag in record["path"]
-            for tag in (
-                "efac:Changes[",
-                "cac:PreviousNoticeReference[",
-                "cac:NoticeDocumentReference[",
-            )
-        ):
+        path = record["path"]
+        if "/efac:Changes[" in path:
             result["checkpoints"].append(
                 {
-                    "reason": "Belegter Zusammenhang/Änderung; "
-                    "Zuordnung und Historie ungeprüft (TASK-5).",
+                    "reason": "Änderungsangabe in der Bekanntmachung.",
+                    "evidence": [fact(record)["evidence"][0]],
+                }
+            )
+        if "/cac:PreviousNoticeReference[" in path or "/cac:NoticeDocumentReference[" in path:
+            result["checkpoints"].append(
+                {
+                    "reason": "Verweis auf eine frühere Bekanntmachung. Zusammenhang prüfen.",
                     "evidence": [fact(record)["evidence"][0]],
                 }
             )
@@ -606,7 +613,39 @@ def participation(
             "reason": "Ergebnisbekanntmachung, kein Aufruf zur Teilnahme.",
             "evidence": award_evidence or [],
         }
-    if document["notice_type"] != "ContractNotice":
+    type_records = [
+        r
+        for r in document["records"]
+        if r["path"].count("/") == 2 and r["path"].endswith("/cbc:NoticeTypeCode[1]")
+    ]
+    if document["notice_type"] == "PriorInformationNotice" and any(
+        r["attributes"].get("listName") == "planning" for r in type_records
+    ):
+        return {
+            **answer,
+            "status": "nicht offen",
+            "reason": "Vorinformation zur Planung.",
+            "evidence": [e for r in type_records for e in fact(r)["evidence"]],
+        }
+    cancellations = [
+        r
+        for r in document["records"]
+        if "/efac:Changes[" in r["path"]
+        and r["attributes"].get("listName") == "change-corrig-justification"
+        and r["value"] in {"cancel", "cancel-intent"}
+    ]
+    if cancellations:
+        return {
+            **answer,
+            "status": "nicht offen"
+            if all(r["value"] == "cancel" for r in cancellations)
+            else "ungeklärt",
+            "reason": "Annullierung der Bekanntmachung oder angekündigte Aufhebung prüfen.",
+            "evidence": [e for r in cancellations for e in fact(r)["evidence"]],
+        }
+    if document["notice_type"] != "ContractNotice" and not any(
+        r["value"] in {"pin-cfc-standard", "pin-cfc-social"} for r in type_records
+    ):
         return answer
     lot_id = unit["lot_id"]
     lot_ids = document["metadata"]["lot_ids"]
@@ -1143,7 +1182,7 @@ def interpret(document: dict[str, Any], profile: dict[str, Any], model: Model) -
         else:
             apply_verified(unit, review["claim"], records, decision["evidence"])
 
-    if document["notice_type"] == "ContractNotice":
+    if document["notice_type"] != "ContractAwardNotice":
         for unit in units.values():
             now = datetime.fromisoformat(unit["participation"]["checked_at"])
             unit["participation"] = participation(document, unit, now)
@@ -1330,6 +1369,9 @@ def analyze_run(
             if all(d["status"] == "complete" for d in result["documents"])
             else "incomplete"
         )
+        result["selection"] = select_results(
+            research, result["documents"], research.get("profile", {}).get("report_limit", 20)
+        )
     except KeyboardInterrupt:
         result["status"] = "interrupted"
         raise
@@ -1359,12 +1401,21 @@ def render_analysis(result: dict[str, Any]) -> str:
             + escape(json.dumps(result["cost"], ensure_ascii=False, indent=2))
             + "</pre>"
         )
+    if selection := result.get("selection"):
+        body.append(render_selection(selection))
     for doc in result["documents"]:
         body.append(f"<h2>{escape(doc['publication_number'])}</h2>")
+        provenance = doc.get("provenance", {})
+        if original := provenance.get("original_file"):
+            body.append(
+                f'<p><a href="../../{escape(original, quote=True)}">Original-XML</a>'
+                f" · Abruf {escape(text_value(provenance.get('retrieved_at')))}</p>"
+            )
         if "error" in doc:
             body.append("<p>Verarbeitungsfehler: " + escape(doc["error"]) + "</p>")
-        for unit in doc.get("units", []):
-            body.append(f"<h3>Los: {escape(unit['lot_id'] or 'Verfahren ohne Losaufteilung')}</h3>")
+        for index, unit in enumerate(doc.get("units", [])):
+            scope = escape(unit["lot_id"] or "Verfahren ohne Losaufteilung")
+            body.append(f'<h3 id="los-{escape(doc["publication_number"])}-{index}">{scope}</h3>')
             body.append("<pre>" + escape(json.dumps(unit, ensure_ascii=False, indent=2)) + "</pre>")
         body.append(
             "<pre>"

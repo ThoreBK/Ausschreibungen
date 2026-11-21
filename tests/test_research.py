@@ -366,7 +366,7 @@ sys.exit(main.main())
     for text in [
         "Testprofil",
         "2026-11-16",
-        "Trefferlimit: 20",
+        "Abruflimit: 20",
         "100-2026",
         "200-2026",
         "Offline-Schulung",

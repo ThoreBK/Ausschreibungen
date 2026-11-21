@@ -154,6 +154,9 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
     notices = research["notices"]
     notice_titles = {n["publication_number"]: text_value(n.get("title")) for n in notices}
     documents = {d["publication_number"]: d for d in (analysis or {}).get("documents", [])}
+    selection = (analysis or {}).get("selection")
+    notices_by_number = {n["publication_number"]: n for n in notices}
+    selected_units: dict[str, dict[int, Data]] = {}
     paragraph("Ausschreibungsübersicht", "title")
     rows = [
         (notice, index, unit)
@@ -170,6 +173,21 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
             unit.get("participation", {}).get("status") != "Frist offen",
             {"passend": 0, "unklar": 1, "unpassend": 2}.get(fit, 3),
         )
+
+    if selection is not None:
+        rows = []
+        for entry in selection["selected"]:
+            number, index = entry["publication_number"], entry["unit_index"]
+            unit = {
+                **documents[number]["units"][index],
+                "fit": entry["fit"],
+                "participation": entry["participation"],
+                "selection_entry": entry,
+            }
+            selected_units.setdefault(number, {})[index] = unit
+            rows.append((notices_by_number[number], index, unit))
+    else:
+        rows.sort(key=priority)
 
     units = [unit for _, _, unit in rows if unit]
     open_matches = sum(
@@ -196,7 +214,27 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
         if q.get("error"):
             paragraph(f"Abruffehler · {q['name']}: {q['error']}")
     if analysis and analysis["status"] != "complete":
-        paragraph("Auswertung unvollständig. Offene Punkte stehen in den Steckbriefen.")
+        paragraph("Auswertung unvollständig. Offene Punkte stehen in der Auswertung und im PDF.")
+    if selection is not None:
+        paragraph(
+            f"Berichtslimit: {selection['limit']} Lose oder Verfahren nach Auswahl und "
+            f"Zusammenführung. {len(selection['limited'])} weitere Einträge am Limit ausgelassen."
+        )
+        paragraph(selection["order"], "source")
+        if not rows:
+            paragraph("Keine ausgewerteten Lose oder Verfahren für die Berichtsliste ausgewählt.")
+        paragraph(
+            '<a href="analysis.html#berichtsauswahl" color="#125B62">Berichtsauswahl und '
+            f"Dokumentstände prüfen</a> · {len(selection['excluded'])} ausgeschlossen · "
+            f"{len(selection['unavailable'])} Bekanntmachungen ohne Auswertung",
+            "source",
+            markup=True,
+        )
+        if selection["unavailable"]:
+            paragraph(
+                "Auswertung fehlt für TED " + ", ".join(selection["unavailable"]) + ".",
+                "source",
+            )
     requirements = {u["participation_requirements"]["status"] for u in units}
     shared = len(requirements) == 1 and len(units) == len(rows)
     if rows:
@@ -238,7 +276,7 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                 for x in ("Ausschreibung / Los", "Passung", "Teilnahmestand und Frist")
             ]
         ]
-        for notice, index, unit in sorted(rows, key=priority):
+        for notice, index, unit in rows:
             number = notice["publication_number"]
             title = text_value(notice.get("title")).split(" – ", 2)[-1]
             scope = "Verfahren"
@@ -328,10 +366,13 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
         "TED-Bekanntmachungen. Zusätzliche Vergabeunterlagen: " + LIMIT + "."
     )
     successful = [q for q in research["queries"] if q["status"] == "ok"]
+    search_limit = (
+        "je Suchgruppe" if research.get("all_returned") else "je Suchgruppe und insgesamt"
+    )
     paragraph(
         f"{len(successful)} von {len(profile['queries'])} Suchgruppen erfolgreich abgefragt. "
         f"Nur neueste Fassungen, nach Veröffentlichungsdatum absteigend. "
-        f"Auswahlgrenze: {profile['max_results']} Treffer je Suchgruppe und insgesamt."
+        f"Abruflimit: {profile['max_results']} Treffer {search_limit}."
     )
     if any(q.get("limited") for q in successful):
         paragraph("TED meldete für mindestens eine Suchgruppe weitere Treffer.")
@@ -431,9 +472,15 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
         detail_blocks: list[Paragraph] = []
         if not doc.get("units"):
             paragraph(f'<a name="los-{number}-0"/>', markup=True)
-        for index, unit in enumerate(doc.get("units", [])):
+        brief_units = (
+            selected_units.get(number, {}).items()
+            if selection is not None
+            else enumerate(doc.get("units", []))
+        )
+        first_buyer = None
+        for position, (index, unit) in enumerate(brief_units):
             scope = unit["lot_id"] or "Verfahren ohne Losaufteilung"
-            if index:
+            if position:
                 story.append(PageBreak())
                 paragraph(f"Steckbrief · TED {number}", "title")
             paragraph(f'<a name="los-{number}-{index}"/>{escape(scope)}', "heading", markup=True)
@@ -470,8 +517,10 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                     ):
                         paragraph(f"{label}: {state}")
                     continue
-                if key == "buyer" and index and field == doc["units"][0]["fields"]["buyer"]:
+                if key == "buyer" and position and field == first_buyer:
                     continue
+                if key == "buyer" and not position:
+                    first_buyer = field
                 items = field["values"]
                 preferred = {
                     "subject": {"cbc:Name"},
@@ -510,6 +559,34 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                     f"<b>{label}:</b> " + " · ".join(filter(None, [state, *values])), markup=True
                 )
             paragraph("Informationsqualität und Prüfpunkte", "label")
+            entry = unit.get("selection_entry", {})
+            for point in entry.get("checkpoints", []):
+                numbers = ", ".join(f"TED {s['publication_number']}" for s in point["sources"])
+                paragraph(f"{point['reason']} ({numbers})")
+            history = entry.get("history", [])
+            if len(history) > 1 or any(stage.get("duplicate_reason") for stage in history):
+                paragraph("Dokumentstände und Herkunft", "label")
+                for stage in history:
+                    pub, old_index = stage["publication_number"], stage["unit_index"]
+                    label = "Aktueller Stand" if pub == number else "Früherer Stand"
+                    old_unit = documents[pub]["units"][old_index]
+                    source_link = f'<a href="analysis.html#los-{pub}-{old_index}">TED {pub}</a>'
+                    dates = ", ".join(
+                        deadline_text(d)
+                        for d in old_unit["fields"]["deadlines"]["values"]
+                        if d["kind"]
+                        in (
+                            "TenderSubmissionDeadlinePeriod",
+                            "ParticipationRequestReceptionPeriod",
+                            "Einreichungsfrist (Freitext)",
+                        )
+                    )
+                    paragraph(f"{label} · {source_link} · {escape(dates)}", "source", markup=True)
+                    if stage.get("duplicate_reason"):
+                        copies = ", ".join(
+                            f"TED {n['publication_number']}" for n in stage["ted_occurrences"]
+                        )
+                        paragraph(stage["duplicate_reason"] + " " + copies, "source")
             for error in unit["processing_errors"]:
                 paragraph("Verarbeitungsfehler: " + error)
             for rejected in unit["rejected_claims"]:
@@ -555,7 +632,12 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                     "source",
                     markup=True,
                 )
-            if not (unit["processing_errors"] or unit["rejected_claims"] or unit["checkpoints"]):
+            if not (
+                unit["processing_errors"]
+                or unit["rejected_claims"]
+                or unit["checkpoints"]
+                or entry.get("checkpoints")
+            ):
                 paragraph("Keine zusätzlichen Prüfpunkte erfasst.")
         if doc.get("checkpoints"):
             paragraph("Prüfpunkte zur Bekanntmachung", "heading")
@@ -572,7 +654,12 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
         if sources or detail_blocks:
             appendices.append((number, sources, criteria_details, detail_blocks))
 
-    for notice in notices:
+    brief_notices = (
+        [notices_by_number[n] for n in [*selected_units, *selection["unavailable"]]]
+        if selection is not None
+        else notices
+    )
+    for notice in brief_notices:
         add_brief(notice)
 
     for number, sources, criteria_details, detail_blocks in appendices:

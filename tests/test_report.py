@@ -13,6 +13,7 @@ from pypdf import PageObject, PdfReader
 import main
 from ausschreibungen.analysis import PROPOSAL, analyze_run, extract
 from ausschreibungen.report import write_report
+from ausschreibungen.selection import select_results
 from ausschreibungen.ted import Profile, Query, SearchError
 from tests.test_analysis import NOW, PROFILE, ControlledModel, citation, lot, proposal, xml
 from tests.test_research import Network, execute, response, row
@@ -197,7 +198,9 @@ def test_deadline_in_finished_pdf(
     assert re.search(rf"LOT-1 · TED 100-2026 unklar {participation}\b", overview)
     text = " ".join(" ".join(p.extract_text() for p in reader.pages[1:]).split())
     briefs, sources = text.split("Belegverzeichnis · TED")
-    first, second = briefs.split("LOT-2", 1)
+    parts = re.split(r"(LOT-[12]) Teilnahmestand:", briefs)
+    by_lot = dict(zip(parts[1::2], parts[2::2], strict=True))
+    first, second = by_lot["LOT-1"], by_lot["LOT-2"]
     line = first.split("Angebotsfrist: ")[1].split(" Laufzeit:")[0]
     match = re.fullmatch(re.escape(expected) + r" \[([\d, ]+)\]", line)
     assert match
@@ -395,14 +398,14 @@ def test_award_with_historical_questions_stays_closed_in_pdf(
         "selec-w",
     }
     pages = PdfReader(write_report(research, analysis, directory)).pages
-    overview, brief = [" ".join(p.extract_text().split()) for p in pages[:2]]
-    assert "801658-2026" in overview and "801658-2026" in brief
-    assert "LOT-0001 · TED 801658-2026 passend nicht offen" in overview
-    assert "Steckbrief" in brief and "Teilnahmestand: nicht offen." in brief
-    assert (
-        "Teilnahmevoraussetzungen: ungeklärt" in overview
-        and "Teilnahmevoraussetzungen: ungeklärt" in brief
-    )
+    overview = " ".join(pages[0].extract_text().split())
+    assert not analysis["selection"]["selected"]
+    [entry] = analysis["selection"]["excluded"]
+    assert entry["publication_number"] == "801658-2026"
+    assert entry["exclusion_reasons"] == ["nicht offen"]
+    assert "1 ausgeschlossen" in overview and "801658-2026" not in overview
+    html = (directory / "analysis.html").read_text("utf-8")
+    assert "TED 801658-2026</a> · LOT-0001 · nicht offen" in html
 
 
 def test_partial_download_keeps_success_and_failed_notice(tmp_path: Path, profile: Profile) -> None:
@@ -658,8 +661,13 @@ def test_overview_prioritizes_open_matches_and_links_to_each_lot(
     directory = analyze_run(run, PROFILE, structured_only=True, now=NOW)
     analysis = json.loads((directory / "analysis.json").read_bytes())
     first, second = analysis["documents"][0]["units"]
-    first["fit"]["status"] = "unpassend"
-    second["fit"]["status"] = "passend"
+    for unit, status in [(first, "unklar"), (second, "passend")]:
+        unit["fit"] = {
+            "status": status,
+            "method": "ai_verified",
+            "reason": "Kontrollierte Einschätzung für die Darstellung",
+            "evidence": unit["fields"]["subject"]["values"][0]["evidence"],
+        }
     second["checkpoints"] = [
         {
             "method": "ai_verified",
@@ -668,8 +676,9 @@ def test_overview_prioritizes_open_matches_and_links_to_each_lot(
         }
         for reason in ["Referenzen prüfen.", "Einzelheiten der Wertung prüfen."]
     ]
+    analysis["selection"] = select_results(research, analysis["documents"], 20)
     reader = PdfReader(write_report(research, analysis, directory))
-    overview, _, brief = [" ".join(page.extract_text().split()) for page in reader.pages[:3]]
+    overview, brief = [" ".join(page.extract_text().split()) for page in reader.pages[:2]]
     assert "1 fachlich passend mit offener Frist" in overview
     assert overview.index("LOT-2") < overview.index("LOT-1")
     assert overview.count("Teilnahmevoraussetzungen: ungeklärt") == 1
@@ -681,4 +690,4 @@ def test_overview_prioritizes_open_matches_and_links_to_each_lot(
         for ref in reader.pages[0]["/Annots"]
         if "/Dest" in ref.get_object()
     ]
-    assert links[:2] == [reader.pages[i].indirect_reference.idnum for i in (2, 1)]
+    assert links[:2] == [reader.pages[i].indirect_reference.idnum for i in (1, 2)]
