@@ -49,6 +49,7 @@ class Profile:
     timeout_seconds: int
     cpv_codes: list[str]
     queries: list[Query]
+    report_limit: int = 20
 
 
 def strings(value: Any, label: str, *, nonempty: bool = False) -> list[str]:
@@ -65,6 +66,7 @@ def load_profile(path: Path) -> Profile:
     with path.open("rb") as file:
         data = tomllib.load(file)
     expected = set(Profile.__dataclass_fields__)
+    data.setdefault("report_limit", Profile.report_limit)
     if set(data) != expected:
         raise ValueError(
             f"Profilfelder fehlen: {sorted(expected - set(data))}; "
@@ -73,7 +75,12 @@ def load_profile(path: Path) -> Profile:
     for key in ("name", "country_field", "scope", "language"):
         if not isinstance(data[key], str) or not data[key].strip():
             raise ValueError(f"{key}: nichtleerer Text erwartet.")
-    for key, maximum in (("days_back", 36500), ("max_results", 250), ("timeout_seconds", 300)):
+    for key, maximum in (
+        ("days_back", 36500),
+        ("max_results", 250),
+        ("report_limit", 250),
+        ("timeout_seconds", 300),
+    ):
         if type(data[key]) is not int or not 1 <= data[key] <= maximum:
             raise ValueError(f"{key}: ganze Zahl zwischen 1 und {maximum} erwartet.")
     if data["scope"] not in {"ACTIVE", "ALL", "LATEST"}:
@@ -162,6 +169,7 @@ def search(
     transport: Callable[[dict[str, Any], int], dict[str, Any]] = fetch,
     continue_on_error: bool = False,
     on_progress: Callable[[dict[str, Any]], None] | None = None,
+    all_returned: bool = False,
 ) -> dict[str, Any]:
     today = today or date.today()
     runs: list[dict[str, Any]] = []
@@ -180,10 +188,11 @@ def search(
             "profile": asdict(profile),
             "queries": runs,
             "unique_retrieved": len(ordered),
-            "limited": len(ordered) > profile.max_results
+            "all_returned": all_returned,
+            "limited": (not all_returned and len(ordered) > profile.max_results)
             or any(run.get("limited", False) for run in runs),
             "search_incomplete": any(run["status"] == "error" for run in runs),
-            "notices": ordered[: profile.max_results],
+            "notices": ordered if all_returned else ordered[: profile.max_results],
         }
 
     for query in profile.queries:

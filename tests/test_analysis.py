@@ -589,7 +589,8 @@ def test_real_labelled_freetext_deadline_needs_no_model_approval() -> None:
         value["evidence"][0]["path"]
         == "/PriorInformationNotice/cac:ProcurementProject[1]/cbc:Note[1]"
     )
-    assert unit["participation"]["status"] == "ungeklärt"
+    assert unit["participation"]["status"] == "nicht offen"
+    assert unit["participation"]["evidence"][0]["quote"] == "pin-only"
 
 
 def test_labelled_deadline_survives_rejected_duplicate_from_model() -> None:

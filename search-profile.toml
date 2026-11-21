@@ -9,8 +9,10 @@ countries = ["DEU"]
 # buyer-country = Sitz des Auftraggebers; place-of-performance = Leistungsort.
 country_field = "buyer-country"
 days_back = 90
-# Maximal 250; gilt je Suchgruppe UND für die zusammengeführte Ausgabe.
+# Maximal 250 Bekanntmachungen je Suchgruppe; bei --search auch insgesamt.
 max_results = 20
+# Maximal 250 Lose oder Verfahren nach der fachlichen Auswahl und Zusammenführung.
+report_limit = 20
 # ACTIVE = laut TED aktiv, ALL = einschließlich historischer Bekanntmachungen.
 scope = "ACTIVE"
 language = "deu"

@@ -42,6 +42,7 @@ def link(url: str, label: str) -> str:
 
 def overview(result: dict[str, Any]) -> str:
     profile = result["profile"]
+    search_limit = "je Suchgruppe" if result.get("all_returned") else "je Suchgruppe und insgesamt"
     state = {
         "running": "Lauf noch nicht abgeschlossen",
         "complete": "Abrufe abgeschlossen",
@@ -65,7 +66,7 @@ def overview(result: dict[str, Any]) -> str:
         f"<p>Stichtag: {escape(result['as_of'])}; Zeitraum: {profile['days_back']} Kalendertage "
         f"einschließlich Stichtag; Länder: {escape(text_value(profile['countries']))}; "
         f"Länderfeld: {escape(profile['country_field'])}; Suchbereich: {escape(profile['scope'])}; "
-        f"Trefferlimit: {profile['max_results']} je Suchgruppe und insgesamt. "
+        f"Abruflimit: {profile['max_results']} {search_limit}. "
         "Nur neueste Versionen laut TED-Suchanfrage; kein vollständiges Verfahrensarchiv.</p>",
         "<details><summary>Alle verwendeten Einstellungen</summary><pre>"
         + escape(json.dumps(profile, ensure_ascii=False, indent=2))
