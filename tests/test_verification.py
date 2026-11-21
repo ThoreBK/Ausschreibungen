@@ -10,6 +10,7 @@ import pytest
 
 from ausschreibungen.analysis import (
     CORRECTED_FIT,
+    CORRECTED_NON_FIT,
     PROPOSAL,
     VERIFICATION,
     analyze_run,
@@ -452,13 +453,83 @@ def test_fit_verification_can_correct_reason_with_own_service_evidence(
         assert participation["status"] == "nicht offen"
 
 
-@pytest.mark.parametrize("wrong_status", [True, False])
-def test_fit_correction_requires_positive_proposal_and_service_evidence(wrong_status: bool) -> None:
+@pytest.mark.parametrize("initial_status", ["unpassend", "unklar"])
+def test_chemnitz_correction_keeps_fit_separate_from_delivery_capability(
+    initial_status: str,
+) -> None:
+    number = "800874-2026"
+    original = (FIXTURES / "real" / f"{number}.xml").read_bytes()
+    doc = extract(original, number, now=NOW)
+    unit = doc["units"][0]
+    participation = deepcopy(unit["participation"])
+    evidence = {
+        "path": "/ContractNotice/cac:ProcurementProjectLot[1]"
+        "/cac:ProcurementProject[1]/cbc:Description[1]",
+        "quote": "Das LLM übernimmt ausschließlich die semantische Analyse der Dokumente.",
+    }
+    claim = {
+        "status": initial_status,
+        "reason": "Ob die Beratung einen Inferenzdienst betreiben kann, ist ungeklärt.",
+        "evidence": [evidence],
+    }
+    reason = "Die semantische Analyse der Eingangspost automatisiert einen Arbeitsschritt."
+    verdict = {**decision("fit", claim, CORRECTED_FIT), "reason": reason}
+
+    interpret(
+        doc,
+        load_analysis_profile(PROFILE),
+        Answers({"facts": [], "fit": claim, "checkpoints": []}, {"claims": [verdict]}),
+    )
+
+    assert unit["lot_id"] == "LOT-0000"
+    assert unit["fit"]["status"] == "passend"
+    assert unit["fit"]["reason"] == reason
+    assert len(unit["fit"]["evidence"]) == 1
+    ref = unit["fit"]["evidence"][0]
+    assert (ref["path"], ref["lot_id"]) == (evidence["path"], "LOT-0000")
+    assert evidence["quote"] in ref["quote"]
+    assert unit["participation_requirements"]["status"] == "ungeklärt"
+    assert unit["participation"] == participation
+
+
+def test_keyword_hit_stays_unfit_when_verification_removes_unsupported_detail() -> None:
+    number = "798622-2026"
+    original = (FIXTURES / "real" / f"{number}.xml").read_bytes()
+    doc = extract(original, number, now=NOW)
+    unit = doc["units"][0]
+    doc["units"] = [unit]
+    evidence = {
+        "path": "/ContractNotice/cac:ProcurementProjectLot[1]"
+        "/cac:ProcurementProject[1]/cbc:Description[1]",
+        "quote": "Lieferung von Maststahl zum Aufbau von Hochspannungsmasten",
+    }
+    claim = {
+        "status": "unpassend",
+        "reason": "Ausgeschrieben ist der Zuschnitt und die Lieferung von Maststahl.",
+        "evidence": [evidence],
+    }
+    reason = "Die Maststahllieferung für Hochspannungsmasten liegt außerhalb des Profils."
+    verdict = {**decision("fit", claim, CORRECTED_NON_FIT), "reason": reason}
+
+    interpret(
+        doc,
+        load_analysis_profile(PROFILE),
+        Answers({"facts": [], "fit": claim, "checkpoints": []}, {"claims": [verdict]}),
+    )
+
+    assert unit["fit"]["status"] == "unpassend"
+    assert unit["fit"]["reason"] == reason
+    assert len(unit["fit"]["evidence"]) == 1
+    ref = unit["fit"]["evidence"][0]
+    assert (ref["path"], ref["lot_id"]) == (evidence["path"], "LOT-0001")
+    assert evidence["quote"] in ref["quote"]
+
+
+def test_fit_correction_requires_service_evidence() -> None:
     doc = extract(xml(lot()), "100-2026", now=NOW)
-    answer = proposal(doc, status="unklar" if wrong_status else "passend")
+    answer = proposal(doc, status="unpassend")
     verdict = decision("fit", answer["fit"], CORRECTED_FIT)
-    if not wrong_status:
-        verdict["evidence"] = [citation(doc, "Referenz über zwei KI-Schulungen")]
+    verdict["evidence"] = [citation(doc, "Referenz über zwei KI-Schulungen")]
     interpret(doc, load_analysis_profile(PROFILE), Answers(answer, {"claims": [verdict]}))
     assert doc["units"][0]["fit"]["status"] == "unklar"
     assert doc["units"][0]["claim_reviews"][0]["model_check"]["status"] == "nicht entscheidbar"

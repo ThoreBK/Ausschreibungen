@@ -44,6 +44,7 @@ def test_real_model_against_prepared_oracles(case: str, number: str, expected: s
     provenance = json.loads((FIXTURES / "real/provenance.json").read_text("utf-8"))
     source = provenance["documents"][number]
     run_id = source.get("research_run", provenance["research_run"])
+    assert hashlib.sha256(content).hexdigest() == source["sha256"]
     variant = case == "injection"
     if variant:
         root = ET.fromstring(content)
@@ -102,17 +103,25 @@ def test_real_model_against_prepared_oracles(case: str, number: str, expected: s
             assert unit["fit"]["status"] == expected, unit["fit"]
             assert unit["fit"]["evidence"]
         assert unit["participation_requirements"]["status"] == "ungeklärt"
+        if case in {"chemnitz", "negative"}:
+            fit_review = next(r for r in unit["claim_reviews"] if r["claim_id"] == "fit")
+            assert fit_review["model_check"]["status"] == "bestätigt", fit_review
+            assert unit["fit"]["method"] == "ai_verified"
         if case == "injection":
             assert "999" not in json.dumps(unit["fields"], ensure_ascii=False)
     oracle = json.loads((FIXTURES / "real/expectations.json").read_text("utf-8"))[number]
     if case == "chemnitz":
         assert [unit["lot_id"] for unit in units] == [oracle["lot_id"]]
+        assert units[0]["fit"]["status"] == oracle["fit"]
+        expected_source = oracle["evidence"][0]
         assert any(
-            ref["path"] == oracle["evidence"][0]["path"]
+            ref["path"] == expected_source["path"]
             and ref["lot_id"] == oracle["lot_id"]
-            and any(term in ref["quote"] for term in ("Dokumentenanalyse", "semantische Analyse"))
+            and expected_source["quote"] in ref["quote"]
             for ref in units[0]["fit"]["evidence"]
         ), units[0]["fit"]
+    if case == "negative":
+        assert {unit["lot_id"] for unit in units} == set(oracle["lot_durations_months"])
     for key, value in oracle.get("fields", {}).items():
         if key == "selection_criteria_free_text":
             continue  # fachlich wesentliche Versicherungsbestandteile unten prüfen
