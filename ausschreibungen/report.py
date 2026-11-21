@@ -38,6 +38,7 @@ DEADLINES = {
     "AdditionalInformationRequestPeriod": "Frist für Rückfragen",
 }
 LIMIT = "in dieser Version nicht abgerufen und nicht ausgewertet"
+FIELD_PREVIEW_LENGTH = 240
 Data = dict[str, Any]
 CriteriaDetails = tuple[str, str, list[int]]
 
@@ -63,10 +64,11 @@ def deadline_text(item: Data) -> str:
         detail = STATES.get(item["status"], item["status"])
         if (
             item["kind"] == "AdditionalInformationRequestPeriod"
-            and item.get("method") == "labelled_text"
+            and item["status"] == "uncertain"
             and not item.get("original_time")
         ):
-            detail = "Uhrzeit nicht angegeben"
+            kind = "Rückfragen"
+            detail = "Uhrzeit ungeklärt"
         return f"{kind}: {original} · {detail}"
     if "dates" not in item:
         # Ältere Analysen enthalten Alternativen nur als indizierte XML-Belege.
@@ -101,6 +103,47 @@ def xml_leaf(item: Data) -> str:
     return ""
 
 
+def criteria_originals(unit: Data, key: str, summaries: list[Data]) -> list[Data]:
+    field = unit["fields"][key]
+    summarized_paths = {e["path"] for summary in summaries for e in summary["evidence"]}
+    originals = []
+    for review in unit.get("claim_reviews", []):
+        claim = review["claim"]
+        if claim.get("field") != key or "value" not in claim:
+            continue
+        if (review.get("model_check") or {}).get("status") != "bestätigt":
+            continue
+        # Frühere Gegenprüfungen haben die inhaltliche Abdeckung nicht protokolliert.
+        # Deren Originalzitate bleiben über die Originalangaben des Feldes erreichbar.
+        paths = {e["path"] for e in claim["evidence"]}
+        if not review.get("covered_by", paths <= summarized_paths):
+            originals.append(claim)
+    # Ältere Analysen können eigene Auszüge enthalten. Längere Originale derselben
+    # Fundstelle schließen solche Ausschnitte bereits ein.
+    for excerpt_value in field.get("notice_excerpts", []):
+        path = excerpt_value["evidence"][0]["path"]
+        if path not in summarized_paths:
+            full = next(
+                (
+                    v
+                    for v in field["values"]
+                    if xml_leaf(v) == "cbc:Description" and v["evidence"][0]["path"] == path
+                ),
+                excerpt_value,
+            )
+            originals.append(full)
+    return [
+        v
+        for v in originals
+        if not any(
+            v["value"] != other["value"]
+            and v["value"] in other["value"]
+            and v["evidence"][0]["path"] == other["evidence"][0]["path"]
+            for other in originals
+        )
+    ]
+
+
 def field_value(item: Data) -> str:
     value = item["value"]
     if item.get("method") == "xml":
@@ -126,6 +169,8 @@ def field_value(item: Data) -> str:
     if unit := item.get("attributes", {}).get("unitCode"):
         units = {"YEAR": ("Jahr", "Jahre"), "MONTH": ("Monat", "Monate"), "DAY": ("Tag", "Tage")}
         value += " " + units.get(unit, (f"({unit})", f"({unit})"))[value != "1"]
+    if item.get("kind") == "minimum_service_months":
+        return "Mindestlaufzeit ab Leistungsbeginn: " + value
     return value
 
 
@@ -411,18 +456,38 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
             state = field["status"]
             if state == "missing" and (summaries or rejected):
                 state = "uncertain" if rejected else "present"
-            excerpts = field.get("notice_excerpts", [])
-            lines = [escape(" ".join(item["value"].split())) + refs(item) for item in excerpts]
-            if document_sources := field.get("document_sources"):
+            originals = criteria_originals(unit, key, summaries)
+            summarized_paths = {e["path"] for summary in summaries for e in summary["evidence"]}
+            long_originals = [
+                item
+                for item in originals
+                if len(item["value"]) > FIELD_PREVIEW_LENGTH
+                and any(e["path"] in summarized_paths for e in item["evidence"])
+            ]
+            grouped: dict[str, list[Data]] = {}
+            for item in [*summaries, *(v for v in originals if v not in long_originals)]:
+                value = item.get("summary") or item["value"]
+                grouped.setdefault(" ".join(value.split()), []).append(item)
+            lines = [
+                escape(value) + source_links(number, source_ids(items))
+                for value, items in grouped.items()
+            ]
+            if long_originals:
                 lines.append(
-                    "Einzelanforderungen in den Vergabeunterlagen prüfen."
-                    + source_links(number, source_ids(document_sources))
+                    "Ergänzende Originalpassagen vollständig lesen"
+                    + source_links(number, source_ids(long_originals))
                 )
-            lines.extend(escape(summary["summary"]) + refs(summary) for summary in summaries)
+            if document_sources := field.get("document_sources"):
+                label_source = (
+                    "Verweis auf Vergabeunterlagen"
+                    if lines
+                    else "Einzelanforderungen in den Vergabeunterlagen prüfen."
+                )
+                lines.append(label_source + source_links(number, source_ids(document_sources)))
             raw_ids = source_ids(field["values"])
             if not lines:
                 lines = ["keine geprüfte Kurzfassung" if state != "missing" else ""]
-            if set(raw_ids).difference(source_ids([*excerpts, *summaries])):
+            if set(raw_ids).difference(source_ids([*originals, *summaries])):
                 anchor = f"kriterien-{number}-{len(criteria_details) + 1}"
                 scope = unit["lot_id"] or "Verfahren ohne Losaufteilung"
                 criteria_details.append((anchor, f"{scope} · {label}", raw_ids))
@@ -437,6 +502,8 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
         def checkpoint_line(point: Data) -> Paragraph:
             claim = point.get("claim", {})
             value = claim.get("value") or claim.get("reason")
+            if claim.get("kind") == "minimum_service_months":
+                value = f"Mindestlaufzeit ab Leistungsbeginn von {value} Monaten"
             label = f"Zu prüfen: {str(value).rstrip('.')}. " if value else ""
             ids = source_ids([point, point.get("verification") or {}])
             line = escape(label + point["reason"]) + source_links(number, ids)
@@ -468,7 +535,22 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                 )
             paragraph("Pflichtangaben", "label")
             duration_checks = [
-                p for p in unit["checkpoints"] if p.get("method") == "xml_duration_comparison"
+                p
+                for p in unit["checkpoints"]
+                if p.get("field") == "duration" or p.get("method") == "xml_duration_comparison"
+            ]
+            comparisons = [
+                {e["path"] for e in p["evidence"]}
+                for p in duration_checks
+                if p.get("method") == "xml_duration_comparison"
+            ]
+            # Zusätzliche KI-Hinweise zu denselben Vergleichsgrundlagen bleiben im Anhang.
+            # Eine identische Belegmenge allein beweist keine sinngleiche Aussage.
+            related = [
+                p
+                for p in unit["checkpoints"]
+                if p.get("method") == "ai_verified"
+                and {e["path"] for e in p["evidence"]} in comparisons
             ]
             for key, label in LABELS.items():
                 if key in CRITERIA_FIELDS:
@@ -506,7 +588,21 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                             and "/cac:ContractExtension[" in v["evidence"][0]["path"]
                         )
                     ]
-                    items = [v for v in items if v not in extension_texts]
+                    extension_paths = {e["path"] for v in extension_texts for e in v["evidence"]}
+                    items = [
+                        v
+                        for v in items
+                        if v not in extension_texts
+                        and not (
+                            v.get("method") == "ai_quote_verified"
+                            and field["status"] != "conflict"
+                            and all(e["path"] in extension_paths for e in v["evidence"])
+                            and (
+                                v.get("kind") == "minimum_service_months"
+                                or any(v["value"] in ext["value"] for ext in extension_texts)
+                            )
+                        )
+                    ]
                 preferred = {
                     "subject": {"cbc:Name"},
                     "place": {"cbc:CityName", "cbc:Description"},
@@ -520,7 +616,12 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                     },
                     "submission": {"cbc:SubmissionMethodCode", "cbc:EndpointID"},
                 }.get(key, set())
-                visible = [v for v in items if xml_leaf(v) in preferred] or items
+                visible = [
+                    v
+                    for v in items
+                    if xml_leaf(v) in preferred
+                    or (key == "duration" and v.get("method") == "ai_quote_verified")
+                ] or items
                 if state and (key != "duration" or field["status"] == "conflict"):
                     visible = items
                 extra = [v for v in items if v not in visible]
@@ -536,15 +637,21 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                     elif key == "source_link" and value.startswith(("https://", "http://")):
                         display = link(value, f"TED {number}")
                     else:
-                        display = escape(excerpt(value, 240))
+                        display = escape(
+                            value
+                            if key in {"duration", "tender_validity"}
+                            else excerpt(value, FIELD_PREVIEW_LENGTH)
+                        )
                     values.append(display + refs(v))
                 if extra:
                     anchor = f"feld-{number}-{index}-{key}"
                     criteria_details.append((anchor, f"{scope} · {label}", source_ids(extra)))
                     values.append(f'<a href="#{anchor}" color="#125B62">Details</a>')
-                paragraph(
-                    f"<b>{label}:</b> " + " · ".join(filter(None, [state, *values])), markup=True
-                )
+                if state or values or not extension_texts:
+                    paragraph(
+                        f"<b>{label}:</b> " + " · ".join(filter(None, [state, *values])),
+                        markup=True,
+                    )
                 for item in sorted(
                     extension_texts, key=lambda v: xml_leaf(v) == "cbc:OptionsDescription"
                 ):
@@ -553,12 +660,22 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                         if xml_leaf(item) == "cbc:OptionsDescription"
                         else "Verlängerung"
                     )
+                    if not (state or values):
+                        prefix = f"{label} · {prefix}"
                     paragraph(
                         f"<b>{prefix}:</b> " + escape(" ".join(item["value"].split())) + refs(item),
                         markup=True,
                     )
                 if key == "duration":
-                    story.extend(checkpoint_line(point) for point in duration_checks)
+                    story.extend(checkpoint_line(p) for p in duration_checks if p not in related)
+            if (
+                duration_checks
+                and not related
+                and not unit["processing_errors"]
+                and not unit["rejected_claims"]
+                and all(p in duration_checks for p in unit["checkpoints"])
+            ):
+                continue
             paragraph("Informationsqualität und Prüfpunkte", "label")
             for error in unit["processing_errors"]:
                 paragraph("Verarbeitungsfehler: " + error)
@@ -567,10 +684,16 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                     paragraph("Unbestätigte Aussage: " + rejected["reason"])
             extended = []
             immediate = {}
+            summary_failures = {
+                r["claim_id"] for r in unit["rejected_claims"] if "summary" in r["claim"]
+            }
+            diagnostics = []
             for point in unit["checkpoints"]:
-                if point in duration_checks:
+                if point in duration_checks or point in related:
                     continue
-                if point.get("method") == "ai_verified":
+                if point.get("claim_id") in summary_failures:
+                    diagnostics.append(point)
+                elif point.get("method") == "ai_verified":
                     extended.append(point)
                 elif point.get("method") == "xml_lot_scope":
                     immediate.setdefault(point["reason"], []).append(point)
@@ -579,7 +702,6 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
             for reason, group in immediate.items():
                 paragraph(escape(reason) + source_links(number, source_ids(group)), markup=True)
             if extended:
-                anchor = f"pruefung-{number}-{index}"
                 critical_paths = {
                     e["path"]
                     for field in unit["fields"].values()
@@ -587,22 +709,38 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                     for item in field["values"]
                     for e in item.get("evidence", [])
                 }
-                preview = next(
-                    (
-                        p
-                        for p in extended
-                        if any(e["path"] in critical_paths for e in p.get("evidence", []))
-                    ),
-                    extended[0],
-                )
-                story.append(checkpoint_line(preview))
+                document_paths = {
+                    e["path"]
+                    for item in unit["fields"]["selection_criteria"].get("document_sources", [])
+                    for e in item["evidence"]
+                }
+                candidates = [
+                    p
+                    for p in extended
+                    if all(e["path"] not in document_paths for e in p.get("evidence", []))
+                ]
+                if candidates:
+                    preview = next(
+                        (
+                            p
+                            for p in candidates
+                            if any(e["path"] in critical_paths for e in p.get("evidence", []))
+                        ),
+                        candidates[0],
+                    )
+                    story.append(checkpoint_line(preview))
+                    extended.remove(preview)
+            remaining = [*related, *diagnostics, *extended]
+            if remaining:
+                anchor = f"pruefung-{number}-{index}"
                 detail_blocks.append(
-                    cell(f'<a name="{anchor}"/>{escape(scope)} · Prüfpunkte', "label")
+                    cell(f'<a name="{anchor}"/>{escape(scope)} · Weitere Prüfpunkte', "label")
                 )
-                detail_blocks.extend(checkpoint_line(point) for point in extended)
+                detail_blocks.extend(checkpoint_line(point) for point in remaining)
+                status = "Kurzfassung der Kriterien nicht bestätigt · " if diagnostics else ""
                 paragraph(
-                    f'<a href="#{anchor}" color="#125B62">'
-                    f"Alle {len(extended)} geprüften Hinweise zum Los lesen</a>",
+                    f'{status}<a href="#{anchor}" color="#125B62">'
+                    f"Weitere Prüfpunkte ({len(remaining)})</a>",
                     "source",
                     markup=True,
                 )

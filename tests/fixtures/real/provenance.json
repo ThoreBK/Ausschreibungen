@@ -3,6 +3,12 @@
   "legal_notice": "https://ted.europa.eu/en/legal-notice",
   "research_run": "20261117T110548605638Z-5e2b0549",
   "documents": {
+    "800874-2026": {
+      "research_run": "20261120T002152076322Z-66ea73d6",
+      "source_url": "https://ted.europa.eu/en/notice/800874-2026/xml",
+      "retrieved_at": "2026-11-20T00:21:59.603805+00:00",
+      "sha256": "c36cb499c4d24cddf473493e1950903ddf6f855be1fb463541ab5ca8121a1d11"
+    },
     "799785-2026": {
       "source_url": "https://ted.europa.eu/en/notice/799785-2026/xml",
       "retrieved_at": "2026-11-17T11:05:54.876608+00:00",

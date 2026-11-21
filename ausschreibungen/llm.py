@@ -43,7 +43,8 @@ def verification_claims(response: Any) -> list[Any]:
     """Einzelurteile werden nach eindeutiger Zuordnung zur Aussage validiert."""
     if (
         not isinstance(response, dict)
-        or set(response) != {"claims"}
+        or not {"claims"} <= response.keys() <= {"claims", "summary_coverage"}
+        or not isinstance(response.get("summary_coverage", []), list)
         or not isinstance(response["claims"], list)
     ):
         raise ModelError("KI-Belegprüfung benötigt eine Liste von Einzelurteilen.")

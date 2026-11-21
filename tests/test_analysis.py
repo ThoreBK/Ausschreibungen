@@ -660,7 +660,9 @@ def test_global_freetext_is_not_distributed_to_multiple_lots() -> None:
     assert all(len(unit["fields"]["deadlines"]["values"]) == 1 for unit in doc["units"])
 
 
-@pytest.mark.parametrize("number", ["773064-2026", "798622-2026", "799785-2026", "788030-2026"])
+@pytest.mark.parametrize(
+    "number", ["773064-2026", "798622-2026", "799785-2026", "788030-2026", "800874-2026"]
+)
 def test_real_oracles_match_original_and_structured_extraction(number: str) -> None:
     expected = json.loads((FIXTURES / "real/expectations.json").read_text("utf-8"))[number]
     content = (FIXTURES / "real" / f"{number}.xml").read_bytes()

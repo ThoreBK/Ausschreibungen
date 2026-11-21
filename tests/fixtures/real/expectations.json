@@ -1,5 +1,16 @@
 {
   "basis": "Fachliche Sollwerte anhand der Original-XMLs vor der KI-Auswertung festgelegt. Keine echten API-Ergebnisse enthalten. Fundstellen sind vollständige, indizierte XML-Pfade.",
+  "800874-2026": {
+    "fit": "passend",
+    "reason": "Die beauftragte semantische Dokumentenanalyse der Eingangspost überschneidet sich mit der Automatisierung von Abläufen. Ob das Unternehmen den Inferenzdienst betreiben kann, ist ungeklärt.",
+    "lot_id": "LOT-0000",
+    "evidence": [
+      {
+        "path": "/ContractNotice/cac:ProcurementProjectLot[1]/cac:ProcurementProject[1]/cbc:Description[1]",
+        "quote": "Die KI-gestützte Dokumentenanalyse der eingescannten Posteingänge soll auf Basis eines Large Language Models (LLM) erfolgen."
+      }
+    ]
+  },
   "773064-2026": {
     "fit": "passend",
     "reason": "Beschafft werden eine Multi-LLM-Plattform und ergänzende KI-Beratung, Entwicklung, Implementierung und Enablement. Diese Leistungen überschneiden sich mit dem Beratungsprofil. Anforderungen an Plattformbetrieb und touristisches Partnernetzwerk sind damit nicht als erfüllt nachgewiesen.",

@@ -29,6 +29,7 @@ pytestmark = pytest.mark.skipif(
     "case,number,expected",
     [
         ("positive", "773064-2026", "passend"),
+        ("chemnitz", "800874-2026", "passend"),
         ("negative", "798622-2026", "unpassend"),
         ("unclear", "799785-2026", "unklar"),
         ("changed-profile", "773064-2026", "unpassend"),
@@ -42,6 +43,7 @@ def test_real_model_against_prepared_oracles(case: str, number: str, expected: s
     content = (FIXTURES / "real" / f"{number}.xml").read_bytes()
     provenance = json.loads((FIXTURES / "real/provenance.json").read_text("utf-8"))
     source = provenance["documents"][number]
+    run_id = source.get("research_run", provenance["research_run"])
     variant = case == "injection"
     if variant:
         root = ET.fromstring(content)
@@ -54,7 +56,7 @@ def test_real_model_against_prepared_oracles(case: str, number: str, expected: s
     save_json(
         directory / "results.json",
         {
-            "run_id": provenance["research_run"] if not variant else "controlled-injection-variant",
+            "run_id": run_id if not variant else "controlled-injection-variant",
             "notices": [
                 {
                     "publication_number": number,
@@ -103,6 +105,14 @@ def test_real_model_against_prepared_oracles(case: str, number: str, expected: s
         if case == "injection":
             assert "999" not in json.dumps(unit["fields"], ensure_ascii=False)
     oracle = json.loads((FIXTURES / "real/expectations.json").read_text("utf-8"))[number]
+    if case == "chemnitz":
+        assert [unit["lot_id"] for unit in units] == [oracle["lot_id"]]
+        assert any(
+            ref["path"] == oracle["evidence"][0]["path"]
+            and ref["lot_id"] == oracle["lot_id"]
+            and any(term in ref["quote"] for term in ("Dokumentenanalyse", "semantische Analyse"))
+            for ref in units[0]["fit"]["evidence"]
+        ), units[0]["fit"]
     for key, value in oracle.get("fields", {}).items():
         if key == "selection_criteria_free_text":
             continue  # fachlich wesentliche Versicherungsbestandteile unten prüfen

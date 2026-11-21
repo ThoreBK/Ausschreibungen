@@ -41,7 +41,10 @@ UNIT_PROPOSAL = object_schema(
     facts={
         "type": "array",
         "items": object_schema(
-            field={"type": "string", "enum": [key for key in FIELDS if key != "tender_validity"]},
+            field={
+                "type": "string",
+                "enum": [*FIELDS, "information_request_deadline", "minimum_service_months"],
+            },
             value=TEXT,
             state={"type": "string", "enum": ["present", "uncertain", "conflict"]},
             evidence=CITATIONS,
@@ -64,19 +67,30 @@ UNIT_PROPOSAL = object_schema(
 )
 PROPOSAL = object_schema(units={"type": "array", "items": UNIT_PROPOSAL})
 CORRECTED_FIT = "passend mit korrigierter Begründung"
+CORRECTED_SUMMARY = "Kriterienkurzfassung mit belegter Korrektur"
 VERIFICATION = object_schema(
+    summary_coverage={
+        "type": "array",
+        "items": object_schema(fact_id=TEXT, summary_ids={"type": "array", "items": TEXT}),
+    },
     claims={
         "type": "array",
         "items": object_schema(
             claim_id=TEXT,
             status={
                 "type": "string",
-                "enum": ["bestätigt", "widerlegt", "nicht entscheidbar", CORRECTED_FIT],
+                "enum": [
+                    "bestätigt",
+                    "widerlegt",
+                    "nicht entscheidbar",
+                    CORRECTED_FIT,
+                    CORRECTED_SUMMARY,
+                ],
             },
             reason=TEXT,
             evidence=CITATIONS,
         ),
-    }
+    },
 )
 SOURCE_INSTRUCTIONS = """Quellenformat: texts enthält jeden identischen Originaltext einmal.
 records ordnet über text_id den vollständigen Text zu path, attributes und lot_id zu.
@@ -90,7 +104,8 @@ units.structured_fields und claims
 verwenden diese Referenzen statt wiederholter Zitate. Lies den vollständigen Kontext.
 Antwortbelege sind ausschließlich {source: record-id}. XML-Pfade und Originalzitate
 werden lokal ergänzt; wiederhole sie nicht. Nur facts.value enthält das neu extrahierte
-wörtliche Zitat (ein Ausschnitt aus einer der referenzierten Quellen).
+wörtliche Zitat. Bei minimum_service_months enthält value die aus der Quelle abgeleitete
+Monatszahl; der Beleg bleibt die vollständige Originalangabe.
 Die unit_id bezeichnet genau ein Los (lot_id) oder das Verfahren ohne Losaufteilung.
 Bei losübergreifenden Prüfpunkten belege das eigene Los und die Vergleichsstellen.
 Die XML-Ablage allein beweist keine fachliche Losgeltung: Freitext kann ihr widersprechen.
@@ -119,15 +134,32 @@ Vertragsform oder Rahmenvereinbarung. Hinweise auf andere Vertragsformen sind ch
 deadlines betrifft konkrete verfahrensbezogene Einreichungs- und Auskunftsfristen. Allgemeine
 Gesetzeszitate zu Rüge-, Nachprüfungs- oder Wartefristen sind keine datierte Einreichungsfrist;
 falls relevant als checkpoint zitieren. duration ist Vertragslaufzeit, nicht Angebotsbindefrist.
-Das strukturierte Feld tender_validity übernimmt die Angebotsbindung mit ihrer Dauer und Einheit.
+tender_validity enthält auch eine nur im Freitext genannte Angebotsbindung mit Dauer und Einheit.
+Für eine tatsächlich an die Bewerber gerichtete Bitte oder Frist für Rückfragen verwende
+information_request_deadline. Erhalte Bitte, Datum und etwaige Uhrzeit im Wortlaut.
+Beispiele, Muster und überholte Termine begründen keine aktuelle Frist.
+Für eine eindeutig genannte Mindestlaufzeit ab Leistungsbeginn liefere minimum_service_months:
+value ist hier die positive ganze Monatszahl, evidence die vollständige Laufzeitklausel.
+Die Anwendung vergleicht bestätigte Monate mit den Planterminen. Wiederhole diesen Vergleich
+nicht als checkpoint. Bei anderer Bezugsgrundlage, unklarer Dauer oder weiteren Bedingungen
+verwende duration bzw. einen belegten checkpoint. Optionen und Höchstlaufzeiten getrennt halten.
 Konkrete Freitextfristen im Original zitieren. Fehlt Uhrzeit oder Zeitzone, state=uncertain
 verwenden. Keine Zeitbestandteile ergänzen oder normalisieren. submission ist Einreichungsform,
 -kanal oder -adresse, nicht die Liste einzureichender Inhalte. Prüfe auch globale Note-Felder.
 Für fehlende Angaben keine facts liefern.
 criteria_summaries ergänzt je Los kurze Aussagen für den Steckbrief in eigenen Worten.
-Nutze strukturierte Angaben und Freitext. Fasse je Feld die wesentlichen Kriterien in
-höchstens drei kurzen Aussagen zusammen und belege jede Aussage mit den vollständigen relevanten
-Quellenreferenzen. Bei Eignung zuerst zwingende Mindestanforderungen und Nachweise nennen.
+Nutze strukturierte Angaben und Freitext. Bündele die entscheidungsrelevanten Kriterien je
+Feld in der Regel in bis zu drei kurzen Absätzen. Fasse Themen mit derselben Nachweisart,
+Unterlagenquelle oder Wertung zusammen. Nenne einen gemeinsamen Unterlagenverweis nur einmal.
+Jeder Absatz
+braucht seine tragenden Quellenreferenzen. Eine geprüfte Kurzfassung soll den fachlichen
+Inhalt der zugehörigen Faktenzitate einschließlich zusätzlicher Bedingungen abdecken.
+Bei Eignung zuerst zwingende Mindestanforderungen und Nachweise nennen.
+Erhalte bei Nachweisen Alternativen und Gleichwertigkeitsbedingungen, zuständige Mitglieder
+einer Bewerbergemeinschaft, Stichtag, Altersgrenze und spätesten Vorlagezeitpunkt. Unterscheide
+die Zusage eines späteren Nachweises vom Nachweis selbst. Nenne bei Versicherungen je
+Schadensart die Deckung und die Jahresgesamtleistung. Einzelne Formblattpositionen ohne weitere
+Mindestanforderung können im Beleg bleiben.
 Bei Zuschlag die Kriterien und ihre eindeutig belegten Gewichtungen nennen. Mindestanforderung,
 Punkte der Bewerberauswahl und Angebotswertung auseinanderhalten. Erhalte die Bedeutung von
 Zahlen, Einheiten, UND/ODER und Ausnahmen. Weitere Punktestufen und Details dürfen im Beleg
@@ -165,19 +197,33 @@ bedeuten nicht entscheidbar.
 Eine korrekte Quellenangabe im falschen Feld ist nicht bestätigt. procedure ist die
 Verfahrensart, nicht die Vertragsform. submission ist Form/Kanal/Adresse, nicht eine Liste
 einzureichender Inhalte. deadlines sind konkrete Einreichungs-/Auskunftsfristen, keine
-allgemeinen Rechtsbehelfsfristen. Bei fehlender Uhrzeit oder Zeitzone muss das Originaldatum
-als unsicher erhalten bleiben. Bestätige eine offene Frage zu widersprüchlichen Werten
+allgemeinen Rechtsbehelfsfristen. kind=minimum_service_months bezeichnet die Mindestdauer
+ab Leistungsbeginn in ganzen Monaten. Prüfe unabhängig Zahl, Einheit, Beginnbedingung
+und Abgrenzung von Verlängerungen und Höchstdauer. Bei Rückfragen prüfe im vollständigen
+Kontext die Geltung und Verbindlichkeit der Bitte oder Frist. Bei fehlender Uhrzeit oder
+Zeitzone muss das Originaldatum als unsicher erhalten bleiben. Bestätige eine offene Frage
+zu widersprüchlichen Werten
 (auch zwischen Freitext und strukturierten Angaben), wenn beide Fundstellen den Konflikt tragen.
 Bei criteria_summaries (claim.summary) prüfe jede Teilbehauptung, insbesondere die fachliche
-Geltung für das konkrete Los, Zahlen, Einheiten, UND/ODER und Ausnahmen. Die Ablage im
-XML-Losabschnitt reicht dafür nicht. Unterscheide Mindestanforderung, Punkte der
+Geltung für das konkrete Los, Zahlen, Einheiten, UND/ODER und Ausnahmen. Prüfe bei Nachweisen
+auch Pflichten der Beteiligten, Stichtag und Vorlagezeitpunkt. Die Ablage im XML-Losabschnitt
+reicht dafür nicht. Unterscheide Mindestanforderung, Punkte der
 Bewerberauswahl und Zuschlagsgewichtung. Bestätige die Kurzfassung nur, wenn sie alle
 genannten Regeln korrekt und mit den nötigen Einschränkungen wiedergibt. Gib die Fundstellen
-für alle bestätigten Teile an. Bei unklarer Losgeltung keine Bestätigung.
+für alle bestätigten Teile an. Ist ein Kriterium für das Los gesichert, aber die Kurzfassung
+wegen einer weggelassenen Bedingung oder einer falschen Teilbehauptung unzutreffend, verwende
+„Kriterienkurzfassung mit belegter Korrektur“. Gib als reason nur die korrigierte, kompakte
+Leserfassung mit allen maßgeblichen Bedingungen aus, als evidence deren tragende Quellen.
+Bei falschem Feld, unklarer Losgeltung oder fehlender Grundlage bleibt die Aussage verworfen.
 Für thematische Passung genügt eine konkret beauftragte Teilleistung aus dem übergebenen
 Unternehmensprofil. Beurteile weitere Leistungen und Teilnahmevoraussetzungen getrennt.
 context beschreibt die Quellenabdeckung. Suche unabhängig von den Vorschlagsbelegen in
 allen übergebenen Quellen nach Gegenbelegen, Einschränkungen und abweichender Losgeltung.
+Prüfe für jedes bestätigte Kriterien-Faktenzitat, ob sein Inhalt durch die bestätigten oder
+korrigierten Kurzfassungen desselben Feldes und Loses vollständig abgedeckt ist. Dabei zählen
+sinngleiche Aussagen, auch verteilt auf mehrere Absätze. Nenne dann in summary_coverage
+die fact_id und alle gemeinsam benötigten summary_ids. Eine gemeinsame Fundstelle allein
+genügt nicht. Fehlt eine Bedingung oder ein Nachweis, bleibt das Faktenzitat sichtbar.
 Zusätzliche Unterlagen bleiben unausgewertet.
 Etwaige structured_fields sind abgeleitete Angaben, keine unabhängigen Belege.
 """
@@ -312,12 +358,6 @@ def labelled_deadlines(records: list[dict[str, Any]], lot_id: str | None) -> lis
         r"(?P<clock>\d{1,2}:\d{2})\s+Uhr)(?=\s+Einreichungsform:|\s*$)",
         re.IGNORECASE,
     )
-    questions = re.compile(
-        r"(?:^|(?<=[.!?])\s+)"
-        r"(Wir bitten(?:,)? Fragen, die den Teilnahmewettbewerb betreffen, "
-        r"bis zum (\d{2}\.\d{2}\.\d{4}) zu stellen\.)",
-        re.IGNORECASE,
-    )
     weekdays = ["montag", "dienstag", "mittwoch", "donnerstag", "freitag", "samstag", "sonntag"]
     deadlines = []
     for record in records:
@@ -359,71 +399,7 @@ def labelled_deadlines(records: list[dict[str, Any]], lot_id: str | None) -> lis
                     ],
                 }
             )
-        for match in questions.finditer(record["value"]):
-            try:
-                datetime.strptime(match[2], "%d.%m.%Y")
-            except ValueError:
-                continue
-            deadlines.append(
-                {
-                    "kind": "AdditionalInformationRequestPeriod",
-                    "original": match[1],
-                    "original_date": match[2],
-                    "original_time": None,
-                    "berlin": None,
-                    "status": "uncertain",
-                    "method": "labelled_text",
-                    "lot_id": lot_id,
-                    "evidence": [{**fact(record)["evidence"][0], "quote": match[1]}],
-                }
-            )
     return deadlines
-
-
-def planned_duration_check(values: list[dict[str, Any]]) -> dict[str, Any] | None:
-    """Abweichung nur melden, wenn auch ein einschließlich verstandenes Planende zu früh liegt."""
-    parts: dict[str, list[dict[str, Any]]] = {}
-    for item in values:
-        path = item["evidence"][0]["path"]
-        leaf = path.rsplit("/", 1)[-1].partition("[")[0]
-        if leaf in {"cbc:StartDate", "cbc:EndDate"} and "/cac:PlannedPeriod[" not in path:
-            continue
-        parts.setdefault(leaf, []).append(item)
-    starts, ends = (parts.get(f"cbc:{tag}", []) for tag in ("StartDate", "EndDate"))
-    if len(starts) != 1 or len(ends) != 1:
-        return None
-    start, end = starts[0], ends[0]
-    if (
-        start["evidence"][0]["path"].rsplit("/", 1)[0]
-        != end["evidence"][0]["path"].rsplit("/", 1)[0]
-    ):
-        return None
-    try:
-        first, last = (date.fromisoformat(v["value"][:10]) for v in (start, end))
-    except ValueError:
-        return None
-    for item in parts.get("cbc:OptionsDescription", []):
-        minimum = re.match(
-            r"Der Vertrag hat eine Mindestvertragslaufzeit von ([1-9]\d{0,3}) Monaten ab "
-            r"Leistungsbeginn\.",
-            item["value"],
-            re.IGNORECASE,
-        )
-        if minimum:
-            year, month = divmod(first.year * 12 + first.month - 1 + int(minimum[1]), 12)
-            if year > date.max.year:
-                continue
-            month += 1
-            anniversary = date(year, month, min(first.day, monthrange(year, month)[1]))
-            if last.toordinal() + 1 < anniversary.toordinal():
-                return {
-                    "reason": f"Falls der Leistungsbeginn dem Planbeginn entspricht, liegt das "
-                    f"Planende vor Ablauf der Mindestlaufzeit von {minimum[1]} Monaten. "
-                    "Maßgebliche Laufzeit klären.",
-                    "method": "xml_duration_comparison",
-                    "evidence": start["evidence"] + end["evidence"] + item["evidence"],
-                }
-    return None
 
 
 def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
@@ -486,7 +462,6 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
             fields[key]["values"] = [item for path in paths for item in found(lot, path)]
         scope_checks = []
         selection = fields["selection_criteria"]
-        excerpts = []
         internal_ids = found(lot, "./cac:ProcurementProject/cbc:ID[@schemeName='internalID']")
         number_in_notice = internal_ids[0]["value"] if len(internal_ids) == 1 else ""
         for criterion in lot.findall(".//efac:SelectionCriteria", NS):
@@ -516,18 +491,6 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
                 )
             else:
                 selection["values"].extend(found(criterion, ".//cbc:*"))
-                kind = criterion.findtext("./cbc:TendererRequirementTypeCode", namespaces=NS)
-                for description in descriptions:
-                    record = nodes[description]
-                    value = record["value"]
-                    if value and (
-                        kind == "slc-stand-ins"
-                        or (kind == "slc-suit-reg-trade" and "Teilnahmefrist" in value)
-                        or value.startswith("Eigenerklärung Versicherungen.")
-                    ):
-                        # Hinweise bleiben vollständig im Originalbeleg.
-                        quote = value.partition(" Hinweise:")[0]
-                        excerpts.append(fact({**record, "value": quote}, method="xml_excerpt"))
         # Die Eignungsquelle bezeichnet den Fundort der Nachweise, kein Eignungskriterium.
         for base in [root, lot] if lot is not root else [root]:
             for requirement in base.findall(
@@ -546,18 +509,6 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
                     and nodes[code]["value"] == "epo-procurement-document"
                 ):
                     selection.setdefault("document_sources", []).append(fact(nodes[code]))
-        # Die explizit beschriftete Nachweisliste im Projekttext auf eigene Sätze begrenzen.
-        for base in [root, lot] if len(lots) == 1 else [lot]:
-            for note in base.findall("./cac:ProcurementProject/cbc:Note", NS):
-                record = nodes[note]
-                if record["value"].startswith("Mit dem Angebot einzureichen:"):
-                    for line in record["value"].splitlines():
-                        if line.startswith(("Angabe der PQ-Nummer ", "Gleichwertige Nachweise ")):
-                            excerpt = fact({**record, "value": line.strip()}, method="xml_excerpt")
-                            excerpts.append(excerpt)
-                            selection["values"].append(excerpt)
-        if excerpts:
-            selection["notice_excerpts"] = excerpts
         deadlines = []
         for kind in (
             "TenderSubmissionDeadlinePeriod",
@@ -631,11 +582,6 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
             selection.update(
                 status="uncertain", display="Einzelanforderungen in den Vergabeunterlagen"
             )
-        duration = fields["duration"]
-        if point := planned_duration_check(duration["values"]):
-            scope_checks.append(point)
-            if duration["status"] == "present":
-                duration["status"] = "uncertain"
         unit = {
             "lot_id": lot_id,
             "fields": fields,
@@ -825,9 +771,8 @@ def text_deadline(
         )
     )
     return {
-        "kind": "Einreichungsfrist (Freitext)"
-        if labelled
-        else "Frist aus Freitext (Art ungeklärt)",
+        "kind": item.get("kind")
+        or ("Einreichungsfrist (Freitext)" if labelled else "Frist aus Freitext (Art ungeklärt)"),
         "original": text,
         "original_date": day[0] if day else None,
         "original_time": clock[0] if clock else None,
@@ -944,7 +889,7 @@ def verification_payload(
 
 
 def structured_duplicate(item: dict[str, Any], unit: dict[str, Any]) -> bool:
-    if "state" not in item or item["state"] == "conflict":
+    if "state" not in item or item["state"] == "conflict" or item.get("kind"):
         return False
     field = unit["fields"][item["field"]]
     evidence = [{"path": e["path"], "quote": e["quote"]} for e in item["evidence"]]
@@ -980,7 +925,12 @@ def expand_claim(item: dict[str, Any], sources: dict[str, dict[str, Any]]) -> di
         if source is None:
             raise ModelError("KI-Antwort verweist auf eine unbekannte Quellenkennung.")
         quote = source["value"]
-        if len(item["evidence"]) == 1 and "value" in item and item["value"] in quote:
+        if (
+            item.get("field") != "minimum_service_months"
+            and len(item["evidence"]) == 1
+            and "value" in item
+            and item["value"] in quote
+        ):
             quote = item["value"]
         evidence.append(
             {
@@ -1026,6 +976,7 @@ def retain_unconfirmed(unit: dict[str, Any], item: dict[str, Any], review: dict[
             v
             for v in field["values"]
             if verdict["evidence"]
+            and not item.get("kind")
             and item["state"] == "present"
             and v.get("method") == "xml"
             and v.get("value") == item["value"]
@@ -1070,13 +1021,19 @@ def apply_verified(
         field = unit["fields"][item["field"]]
         value = {"value": item["value"], "evidence": evidence, "method": "ai_quote_verified"}
         state = item["state"]
+        if item.get("kind") == "minimum_service_months":
+            value.update(kind=item["kind"], attributes={"unitCode": "MONTH"}, status=state)
         if item["field"] == "deadlines":
             value = {**text_deadline(item, evidence, records), "lot_id": unit["lot_id"]}
             state = "conflict" if state == "conflict" else "uncertain"
             value["status"] = state
         # Geprüfte Freitextwiederholungen benötigen kein zweites Ergebnisexemplar.
         if not any(
-            v.get("value") == item["value"] and v["evidence"] == evidence for v in field["values"]
+            v.get("value") == value.get("value")
+            and v.get("original") == value.get("original")
+            and v.get("kind") == value.get("kind")
+            and v["evidence"] == evidence
+            for v in field["values"]
         ):
             field["values"].append(value)
         if field["status"] != "conflict" and (state != "present" or field["status"] == "missing"):
@@ -1085,7 +1042,56 @@ def apply_verified(
     elif "status" in item:
         unit["fit"] = {**item, "evidence": evidence, "method": "ai_verified"}
     else:
-        unit["checkpoints"].append({**item, "evidence": evidence, "method": "ai_verified"})
+        point = {**item, "evidence": evidence, "method": "ai_verified"}
+        duration = unit["fields"]["duration"]
+        paths = {e["path"] for v in duration["values"] for e in v["evidence"]}
+        if all(e["path"] in paths for e in evidence + verification_evidence):
+            point["field"] = "duration"
+            if duration["status"] == "present":
+                duration["status"] = "uncertain"
+        unit["checkpoints"].append(point)
+
+
+def check_minimum_term(unit: dict[str, Any]) -> None:
+    duration = unit["fields"]["duration"]
+    minimums = [v for v in duration["values"] if v.get("kind") == "minimum_service_months"]
+    if not minimums or len({v["value"] for v in minimums}) != 1:
+        if minimums:
+            duration["status"] = "conflict"
+        return
+    if any(v["status"] != "present" for v in minimums):
+        return
+    dates = {}
+    for item in duration["values"]:
+        if item.get("method") != "xml":
+            continue
+        parent, _, leaf = item["evidence"][0]["path"].rpartition("/")
+        if re.fullmatch(r".*/cac:PlannedPeriod\[\d+\]", parent):
+            dates.setdefault(leaf.split("[")[0], []).append((parent, item))
+    starts, ends = (dates.get("cbc:" + key, []) for key in ("StartDate", "EndDate"))
+    if len(starts) != 1 or len(ends) != 1 or starts[0][0] != ends[0][0]:
+        return
+    start, end = starts[0][1], ends[0][1]
+    months = int(minimums[0]["value"])
+    try:
+        first, last = (date.fromisoformat(v["value"][:10]) for v in (start, end))
+        year, month = divmod(first.year * 12 + first.month - 1 + months, 12)
+        anniversary = date(year, month + 1, min(first.day, monthrange(year, month + 1)[1]))
+    except ValueError:
+        return
+    if last.toordinal() + 1 < anniversary.toordinal():
+        unit["checkpoints"].append(
+            {
+                "reason": "Falls der Leistungsbeginn dem Planbeginn entspricht, liegt das Planende "
+                f"vor Ablauf der Mindestlaufzeit von {months} Monaten. "
+                "Maßgebliche Laufzeit klären.",
+                "method": "xml_duration_comparison",
+                "field": "duration",
+                "evidence": start["evidence"] + end["evidence"] + minimums[0]["evidence"],
+            }
+        )
+        if duration["status"] == "present":
+            duration["status"] = "uncertain"
 
 
 def interpret(document: dict[str, Any], profile: dict[str, Any], model: Model) -> None:
@@ -1135,6 +1141,12 @@ def interpret(document: dict[str, Any], profile: dict[str, Any], model: Model) -
             unit["claim_reviews"].append(review)
             try:
                 item = expand_claim(raw, by_id)
+                if item.get("field") == "minimum_service_months":
+                    item.update(field="duration", kind="minimum_service_months")
+                    if not re.fullmatch(r"[1-9][0-9]{0,5}", item["value"]):
+                        raise ModelError("Mindestlaufzeit benötigt eine positive ganze Monatszahl.")
+                if item.get("field") == "information_request_deadline":
+                    item.update(field="deadlines", kind="AdditionalInformationRequestPeriod")
                 review["claim"] = item
                 evidence = checked_evidence(
                     item["evidence"],
@@ -1144,7 +1156,11 @@ def interpret(document: dict[str, Any], profile: dict[str, Any], model: Model) -
                 )
                 if "field" in item and uses_foreign_criterion(unit, evidence):
                     raise ModelError("Eignungskriterium mit abweichender Losangabe im Original.")
-                if "value" in item and not any(item["value"] in e["quote"] for e in evidence):
+                if (
+                    "value" in item
+                    and item.get("kind") != "minimum_service_months"
+                    and not any(item["value"] in e["quote"] for e in evidence)
+                ):
                     raise ModelError("Zusätzliche Sachangabe ist kein belegtes Originalzitat.")
                 if "status" in item and not any(
                     is_service_description(e["path"]) for e in evidence
@@ -1216,6 +1232,15 @@ def interpret(document: dict[str, Any], profile: dict[str, Any], model: Model) -
                 unit["lot_id"],
                 comparison_anchors=checkpoint_anchors(review["claim"]),
             )
+            if decision["status"] == CORRECTED_SUMMARY:
+                source_paths = {e["path"] for e in review["claim"]["evidence"]}
+                if "summary" not in review["claim"] or not any(
+                    e["path"] in source_paths for e in decision["evidence"]
+                ):
+                    raise ModelError(
+                        "Eine Kriterienkorrektur benötigt eine Kurzfassung und einen ihrer Belege."
+                    )
+                decision.update(status="bestätigt", summary_corrected=True)
             if (
                 "summary" in review["claim"]
                 and decision["status"] == "bestätigt"
@@ -1237,6 +1262,13 @@ def interpret(document: dict[str, Any], profile: dict[str, Any], model: Model) -
         review["model_check"] = {**decision, "claim_id": review["claim_id"]}
         if decision["status"] != "bestätigt":
             retain_unconfirmed(unit, review["claim"], review)
+        elif decision.get("summary_corrected"):
+            corrected = {
+                **review["claim"],
+                "summary": decision["reason"],
+                "evidence": decision["evidence"],
+            }
+            apply_verified(unit, corrected, records, decision["evidence"])
         elif decision.get("reason_corrected"):
             unit["fit"] = {
                 "status": "passend",
@@ -1259,8 +1291,44 @@ def interpret(document: dict[str, Any], profile: dict[str, Any], model: Model) -
         else:
             apply_verified(unit, review["claim"], records, decision["evidence"])
 
-    if document["notice_type"] == "ContractNotice":
-        for unit in units.values():
+    if "summary_coverage" in verdict:
+        for _, review in pending.values():
+            if review["claim"].get("field") in CRITERIA_FIELDS and "value" in review["claim"]:
+                review["covered_by"] = None
+    for pair in verdict.get("summary_coverage", []):
+        if not isinstance(pair, dict):
+            continue
+        fact_entry = pending.get(str(pair.get("fact_id")))
+        summary_ids = pair.get("summary_ids")
+        if not fact_entry or not isinstance(summary_ids, list) or not summary_ids:
+            continue
+        unit, fact_review = fact_entry
+        claim = fact_review["claim"]
+        if (
+            claim.get("field") not in CRITERIA_FIELDS
+            or "value" not in claim
+            or fact_review["model_check"]["status"] != "bestätigt"
+        ):
+            continue
+        covered_by = []
+        for identifier in summary_ids:
+            entry = pending.get(str(identifier))
+            if not entry or entry[0] is not unit:
+                break
+            summary = entry[1]
+            if (
+                "summary" not in summary["claim"]
+                or summary["claim"]["field"] != claim["field"]
+                or summary["model_check"]["status"] != "bestätigt"
+            ):
+                break
+            covered_by.append(summary["claim_id"])
+        else:
+            fact_review["covered_by"] = covered_by
+
+    for unit in units.values():
+        check_minimum_term(unit)
+        if document["notice_type"] == "ContractNotice":
             now = datetime.fromisoformat(unit["participation"]["checked_at"])
             unit["participation"] = participation(document, unit, now)
 

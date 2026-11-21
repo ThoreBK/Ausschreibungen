@@ -674,7 +674,7 @@ def test_overview_prioritizes_open_matches_and_links_to_each_lot(
     assert overview.index("LOT-2") < overview.index("LOT-1")
     assert overview.count("Teilnahmevoraussetzungen: ungeklärt") == 1
     assert "Referenzen prüfen." in brief and "Einzelheiten der Wertung prüfen." not in brief
-    assert "Alle 2 geprüften Hinweise" in brief
+    assert "Weitere Prüfpunkte (1)" in brief
     assert "Einzelheiten der Wertung prüfen." in reader.pages[3].extract_text()
     links = [
         ref.get_object()["/Dest"][0].idnum
