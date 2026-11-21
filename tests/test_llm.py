@@ -310,11 +310,16 @@ def test_one_invalid_fit_correction_preserves_other_lot_through_adapter(
     fixture = LotAnswers()
     first = fixture("", payload, PROPOSAL)
     verdict = fixture("", payload, VERIFICATION)
-    # B ist unpassend. Eine positive Korrektur ist dort selbst bei gültigem Schema unzulässig.
-    bad = next(v for v in verdict["claims"] if v["claim_id"] == "u1/fit")
-    bad["status"] = CORRECTED_FIT
+    fit_b = next(v for v in verdict["claims"] if v["claim_id"] == "u1/fit")
     if malformed == "missing_reason":
-        del bad["reason"]
+        fit_b["status"] = CORRECTED_FIT
+        del fit_b["reason"]
+    else:
+        lot_b = next(u for u in first["units"] if u["unit_id"] == "u1")
+        lot_b["checkpoints"].append(
+            {"reason": "Leistungsumfang prüfen.", "evidence": fit_b["evidence"]}
+        )
+        verdict["claims"].append({**fit_b, "claim_id": "u1/checkpoints:0", "status": CORRECTED_FIT})
     log = transport(monkeypatch, [response(first), response(verdict)])
     run = saved_run(
         tmp_path,
@@ -330,6 +335,14 @@ def test_one_invalid_fit_correction_preserves_other_lot_through_adapter(
     assert result["status"] == "incomplete"
     assert a["fit"]["status"] == "passend" and not a["processing_errors"]
     assert a["fit"]["evidence"][0]["quote"] == "KI-Beratung"
-    assert b["fit"]["status"] == "unklar" and b["processing_errors"]
-    assert b["claim_reviews"][0]["model_check"]["status"] == "nicht entscheidbar"
-    assert b["checkpoints"][0]["claim"]["reason"] == "Bauarbeiten werden beauftragt."
+    assert b["processing_errors"]
+    reviews = {r["claim_id"]: r for r in b["claim_reviews"]}
+    if malformed == "missing_reason":
+        assert b["fit"]["status"] == "unklar"
+        assert reviews["fit"]["model_check"]["status"] == "nicht entscheidbar"
+        assert b["checkpoints"][0]["claim"]["reason"] == "Bauarbeiten werden beauftragt."
+    else:
+        assert b["fit"]["status"] == "unpassend"
+        assert b["fit"]["evidence"][0]["quote"] == "Bauarbeiten"
+        assert reviews["checkpoints:0"]["model_check"]["status"] == "nicht entscheidbar"
+        assert any(p["claim"]["reason"] == "Leistungsumfang prüfen." for p in b["checkpoints"])
