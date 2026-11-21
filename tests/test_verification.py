@@ -10,6 +10,7 @@ import pytest
 
 from ausschreibungen.analysis import (
     CORRECTED_FIT,
+    CORRECTED_NON_FIT,
     PROPOSAL,
     VERIFICATION,
     analyze_run,
@@ -489,6 +490,39 @@ def test_chemnitz_correction_keeps_fit_separate_from_delivery_capability(
     assert evidence["quote"] in ref["quote"]
     assert unit["participation_requirements"]["status"] == "ungeklärt"
     assert unit["participation"] == participation
+
+
+def test_keyword_hit_stays_unfit_when_verification_removes_unsupported_detail() -> None:
+    number = "798622-2026"
+    original = (FIXTURES / "real" / f"{number}.xml").read_bytes()
+    doc = extract(original, number, now=NOW)
+    unit = doc["units"][0]
+    doc["units"] = [unit]
+    evidence = {
+        "path": "/ContractNotice/cac:ProcurementProjectLot[1]"
+        "/cac:ProcurementProject[1]/cbc:Description[1]",
+        "quote": "Lieferung von Maststahl zum Aufbau von Hochspannungsmasten",
+    }
+    claim = {
+        "status": "unpassend",
+        "reason": "Ausgeschrieben ist der Zuschnitt und die Lieferung von Maststahl.",
+        "evidence": [evidence],
+    }
+    reason = "Die Maststahllieferung für Hochspannungsmasten liegt außerhalb des Profils."
+    verdict = {**decision("fit", claim, CORRECTED_NON_FIT), "reason": reason}
+
+    interpret(
+        doc,
+        load_analysis_profile(PROFILE),
+        Answers({"facts": [], "fit": claim, "checkpoints": []}, {"claims": [verdict]}),
+    )
+
+    assert unit["fit"]["status"] == "unpassend"
+    assert unit["fit"]["reason"] == reason
+    assert len(unit["fit"]["evidence"]) == 1
+    ref = unit["fit"]["evidence"][0]
+    assert (ref["path"], ref["lot_id"]) == (evidence["path"], "LOT-0001")
+    assert evidence["quote"] in ref["quote"]
 
 
 def test_fit_correction_requires_service_evidence() -> None:
