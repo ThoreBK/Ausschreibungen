@@ -157,22 +157,62 @@ def verified_fit(unit: Data) -> Data:
     return fit
 
 
-def participation_terms(unit: Data) -> set[tuple[str, datetime]]:
+def participation_deadlines(unit: Data) -> list[Data]:
     paths = {e["path"] for e in unit["participation"].get("evidence", [])}
-    return {
-        (d["kind"], datetime.fromisoformat(d["berlin"]))
+    return [
+        d
         for d in unit["fields"]["deadlines"]["values"]
-        if d["berlin"] and any(e["path"] in paths for e in d["evidence"])
-    }
+        if any(e["path"] in paths for e in d["evidence"])
+    ]
+
+
+def calendar_day_bounds(day: str) -> tuple[datetime, datetime] | None:
+    """Mögliche Zeitpunkte eines Originaldatums, nur zum Widerspruchsvergleich."""
+    if re.fullmatch(r"\d{2}\.\d{2}\.\d{4}", day):
+        day = "-".join(reversed(day.split(".")))
+    match = re.fullmatch(r"(\d{4}-\d{2}-\d{2})(Z|[+-](?:(?:0\d|1[0-3]):[0-5]\d|14:00))?", day)
+    if not match:
+        return None
+    date, offset = match.groups()
+    try:
+        # Ohne Offset kann der lokale Kalendertag in jeder zulässigen XML-Zeitzone liegen.
+        return (
+            datetime.fromisoformat(f"{date}T00:00:00{offset or '+14:00'}"),
+            datetime.fromisoformat(f"{date}T23:59:59.999999{offset or '-14:00'}"),
+        )
+    except ValueError:
+        return None
+
+
+def conflicting_deadlines(deadlines: list[Data]) -> bool:
+    kinds = set()
+    bounds = []
+    for deadline in deadlines:
+        if deadline["berlin"]:
+            instant = datetime.fromisoformat(deadline["berlin"])
+            kinds.add(deadline["kind"])
+            bounds.append((instant, instant))
+        elif deadline.get("period_path") or deadline["kind"] == "Einreichungsfrist (Freitext)":
+            for day in deadline.get("dates", [deadline.get("original_date")]):
+                if day and (window := calendar_day_bounds(day)):
+                    bounds.append(window)
+    if not bounds:
+        return False
+    latest_start = max(start for start, _ in bounds)
+    earliest_end = min(end for _, end in bounds)
+    return len(kinds) > 1 or latest_start > earliest_end
 
 
 def priority(entry: Data, unit: Data) -> tuple[bool, bool, datetime, str, int]:
     opened = entry["participation"]["status"] == "Frist offen"
-    deadlines = participation_terms(unit) if opened else set()
+    deadlines = participation_deadlines(unit) if opened else []
     return (
         not opened,
         entry["fit"]["status"] != "passend",
-        min((due for _, due in deadlines), default=datetime.max.replace(tzinfo=UTC)),
+        min(
+            (datetime.fromisoformat(d["berlin"]) for d in deadlines if d["berlin"]),
+            default=datetime.max.replace(tzinfo=UTC),
+        ),
         entry["publication_number"],
         entry["unit_index"],
     )
@@ -184,7 +224,10 @@ def additional_duplicate_checkpoints(
     points: dict[str, Data] = {}
     for number, copy in zip(aliases[1:], copies[1:], strict=True):
         for point in copy["checkpoints"]:
-            if point.get("method") != "ai_verified" or point in copies[0]["checkpoints"]:
+            if (
+                point.get("method") not in {"ai_verified", "xml_duration_comparison"}
+                or point in copies[0]["checkpoints"]
+            ):
                 continue
             reason = point["reason"]
             additional = points.setdefault(reason, {"reason": reason, "sources": []})
@@ -192,6 +235,42 @@ def additional_duplicate_checkpoints(
             if origin not in additional["sources"]:
                 additional["sources"].append(origin)
     return list(points.values())
+
+
+def compare_unlinked_lots(group: list[Data], docs: dict[str, Data]) -> None:
+    by_internal_id: dict[str | None, list[Data]] = defaultdict(list)
+    sources = {}
+    deadlines = {}
+    for entry in group:
+        number = entry["publication_number"]
+        doc = docs[number]
+        unit = doc["units"][entry["unit_index"]]
+        internal_id = unit.get("internal_lot_id")
+        by_internal_id[internal_id["value"] if internal_id else None].append(entry)
+        sources[number] = identification(doc, entry["lot_id"])
+        if internal_id:
+            sources[number]["evidence"].extend(internal_id["evidence"])
+        sources[number]["evidence"].extend(entry["participation"].get("evidence", []))
+        deadlines[number] = participation_deadlines(unit)
+
+    # Eine fehlende interne Kennung lässt die Zuordnung offen. Verschiedene belegte
+    # Kennungen grenzen Lose auch bei wiederverwendeter technischer LOT-Nummer ab.
+    unknown = by_internal_id.pop(None, [])
+    for known in by_internal_id.values() or [[]]:
+        peers = known + unknown
+        if len(peers) < 2:
+            continue
+        numbers = [e["publication_number"] for e in peers]
+        conflict = conflicting_deadlines([d for n in numbers for d in deadlines[n]])
+        reason = "Gleicher Verfahrens- und Losbezug. Zuordnung der Bekanntmachungen ungeklärt."
+        if conflict:
+            reason += " Widersprüchliche Einreichungsfristen. Aktuelle Frist ungeklärt."
+        point = {"reason": reason, "sources": [sources[n] for n in numbers]}
+        for entry in peers:
+            participation = entry["participation"]
+            if conflict and participation["status"] in {"Frist offen", "Frist abgelaufen"}:
+                entry["participation"] = {**participation, "status": "ungeklärt", "reason": reason}
+            entry["checkpoints"].append(point)
 
 
 def select_results(research: Data, documents: list[Data], limit: int) -> Data:
@@ -351,25 +430,8 @@ def select_results(research: Data, documents: list[Data], limit: int) -> Data:
                 possible_links[procedure, doc["notice_type"], unit["lot_id"]].append(entry)
 
     for group in possible_links.values():
-        if len(group) < 2:
-            continue
-        sources = []
-        terms = set()
-        for entry in group:
-            doc = docs[entry["publication_number"]]
-            terms.update(participation_terms(doc["units"][entry["unit_index"]]))
-            origin = identification(doc, entry["lot_id"])
-            origin["evidence"].extend(entry["participation"].get("evidence", []))
-            sources.append(origin)
-
-        reason = "Gleicher Verfahrens- und Losbezug. Zuordnung der Bekanntmachungen ungeklärt."
-        if len(terms) > 1:
-            reason += " Widersprüchliche Einreichungsfristen. Aktuelle Frist ungeklärt."
-        for entry in group:
-            participation = entry["participation"]
-            if len(terms) > 1 and participation["status"] in {"Frist offen", "Frist abgelaufen"}:
-                entry["participation"] = {**participation, "status": "ungeklärt", "reason": reason}
-            entry["checkpoints"].append({"reason": reason, "sources": sources})
+        if len(group) > 1:
+            compare_unlinked_lots(group, docs)
 
     for entry in entries:
         reasons = []

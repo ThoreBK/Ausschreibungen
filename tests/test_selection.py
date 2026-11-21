@@ -524,3 +524,127 @@ def test_namespace_alias_does_not_split_identical_lots(tmp_path: Path, profile: 
             "101-2026",
         }
         assert entry["checkpoints"] == []
+
+
+def with_internal_id(lots: str, identifier: str) -> str:
+    return lots.replace(
+        "<cac:ProcurementProject>",
+        f'<cac:ProcurementProject><cbc:ID schemeName="internalID">{identifier}</cbc:ID>',
+    )
+
+
+@pytest.mark.parametrize("unknown_lot", [False, True])
+def test_reused_technical_lot_id_keeps_independent_deadlines(
+    tmp_path: Path, profile: Profile, unknown_lot: bool
+) -> None:
+    closed = with_internal_id(lot("LOT-0001", day="2026-11-01Z", subject="KI-Schulung"), "Los A")
+    opened = with_internal_id(lot("LOT-0001", subject="Servermigration"), "Los B")
+    notices = {100: notice(100, ORIGINAL, closed), 101: notice(101, "other", opened)}
+    if unknown_lot:
+        notices[102] = notice(
+            102, "unknown", lot("LOT-0001").replace("<cbc:EndDate>2026-12-01Z</cbc:EndDate>", "")
+        )
+    _, analysis, _ = analyze_notices(tmp_path, replace(profile, report_limit=1), notices)
+    selection = analysis["selection"]
+    [selected] = selection["selected"]
+    assert (selected["publication_number"], selected["participation"]["status"]) == (
+        "101-2026",
+        "Frist offen",
+    )
+    [excluded] = selection["excluded"]
+    assert (excluded["publication_number"], excluded["exclusion_reasons"]) == (
+        "100-2026",
+        ["Frist abgelaufen"],
+    )
+    if unknown_lot:
+        [unknown] = selection["limited"]
+        assert unknown["publication_number"] == "102-2026"
+        assert unknown["participation"]["status"] == "ungeklärt"
+        for entry in (selected, excluded, unknown):
+            assert entry["checkpoints"]
+            for point in entry["checkpoints"]:
+                assert "Widersprüchliche Einreichungsfristen" not in point["reason"]
+                assert {s["publication_number"] for s in point["sources"]} in (
+                    {"100-2026", "102-2026"},
+                    {"101-2026", "102-2026"},
+                )
+    else:
+        assert selected["checkpoints"] == excluded["checkpoints"] == []
+
+
+@pytest.mark.parametrize(
+    ("partial_date", "expected"),
+    [
+        ("2026-11-01Z", "ungeklärt"),
+        ("2026-12-01Z", "Frist offen"),
+        ("2026-12-02+14:00", "Frist offen"),  # 1. Dezember 12:00 UTC = 2. Dezember vor Ort.
+        ("2026-12-02", "Frist offen"),
+        ("2026-11-01", "ungeklärt"),
+    ],
+)
+def test_partial_deadline_preserves_date_and_detects_conflict(
+    tmp_path: Path, profile: Profile, partial_date: str, expected: str
+) -> None:
+    incomplete = lot(day=partial_date).replace("<cbc:EndTime>12:00:00Z</cbc:EndTime>", "")
+    _, analysis, _ = analyze_notices(
+        tmp_path,
+        profile,
+        {
+            100: notice(100, ORIGINAL, with_internal_id(lot(), "Los A")),
+            101: notice(101, "other", with_internal_id(incomplete, "Los A")),
+        },
+    )
+    entries = {e["publication_number"]: e for e in analysis["selection"]["selected"]}
+    assert entries["100-2026"]["participation"]["status"] == expected
+    assert entries["101-2026"]["participation"]["status"] == "ungeklärt"
+    [point] = entries["100-2026"]["checkpoints"]
+    assert ("Widersprüchliche Einreichungsfristen" in point["reason"]) == (expected == "ungeklärt")
+    dates = {
+        (s["publication_number"], e["quote"])
+        for s in point["sources"]
+        for e in s["evidence"]
+        if "EndDate" in e["path"]
+    }
+    assert dates == {("100-2026", "2026-12-01Z"), ("101-2026", partial_date)}
+    assert [e["quote"] for e in entries["101-2026"]["participation"]["evidence"]] == [partial_date]
+
+
+def test_duration_conflict_from_duplicate_reaches_brief(tmp_path: Path, profile: Profile) -> None:
+    minimum = "Die Mindestvertragslaufzeit beträgt ab Leistungsbeginn zwei Jahre."
+    lots = lot(subject="Schulung zu Microsoft 365").replace(
+        "</cac:ProcurementProject>",
+        "<cac:PlannedPeriod><cbc:StartDate>2027-07-01</cbc:StartDate>"
+        "<cbc:EndDate>2028-06-30</cbc:EndDate></cac:PlannedPeriod>"
+        f"<cac:ContractExtension><cbc:OptionsDescription>{minimum}</cbc:OptionsDescription>"
+        "</cac:ContractExtension></cac:ProcurementProject>",
+    )
+
+    def model(instructions: str, payload: Data, schema: Data) -> Data:
+        result = evaluate(instructions, payload, schema)
+        if schema == PROPOSAL and payload["document"]["publication_number"] == "101-2026":
+            record = next(
+                r for r in payload["records"] if payload["texts"][r["text_id"]] == minimum
+            )
+            result["units"][0]["facts"].append(
+                {
+                    "field": "minimum_service_months",
+                    "value": "24",
+                    "state": "present",
+                    "evidence": [{"source": record["id"]}],
+                }
+            )
+        return result
+
+    research, analysis, directory = analyze_notices(
+        tmp_path, profile, {n: notice(n, ORIGINAL, lots) for n in (100, 101)}, model
+    )
+    assert analysis["status"] == "complete"
+    [entry] = analysis["selection"]["selected"]
+    [point] = entry["checkpoints"]
+    [source] = point["sources"]
+    assert (source["publication_number"], source["unit_index"]) == ("101-2026", 0)
+    assert {e["quote"] for e in source["evidence"]} == {"2027-07-01", "2028-06-30", minimum}
+    brief = PdfReader(write_report(research, analysis, directory)).pages[1]
+    text = " ".join(brief.extract_text().split())
+    assert "vor Ablauf der Mindestlaufzeit von 24 Monaten" in text
+    assert "Keine zusätzlichen Prüfpunkte" not in text

@@ -620,6 +620,8 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
             "claim_reviews": [],
             "processing_errors": [],
         }
+        if lot_id and number_in_notice:
+            unit["internal_lot_id"] = internal_ids[0]
         if lot_id and (lot_id.startswith("unresolved:") or lot_ids.count(lot_id) > 1):
             unit["processing_errors"].append(
                 "Loskennung fehlt oder ist mehrfach vergeben; Zuordnung ungeklärt."
