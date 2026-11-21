@@ -134,14 +134,14 @@ def test_pdf_names_both_limits_and_links_from_analysis(tmp_path: Path, profile: 
         (
             ["2026-12-01Z"] * 2,
             ["12:00:00Z"] * 2,
-            "01.12.2026, 13:00 CET",
+            "01.12.2026, 13:00 MEZ",
             "Frist offen",
         ),
         ([], ["12:00:00Z"], "Datum nicht angegeben, 12:00:00Z", "ungeklärt"),
         (
             ["2026-12-01Z", "2026-12-01+00:00"],
             ["12:00:00+00:00", "12:00:00Z"],
-            "01.12.2026, 13:00 CET",
+            "01.12.2026, 13:00 MEZ",
             "Frist offen",
         ),
         (
@@ -198,7 +198,7 @@ def test_deadline_in_finished_pdf(
     text = " ".join(" ".join(p.extract_text() for p in reader.pages[1:]).split())
     briefs, sources = text.split("Belegverzeichnis · TED")
     first, second = briefs.split("LOT-2", 1)
-    line = first.split("Angebotsfrist: ")[1].split(" Laufzeit:")[0]
+    line = first.split("Angebotsfrist: ")[1].split(" Angebotsbindefrist:")[0]
     match = re.fullmatch(re.escape(expected) + r" \[([\d, ]+)\]", line)
     assert match
     refs = match[1].split(", ")
@@ -215,7 +215,7 @@ def test_deadline_in_finished_pdf(
         entry = re.split(r"\[\d+\] TED ", sources.split(f"[{ref}] TED ", 1)[1], maxsplit=1)[0]
         assert f"cbc:{leaf}[{index}] {value}" in entry
     assert "2027-03-04Z" not in first
-    assert "Angebotsfrist: 04.03.2027, 13:00 CET" in second
+    assert "Angebotsfrist: 04.03.2027, 13:00 MEZ" in second
 
 
 def test_pdf_separates_deadline_periods_and_kinds(tmp_path: Path, profile: Profile) -> None:
@@ -245,7 +245,7 @@ def test_pdf_separates_deadline_periods_and_kinds(tmp_path: Path, profile: Profi
     reader = PdfReader(write_report(research, analysis, directory))
     assert "unklar ungeklärt" in " ".join(reader.pages[0].extract_text().split())
     brief = " ".join(reader.pages[1].extract_text().split())
-    assert "Angebotsfrist: 01.12.2026, 13:00 CET" in brief
+    assert "Angebotsfrist: 01.12.2026, 13:00 MEZ" in brief
     assert (
         "Angebotsfrist: 2026-12-15Z, Uhrzeit nicht angegeben · Zuordnung zur Verfahrensphase prüfen"
         in brief
@@ -293,7 +293,7 @@ def test_report_includes_scoped_decisions_fields_and_sources(
         assert "Eignungskriterien: keine geprüfte Kurzfassung · Originalangaben" in section
         assert "Zuschlagskriterien: nicht angegeben" in section
     assert "Auftraggeber: nicht angegeben" in lot1
-    assert "Angebotsfrist: 01.12.2026, 13:00 CET" in lot1
+    assert "Angebotsfrist: 01.12.2026, 13:00 MEZ" in lot1
     assert "Referenz über zwei KI-Schulungen" in sources
     assert "Meisterbrief" in sources
     assert "/cbc:Description[1]" in sources

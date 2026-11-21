@@ -252,6 +252,7 @@ def test_t4_01_saved_complete_fields_and_unchanged_original(tmp_path: Path) -> N
         "place",
         "procedure",
         "deadlines",
+        "tender_validity",
         "duration",
         "selection_criteria",
         "award_criteria",
@@ -683,6 +684,11 @@ def test_real_oracles_match_original_and_structured_extraction(number: str) -> N
         if key == "selection_criteria_free_text":
             # Fachliche Zuordnung ist erst Gegenstand des echten KI-Laufs.
             assert value in content.decode("utf-8")
+            continue
+        if key == "selection_criteria_document_source":
+            selection = unit["fields"]["selection_criteria"]
+            assert selection["status"] == "uncertain"
+            assert [source["value"] for source in selection["document_sources"]] == [value]
             continue
         field = unit["fields"][key]
         if value == "nicht angegeben":

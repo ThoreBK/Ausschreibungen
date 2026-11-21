@@ -106,6 +106,10 @@ def test_real_model_against_prepared_oracles(case: str, number: str, expected: s
     for key, value in oracle.get("fields", {}).items():
         if key == "selection_criteria_free_text":
             continue  # fachlich wesentliche Versicherungsbestandteile unten prüfen
+        if key == "selection_criteria_document_source":
+            selection = units[0]["fields"]["selection_criteria"]
+            assert [source["value"] for source in selection["document_sources"]] == [value]
+            continue
         field = units[0]["fields"][key]
         if value == "nicht angegeben":
             assert field["status"] == "missing", (key, field)

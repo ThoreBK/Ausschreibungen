@@ -6,8 +6,9 @@ import math
 import re
 import tomllib
 import xml.etree.ElementTree as ET
+from calendar import monthrange
 from collections.abc import Callable
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from html import escape
 from pathlib import Path
 from typing import Any
@@ -24,6 +25,7 @@ FIELDS = (
     "place",
     "procedure",
     "deadlines",
+    "tender_validity",
     "duration",
     "selection_criteria",
     "award_criteria",
@@ -39,7 +41,7 @@ UNIT_PROPOSAL = object_schema(
     facts={
         "type": "array",
         "items": object_schema(
-            field={"type": "string", "enum": list(FIELDS)},
+            field={"type": "string", "enum": [key for key in FIELDS if key != "tender_validity"]},
             value=TEXT,
             state={"type": "string", "enum": ["present", "uncertain", "conflict"]},
             evidence=CITATIONS,
@@ -117,6 +119,7 @@ Vertragsform oder Rahmenvereinbarung. Hinweise auf andere Vertragsformen sind ch
 deadlines betrifft konkrete verfahrensbezogene Einreichungs- und Auskunftsfristen. Allgemeine
 Gesetzeszitate zu Rüge-, Nachprüfungs- oder Wartefristen sind keine datierte Einreichungsfrist;
 falls relevant als checkpoint zitieren. duration ist Vertragslaufzeit, nicht Angebotsbindefrist.
+Das strukturierte Feld tender_validity übernimmt die Angebotsbindung mit ihrer Dauer und Einheit.
 Konkrete Freitextfristen im Original zitieren. Fehlt Uhrzeit oder Zeitzone, state=uncertain
 verwenden. Keine Zeitbestandteile ergänzen oder normalisieren. submission ist Einreichungsform,
 -kanal oder -adresse, nicht die Liste einzureichender Inhalte. Prüfe auch globale Note-Felder.
@@ -309,6 +312,12 @@ def labelled_deadlines(records: list[dict[str, Any]], lot_id: str | None) -> lis
         r"(?P<clock>\d{1,2}:\d{2})\s+Uhr)(?=\s+Einreichungsform:|\s*$)",
         re.IGNORECASE,
     )
+    questions = re.compile(
+        r"(?:^|(?<=[.!?])\s+)"
+        r"(Wir bitten(?:,)? Fragen, die den Teilnahmewettbewerb betreffen, "
+        r"bis zum (\d{2}\.\d{2}\.\d{4}) zu stellen\.)",
+        re.IGNORECASE,
+    )
     weekdays = ["montag", "dienstag", "mittwoch", "donnerstag", "freitag", "samstag", "sonntag"]
     deadlines = []
     for record in records:
@@ -350,7 +359,71 @@ def labelled_deadlines(records: list[dict[str, Any]], lot_id: str | None) -> lis
                     ],
                 }
             )
+        for match in questions.finditer(record["value"]):
+            try:
+                datetime.strptime(match[2], "%d.%m.%Y")
+            except ValueError:
+                continue
+            deadlines.append(
+                {
+                    "kind": "AdditionalInformationRequestPeriod",
+                    "original": match[1],
+                    "original_date": match[2],
+                    "original_time": None,
+                    "berlin": None,
+                    "status": "uncertain",
+                    "method": "labelled_text",
+                    "lot_id": lot_id,
+                    "evidence": [{**fact(record)["evidence"][0], "quote": match[1]}],
+                }
+            )
     return deadlines
+
+
+def planned_duration_check(values: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """Abweichung nur melden, wenn auch ein einschließlich verstandenes Planende zu früh liegt."""
+    parts: dict[str, list[dict[str, Any]]] = {}
+    for item in values:
+        path = item["evidence"][0]["path"]
+        leaf = path.rsplit("/", 1)[-1].partition("[")[0]
+        if leaf in {"cbc:StartDate", "cbc:EndDate"} and "/cac:PlannedPeriod[" not in path:
+            continue
+        parts.setdefault(leaf, []).append(item)
+    starts, ends = (parts.get(f"cbc:{tag}", []) for tag in ("StartDate", "EndDate"))
+    if len(starts) != 1 or len(ends) != 1:
+        return None
+    start, end = starts[0], ends[0]
+    if (
+        start["evidence"][0]["path"].rsplit("/", 1)[0]
+        != end["evidence"][0]["path"].rsplit("/", 1)[0]
+    ):
+        return None
+    try:
+        first, last = (date.fromisoformat(v["value"][:10]) for v in (start, end))
+    except ValueError:
+        return None
+    for item in parts.get("cbc:OptionsDescription", []):
+        minimum = re.match(
+            r"Der Vertrag hat eine Mindestvertragslaufzeit von ([1-9]\d{0,3}) Monaten ab "
+            r"Leistungsbeginn\.",
+            item["value"],
+            re.IGNORECASE,
+        )
+        if minimum:
+            year, month = divmod(first.year * 12 + first.month - 1 + int(minimum[1]), 12)
+            if year > date.max.year:
+                continue
+            month += 1
+            anniversary = date(year, month, min(first.day, monthrange(year, month)[1]))
+            if last.toordinal() + 1 < anniversary.toordinal():
+                return {
+                    "reason": f"Falls der Leistungsbeginn dem Planbeginn entspricht, liegt das "
+                    f"Planende vor Ablauf der Mindestlaufzeit von {minimum[1]} Monaten. "
+                    "Maßgebliche Laufzeit klären.",
+                    "method": "xml_duration_comparison",
+                    "evidence": start["evidence"] + end["evidence"] + item["evidence"],
+                }
+    return None
 
 
 def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
@@ -398,6 +471,9 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
                 "./cac:ProcurementProject/cac:PlannedPeriod/cbc:*",
                 "./cac:ProcurementProject/cac:ContractExtension//cbc:*",
             ],
+            "tender_validity": [
+                "./cac:TenderingTerms/cac:TenderValidityPeriod/cbc:DurationMeasure"
+            ],
             "award_criteria": [
                 "./cac:TenderingTerms/cac:AwardingTerms/cac:AwardingCriterion//cbc:*",
                 "./cac:TenderingTerms/cac:AwardingTerms/cac:AwardingCriterion//efbc:*",
@@ -409,6 +485,8 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
         }.items():
             fields[key]["values"] = [item for path in paths for item in found(lot, path)]
         scope_checks = []
+        selection = fields["selection_criteria"]
+        excerpts = []
         internal_ids = found(lot, "./cac:ProcurementProject/cbc:ID[@schemeName='internalID']")
         number_in_notice = internal_ids[0]["value"] if len(internal_ids) == 1 else ""
         for criterion in lot.findall(".//efac:SelectionCriteria", NS):
@@ -437,8 +515,20 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
                     }
                 )
             else:
-                fields["selection_criteria"]["values"].extend(found(criterion, ".//cbc:*"))
-        # Nachforderungs-/Unterlagenquellencodes sind keine Eignungsanforderungen.
+                selection["values"].extend(found(criterion, ".//cbc:*"))
+                kind = criterion.findtext("./cbc:TendererRequirementTypeCode", namespaces=NS)
+                for description in descriptions:
+                    record = nodes[description]
+                    value = record["value"]
+                    if value and (
+                        kind == "slc-stand-ins"
+                        or (kind == "slc-suit-reg-trade" and "Teilnahmefrist" in value)
+                        or value.startswith("Eigenerklärung Versicherungen.")
+                    ):
+                        # Hinweise bleiben vollständig im Originalbeleg.
+                        quote = value.partition(" Hinweise:")[0]
+                        excerpts.append(fact({**record, "value": quote}, method="xml_excerpt"))
+        # Die Eignungsquelle bezeichnet den Fundort der Nachweise, kein Eignungskriterium.
         for base in [root, lot] if lot is not root else [root]:
             for requirement in base.findall(
                 "./cac:TenderingTerms/cac:TendererQualificationRequest/"
@@ -450,7 +540,24 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
                     "selection-criterion",
                     "exclusion-ground",
                 }:
-                    fields["selection_criteria"]["values"].extend(found(requirement, "./cbc:*"))
+                    selection["values"].extend(found(requirement, "./cbc:*"))
+                elif (
+                    code.attrib.get("listName") == "selection-criteria-source"
+                    and nodes[code]["value"] == "epo-procurement-document"
+                ):
+                    selection.setdefault("document_sources", []).append(fact(nodes[code]))
+        # Die explizit beschriftete Nachweisliste im Projekttext auf eigene Sätze begrenzen.
+        for base in [root, lot] if len(lots) == 1 else [lot]:
+            for note in base.findall("./cac:ProcurementProject/cbc:Note", NS):
+                record = nodes[note]
+                if record["value"].startswith("Mit dem Angebot einzureichen:"):
+                    for line in record["value"].splitlines():
+                        if line.startswith(("Angabe der PQ-Nummer ", "Gleichwertige Nachweise ")):
+                            excerpt = fact({**record, "value": line.strip()}, method="xml_excerpt")
+                            excerpts.append(excerpt)
+                            selection["values"].append(excerpt)
+        if excerpts:
+            selection["notice_excerpts"] = excerpts
         deadlines = []
         for kind in (
             "TenderSubmissionDeadlinePeriod",
@@ -518,8 +625,17 @@ def extract(content: bytes, number: str, *, now: datetime) -> dict[str, Any]:
             for component in ("StartDate", "EndDate"):
                 if len({v["value"] for v in found(period, f"./cbc:{component}")}) > 1:
                     fields["duration"]["status"] = "conflict"
-        if scope_checks and not fields["selection_criteria"]["values"]:
-            fields["selection_criteria"].update(status="uncertain", display="Losgeltung ungeklärt")
+        if scope_checks and not selection["values"]:
+            selection.update(status="uncertain", display="Losgeltung ungeklärt")
+        if selection.get("document_sources") and selection["status"] == "missing":
+            selection.update(
+                status="uncertain", display="Einzelanforderungen in den Vergabeunterlagen"
+            )
+        duration = fields["duration"]
+        if point := planned_duration_check(duration["values"]):
+            scope_checks.append(point)
+            if duration["status"] == "present":
+                duration["status"] = "uncertain"
         unit = {
             "lot_id": lot_id,
             "fields": fields,

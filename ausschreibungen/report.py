@@ -24,6 +24,7 @@ LABELS = {
     "place": "Leistungsort",
     "procedure": "Verfahrensart",
     "deadlines": "Fristen",
+    "tender_validity": "Angebotsbindefrist",
     "duration": "Laufzeit",
     "selection_criteria": "Eignungskriterien",
     "award_criteria": "Zuschlagskriterien",
@@ -44,11 +45,10 @@ CriteriaDetails = tuple[str, str, list[int]]
 def local_time(value: str | None) -> str:
     if not value:
         return "nicht angegeben"
-    return (
-        datetime.fromisoformat(value)
-        .astimezone(ZoneInfo("Europe/Berlin"))
-        .strftime("%d.%m.%Y, %H:%M %Z")
-    )
+    local = datetime.fromisoformat(value).astimezone(ZoneInfo("Europe/Berlin"))
+    abbreviation = local.strftime("%Z")
+    zone = {"CET": "MEZ", "CEST": "MESZ"}.get(abbreviation, abbreviation)
+    return local.strftime("%d.%m.%Y, %H:%M") + " " + zone
 
 
 def excerpt(value: str, limit: int) -> str:
@@ -60,7 +60,14 @@ def deadline_text(item: Data) -> str:
     if context := item.get("context"):
         kind += f" ({context})"
     if original := item.get("original"):
-        return f"{kind}: {original} · {STATES.get(item['status'], item['status'])}"
+        detail = STATES.get(item["status"], item["status"])
+        if (
+            item["kind"] == "AdditionalInformationRequestPeriod"
+            and item.get("method") == "labelled_text"
+            and not item.get("original_time")
+        ):
+            detail = "Uhrzeit nicht angegeben"
+        return f"{kind}: {original} · {detail}"
     if "dates" not in item:
         # Ältere Analysen enthalten Alternativen nur als indizierte XML-Belege.
         def originals(leaf: str, scalar: str) -> list[str]:
@@ -100,6 +107,7 @@ def field_value(item: Data) -> str:
         leaf = item["evidence"][0]["path"].rsplit("/", 1)[-1].partition("[")[0]
         value = {
             ("cbc:DurationTypeCode", "UNLIMITED"): "Unbefristet",
+            ("cbc:DescriptionCode", "UNLIMITED"): "Unbefristet",
             ("cbc:ProcedureCode", "neg-w-call"): "Verhandlungsverfahren mit Teilnahmewettbewerb",
             ("cbc:SubmissionMethodCode", "required"): "Elektronische Abgabe vorgeschrieben",
             ("cbc:SubmissionMethodCode", "allowed"): "Elektronische Abgabe zulässig",
@@ -108,15 +116,16 @@ def field_value(item: Data) -> str:
         }.get((leaf, value), value)
         prefix = {"cbc:StartDate": "Beginn", "cbc:EndDate": "Ende"}.get(leaf)
         if prefix:
+            if "/cac:PlannedPeriod[" in item["evidence"][0]["path"]:
+                prefix = {"Beginn": "Planbeginn", "Ende": "Planende"}[prefix]
             try:
                 value = datetime.strptime(value[:10], "%Y-%m-%d").strftime("%d.%m.%Y")
             except ValueError:
                 pass
             value = f"{prefix}: {value}"
     if unit := item.get("attributes", {}).get("unitCode"):
-        value += {"YEAR": " Jahr(e)", "MONTH": " Monat(e)", "DAY": " Tag(e)"}.get(
-            unit, f" ({unit})"
-        )
+        units = {"YEAR": ("Jahr", "Jahre"), "MONTH": ("Monat", "Monate"), "DAY": ("Tag", "Tage")}
+        value += " " + units.get(unit, (f"({unit})", f"({unit})"))[value != "1"]
     return value
 
 
@@ -402,11 +411,18 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
             state = field["status"]
             if state == "missing" and (summaries or rejected):
                 state = "uncertain" if rejected else "present"
-            lines = [escape(summary["summary"]) + refs(summary) for summary in summaries]
+            excerpts = field.get("notice_excerpts", [])
+            lines = [escape(" ".join(item["value"].split())) + refs(item) for item in excerpts]
+            if document_sources := field.get("document_sources"):
+                lines.append(
+                    "Einzelanforderungen in den Vergabeunterlagen prüfen."
+                    + source_links(number, source_ids(document_sources))
+                )
+            lines.extend(escape(summary["summary"]) + refs(summary) for summary in summaries)
             raw_ids = source_ids(field["values"])
             if not lines:
                 lines = ["keine geprüfte Kurzfassung" if state != "missing" else ""]
-            if set(raw_ids).difference(source_ids(summaries)):
+            if set(raw_ids).difference(source_ids([*excerpts, *summaries])):
                 anchor = f"kriterien-{number}-{len(criteria_details) + 1}"
                 scope = unit["lot_id"] or "Verfahren ohne Losaufteilung"
                 criteria_details.append((anchor, f"{scope} · {label}", raw_ids))
@@ -451,9 +467,15 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                     markup=True,
                 )
             paragraph("Pflichtangaben", "label")
+            duration_checks = [
+                p for p in unit["checkpoints"] if p.get("method") == "xml_duration_comparison"
+            ]
             for key, label in LABELS.items():
                 if key in CRITERIA_FIELDS:
                     add_criteria(unit, key, label)
+                    continue
+                if key == "tender_validity" and key not in unit["fields"]:
+                    paragraph(f"{label}: nicht ausgewertet")
                     continue
                 field = unit["fields"][key]
                 state = STATES.get(field["status"], "")
@@ -473,6 +495,18 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                 if key == "buyer" and index and field == doc["units"][0]["fields"]["buyer"]:
                     continue
                 items = field["values"]
+                extension_texts = []
+                if key == "duration":
+                    extension_texts = [
+                        v
+                        for v in items
+                        if xml_leaf(v) == "cbc:OptionsDescription"
+                        or (
+                            xml_leaf(v) == "cbc:Description"
+                            and "/cac:ContractExtension[" in v["evidence"][0]["path"]
+                        )
+                    ]
+                    items = [v for v in items if v not in extension_texts]
                 preferred = {
                     "subject": {"cbc:Name"},
                     "place": {"cbc:CityName", "cbc:Description"},
@@ -481,11 +515,13 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                         "cbc:EndDate",
                         "cbc:DurationMeasure",
                         "cbc:Description",
+                        "cbc:DescriptionCode",
+                        "cbc:DurationTypeCode",
                     },
                     "submission": {"cbc:SubmissionMethodCode", "cbc:EndpointID"},
                 }.get(key, set())
                 visible = [v for v in items if xml_leaf(v) in preferred] or items
-                if state:
+                if state and (key != "duration" or field["status"] == "conflict"):
                     visible = items
                 extra = [v for v in items if v not in visible]
                 values = []
@@ -509,16 +545,31 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                 paragraph(
                     f"<b>{label}:</b> " + " · ".join(filter(None, [state, *values])), markup=True
                 )
+                for item in sorted(
+                    extension_texts, key=lambda v: xml_leaf(v) == "cbc:OptionsDescription"
+                ):
+                    prefix = (
+                        "Optionen und Bedingungen"
+                        if xml_leaf(item) == "cbc:OptionsDescription"
+                        else "Verlängerung"
+                    )
+                    paragraph(
+                        f"<b>{prefix}:</b> " + escape(" ".join(item["value"].split())) + refs(item),
+                        markup=True,
+                    )
+                if key == "duration":
+                    story.extend(checkpoint_line(point) for point in duration_checks)
             paragraph("Informationsqualität und Prüfpunkte", "label")
             for error in unit["processing_errors"]:
                 paragraph("Verarbeitungsfehler: " + error)
             for rejected in unit["rejected_claims"]:
                 if not any(p.get("claim_id") == rejected["claim_id"] for p in unit["checkpoints"]):
                     paragraph("Unbestätigte Aussage: " + rejected["reason"])
-            points = unit["checkpoints"]
             extended = []
             immediate = {}
-            for point in points:
+            for point in unit["checkpoints"]:
+                if point in duration_checks:
+                    continue
                 if point.get("method") == "ai_verified":
                     extended.append(point)
                 elif point.get("method") == "xml_lot_scope":

@@ -50,7 +50,7 @@
       "procedure": "open",
       "deadlines": "2026-12-16T23:59:00+01:00",
       "duration": "48",
-      "selection_criteria": "nicht angegeben",
+      "selection_criteria_document_source": "epo-procurement-document",
       "award_criteria": ["Leistung/Qualität", "60.00", "Preis", "40.00"],
       "submission": "allowed",
       "source_link": "https://ted.europa.eu/de/notice/-/detail/799785-2026"
