@@ -15,7 +15,16 @@ uv sync --locked
 codex login
 ~~~
 
-Für jeden Bericht im Projektordner starten:
+Danach **Ausschreibungen starten.cmd** im Projektordner doppelklicken. Die lokale
+Oberfläche öffnet sich im Standardbrowser. Lass das Startfenster während der
+Recherche geöffnet. Unter **Einstellungen** kannst du Länder, Zeitraum, Suchbegriffe,
+Trefferlimits und Unternehmensprofil bearbeiten. **Bericht mit KI erstellen** beginnt
+den Lauf. Anschließend öffnet **PDF öffnen** das Ergebnis, auch bei Teilerfolgen.
+Laufdetails zeigen mögliche Fehler. Zum Beenden das Startfenster schließen.
+
+Beim ersten Start übernimmt die Oberfläche die beiden TOML-Profile. Gespeicherte
+UI-Einstellungen liegen zusammen in `.ui-profile.json` im Projektordner.
+Die Kommandozeile verwendet weiterhin die TOML-Dateien. Start per PowerShell:
 
 ~~~powershell
 . .\dev.ps1

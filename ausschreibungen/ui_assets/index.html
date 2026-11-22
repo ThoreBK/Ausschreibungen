@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ausschreibungen · Recherche</title>
+  <link rel="stylesheet" href="/app.css"><script src="/app.js" defer></script>
+</head>
+<body>
+  <header><div class="bar"><span class="brand"><i aria-hidden="true"></i>Ausschreibungen</span>
+    <button type="button" id="edit" disabled>Einstellungen</button></div></header>
+  <main>
+    <div id="error" role="alert" hidden></div>
+    <section id="home">
+      <h1>Recherche starten</h1>
+      <article class="profile">
+        <div class="profile-top"><small>Aktives Suchprofil</small><h2 id="profile-name">Profil wird geladen …</h2>
+        <p id="coverage"></p></div>
+        <div class="profile-body"><h3>Suchblöcke</h3><div id="summary"></div>
+        <details><summary>Unternehmensprofil für die KI</summary><p id="company-text"></p></details></div>
+      </article>
+      <div class="actions"><button id="start" class="primary" disabled>Bericht mit KI erstellen</button></div>
+      <p class="hint">Die KI wertet Bekanntmachungen mit deinem Unternehmensprofil über dein angemeldetes ChatGPT-Konto aus.</p>
+      <section id="result" aria-labelledby="result-title" hidden><h2 id="result-title" aria-live="polite"></h2>
+        <p id="latest"></p><a class="primary" id="pdf" target="_blank" rel="noopener" hidden>PDF öffnen ↗</a>
+        <details><summary>Laufdetails</summary><ul id="log"></ul></details></section>
+    </section>
+    <section id="settings" hidden><h1>Einstellungen</h1>
+      <form id="form">
+        <fieldset><legend>Suchgebiet und Zeitraum</legend><div class="grid">
+          <label>Profilname<input id="name" required></label>
+          <label>Zeitraum in Kalendertagen<input id="days_back" type="number" min="1" max="36500" required></label>
+          <label>Länderfilter anwenden auf<select id="country_field"><option value="buyer-country">Sitz des Auftraggebers</option><option value="place-of-performance">Leistungsort</option></select></label>
+          <div><label for="country">Land hinzufügen</label><div class="inline"><input id="country" list="countries" placeholder="Land oder dreistelliger Code"><datalist id="countries"></datalist><button id="add-country" type="button">Hinzufügen</button></div>
+          <div id="selected-countries" class="chips"></div></div>
+        </div></fieldset>
+        <fieldset><legend>Suchblöcke</legend><p>Ein passender Block genügt. Innerhalb eines Blocks muss aus jeder Begriffsgruppe mindestens ein Begriff vorkommen.</p>
+          <div id="queries"></div><button type="button" id="add-query">+ Suchblock</button>
+        </fieldset>
+        <fieldset><legend>Unternehmensprofil</legend><label>Welche Leistungen bietet dein Unternehmen an?
+          <textarea rows="4" id="company_profile" required></textarea></label><p>Die KI beurteilt anhand dieser Beschreibung die fachliche Passung der gefundenen Ausschreibungen.</p></fieldset>
+        <details class="advanced"><summary>Weitere Einstellungen</summary><div class="grid">
+          <label>Bekanntmachungen je Suchblock<input id="max_results" type="number" min="1" max="250" required></label>
+          <label>Lose oder Verfahren im Bericht<input id="report_limit" type="number" min="1" max="250" required></label>
+          <label>TED-Suchbereich<select id="scope"><option value="ACTIVE">Aktive Bekanntmachungen</option><option value="ALL">Einschließlich historischer Bekanntmachungen</option><option value="LATEST">Aktuelle Amtsblattausgabe</option></select></label>
+          <label>Bevorzugte Sprache (z. B. deu)<input id="language" required pattern="[a-z]{3}"></label>
+          <label>CPV-Codes (achtstellig, mit Komma trennen)<input id="cpv_codes"></label>
+          <label>Abrufzeitlimit in Sekunden<input id="timeout_seconds" type="number" min="1" max="300" required></label>
+          <label>KI-Modell<input id="model" required></label>
+        </div></details>
+        <div class="actions"><button class="primary" id="save">Einstellungen speichern</button><button id="cancel" type="button">Abbrechen</button></div>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

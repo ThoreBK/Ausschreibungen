@@ -64,7 +64,11 @@ def strings(value: Any, label: str, *, nonempty: bool = False) -> list[str]:
 
 def load_profile(path: Path) -> Profile:
     with path.open("rb") as file:
-        data = tomllib.load(file)
+        return parse_profile(tomllib.load(file))
+
+
+def parse_profile(data: dict[str, Any]) -> Profile:
+    data = dict(data)
     expected = set(Profile.__dataclass_fields__)
     data.setdefault("report_limit", Profile.report_limit)
     if set(data) != expected:

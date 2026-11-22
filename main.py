@@ -3,6 +3,7 @@
 import argparse
 import json
 import sys
+from collections.abc import Callable
 from datetime import date
 from functools import partial
 from pathlib import Path
@@ -11,7 +12,7 @@ from typing import Any
 from ausschreibungen.analysis import analyze_run
 from ausschreibungen.report import write_report
 from ausschreibungen.research import collect, save_json
-from ausschreibungen.ted import SearchError, load_profile, search
+from ausschreibungen.ted import Profile, SearchError, load_profile, search
 
 
 def print_search_results(
@@ -28,22 +29,19 @@ def print_search_results(
         print(f"Aktuelle Ergebniskopie: {output}")
 
 
-def print_report_problems(result: dict[str, Any]) -> None:
+def report_problems(result: dict[str, Any], warn: Callable[[str], None]) -> None:
     for query in result["queries"]:
         if error := query.get("error"):
-            print(f"Abruffehler · {query['name']}: {error}", file=sys.stderr)
+            warn(f"Abruffehler · {query['name']}: {error}")
     for notice in result["notices"]:
         number = notice["publication_number"]
         document = notice["document"]
         if document["status"] == "error":
-            print(f"TED {number}: {document['error']}", file=sys.stderr)
+            warn(f"TED {number}: {document['error']}")
         elif document["status"] == "unavailable":
-            print(f"TED {number}: XML-Downloadlink fehlt.", file=sys.stderr)
+            warn(f"TED {number}: XML-Downloadlink fehlt.")
         if notice["conflicts"]:
-            print(
-                f"TED {number}: Abweichende Suchangaben ({', '.join(notice['conflicts'])}).",
-                file=sys.stderr,
-            )
+            warn(f"TED {number}: Abweichende Suchangaben ({', '.join(notice['conflicts'])}).")
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -153,56 +151,83 @@ def main() -> int:
         return 0 if status == "complete" else 1
     output_file = args.output or args.output_dir / "ted-results.json"
     try:
-        profile = load_profile(args.config)
         if args.command == "report":
-            print("Suche auf TED und lade Bekanntmachungen …", flush=True)
-        result, run_dir = collect(
-            profile,
-            args.config.read_bytes(),
-            output_file.parent / "runs",
-            today=args.as_of,
-            search_fn=partial(search, all_returned=True) if args.command == "report" else search,
-        )
-        if not result["search_incomplete"]:
-            save_json(output_file, result)
-    except (ValueError, OSError, SearchError) as error:
+            pdf, failed = generate_report(
+                args.config,
+                args.analysis_config,
+                output_file,
+                partial(print, flush=True),
+                partial(print, file=sys.stderr),
+                as_of=args.as_of,
+                structured_only=args.structured_only,
+            )
+            print(f"PDF-Bericht: {pdf}")
+            return int(failed)
+        profile, result, run_dir = research(args.config, output_file, args.as_of, report=False)
+    except (ValueError, OSError, SearchError, KeyError) as error:
         print(f"Fehler: {error}", file=sys.stderr)
         return 1
+    describe_result(result, print)
+    print_search_results(result, profile.language, run_dir, output_file)
+    if result["search_incomplete"] or any(
+        n["document"]["status"] == "error" for n in result["notices"]
+    ):
+        print("Abruffehler: Details stehen in der Laufübersicht.", file=sys.stderr)
+    return int(result["status"] not in {"complete", "empty"})
+
+
+def research(
+    config: Path, output: Path, as_of: date | None, *, report: bool
+) -> tuple[Profile, dict[str, Any], Path]:
+    profile = load_profile(config)
+    result, run_dir = collect(
+        profile,
+        config.read_bytes(),
+        output.parent / "runs",
+        today=as_of,
+        search_fn=partial(search, all_returned=True) if report else search,
+    )
+    if not result["search_incomplete"]:
+        save_json(output, result)
+    return profile, result, run_dir
+
+
+def describe_result(result: dict[str, Any], progress: Callable[[str], None]) -> None:
     count = len(result["notices"])
-    print(f"{count} {'Bekanntmachung' if count == 1 else 'Bekanntmachungen'} gefunden.")
+    progress(f"{count} {'Bekanntmachung' if count == 1 else 'Bekanntmachungen'} gefunden.")
     if result["limited"]:
-        print("Trefferlimit erreicht: Ausgabe ist eine begrenzte Auswahl.")
-    print(f"Laufstatus: {result['status']}")
-    if args.command == "search":
-        print_search_results(result, profile.language, run_dir, output_file)
-        if result["search_incomplete"] or any(
-            n["document"]["status"] == "error" for n in result["notices"]
-        ):
-            print("Abruffehler: Details stehen in der Laufübersicht.", file=sys.stderr)
-    elif result["status"] == "incomplete":
-        print_report_problems(result)
-        print(f"Details zur Recherche: {run_dir / 'overview.html'}", file=sys.stderr)
+        progress("Trefferlimit erreicht: Ausgabe ist eine begrenzte Auswahl.")
+    progress(f"Laufstatus: {result['status']}")
+
+
+def generate_report(
+    config: Path,
+    analysis_config: Path,
+    output_file: Path,
+    progress: Callable[[str], None],
+    warn: Callable[[str], None],
+    *,
+    as_of: date | None = None,
+    structured_only: bool = False,
+) -> tuple[Path, bool]:
+    progress("Suche auf TED und lade Bekanntmachungen …")
+    _, result, run_dir = research(config, output_file, as_of, report=True)
+    describe_result(result, progress)
+    if result["status"] == "incomplete":
+        report_problems(result, warn)
+        warn(f"Details zur Recherche: {run_dir / 'overview.html'}")
     failed = result["status"] not in {"complete", "empty"}
-    if args.command == "report":
-        try:
-            analysis = None
-            destination = run_dir
-            if result["notices"]:
-                print("Werte die Bekanntmachungen aus …", flush=True)
-                destination = analyze_run(
-                    run_dir, args.analysis_config, structured_only=args.structured_only
-                )
-                analysis = json.loads((destination / "analysis.json").read_text("utf-8"))
-                if analysis["status"] != "complete":
-                    print("Auswertung unvollständig. Offene Punkte stehen im PDF.", file=sys.stderr)
-            print("Erstelle den PDF-Bericht …", flush=True)
-            pdf = write_report(result, analysis, destination)
-            print(f"PDF-Bericht: {pdf}")
-            failed = failed or (analysis is not None and analysis["status"] != "complete")
-        except (ValueError, OSError, KeyError) as error:
-            print(f"Berichtsfehler: {error}", file=sys.stderr)
-            return 1
-    return 1 if failed else 0
+    analysis = None
+    destination = run_dir
+    if result["notices"]:
+        progress("Werte die Bekanntmachungen aus …")
+        destination = analyze_run(run_dir, analysis_config, structured_only=structured_only)
+        analysis = json.loads((destination / "analysis.json").read_text("utf-8"))
+        if analysis["status"] != "complete":
+            warn("Auswertung unvollständig. Offene Punkte stehen im PDF.")
+            failed = True
+    progress("Erstelle den PDF-Bericht …")
+    return write_report(result, analysis, destination), failed
 
 
 if __name__ == "__main__":

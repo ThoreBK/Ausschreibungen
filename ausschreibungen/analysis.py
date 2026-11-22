@@ -285,7 +285,10 @@ Model = Callable[[str, dict[str, Any], dict[str, Any]], dict[str, Any]]
 
 
 def load_analysis_profile(path: Path) -> dict[str, Any]:
-    data = tomllib.loads(path.read_text("utf-8"))
+    return parse_analysis_profile(tomllib.loads(path.read_text("utf-8")))
+
+
+def parse_analysis_profile(data: dict[str, Any]) -> dict[str, Any]:
     expected = {"company_profile", "model"}
     if set(data) != expected:
         raise ValueError("Analyseprofil: Nur company_profile und model benötigt.")

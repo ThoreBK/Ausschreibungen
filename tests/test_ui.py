@@ -1,0 +1,130 @@
+"""UI-Profil, Berichtslauf und Ergebniszugriff am lokalen HTTP-Einstieg."""
+
+import json
+import shutil
+import threading
+import time
+from collections.abc import Iterator
+from copy import deepcopy
+from functools import partial
+from io import BytesIO
+from pathlib import Path
+from typing import Any
+from urllib.error import HTTPError
+from urllib.parse import urljoin
+from urllib.request import Request, urlopen
+
+import pytest
+from pypdf import PdfReader
+
+import main
+from ausschreibungen import ui
+from ausschreibungen.extraction import extract
+from ausschreibungen.ted import SearchError, search
+from tests.support.models import ControlledModel
+from tests.support.notices import NOW, PROFILE, lot, proposal, xml
+from tests.support.research import Network, response, row
+
+
+@pytest.fixture
+def site(tmp_path: Path, profile_path: Path) -> Iterator[str]:
+    shutil.copyfile(profile_path, tmp_path / "search-profile.toml")
+    shutil.copyfile(PROFILE, tmp_path / "analysis-profile.toml")
+    with ui.LocalServer(("127.0.0.1", 0), partial(ui.Handler, ui.Application(tmp_path))) as server:
+        thread = threading.Thread(target=server.serve_forever)
+        thread.start()
+        try:
+            yield f"http://127.0.0.1:{server.server_port}"
+        finally:
+            server.shutdown()
+            thread.join()
+
+
+def api(site: str, route: str, data: dict[str, Any] | None = None) -> Any:
+    request = Request(
+        site + "/api/" + route,
+        headers={"Origin": site, "Content-Type": "application/json"},
+        data=None if data is None else json.dumps(data).encode(),
+    )
+    with urlopen(request, timeout=5) as reply:
+        return json.load(reply)
+
+
+def test_ui_profile_rejects_invalid_and_stale_edits(site: str, tmp_path: Path) -> None:
+    initial = api(site, "settings")
+    changed = deepcopy(initial)
+    changed["search"]["queries"] = []
+    with pytest.raises(HTTPError) as invalid:
+        api(site, "settings", {"base": initial, "settings": changed})
+    assert invalid.value.code == 400
+    assert api(site, "settings") == initial
+    changed["search"] = dict(initial["search"], countries=[])
+    api(site, "settings", {"base": initial, "settings": changed})
+    assert ui.read_settings(tmp_path) == changed
+    with pytest.raises(HTTPError) as stale:
+        api(site, "report", {"base": initial})
+    assert stale.value.code == 409
+    assert api(site, "status")["status"] == "idle"
+
+
+@pytest.mark.parametrize("partial_failure", [False, True])
+def test_ui_report_uses_settings_and_serves_pdf(
+    site: str, monkeypatch: pytest.MonkeyPatch, partial_failure: bool
+) -> None:
+    initial = api(site, "settings")
+    updated = deepcopy(initial)
+    updated["search"].update(
+        countries=["AUT"],
+        country_field="place-of-performance",
+        queries=[
+            {"name": "Weiterbildung", "term_groups": [["Copilot"], ["Kurs", "Seminar"]]},
+            {"name": "Alternative", "term_groups": [["KI-Beratung"]]},
+        ],
+    )
+    updated["analysis"]["company_profile"] = 'Beratung für "KI"\nSchulung und Prüfung'
+    api(site, "settings", {"base": initial, "settings": updated})
+    content = xml(lot())
+    model = ControlledModel(proposal(extract(content, "100-2026", now=NOW)))
+    network = Network(
+        [response(row(100, 15)), SearchError("TED offline") if partial_failure else response()],
+        {"https://ted.europa.eu/en/notice/100-2026/xml": content},
+    )
+    entered = threading.Event()
+    proceed = threading.Event()
+
+    def transport(body: dict[str, Any], timeout: int) -> dict[str, Any]:
+        entered.set()
+        assert proceed.wait(10)
+        return network.search(body, timeout)
+
+    monkeypatch.setattr(main, "search", partial(search, transport=transport))
+    monkeypatch.setattr(main, "collect", partial(main.collect, download=network.download))
+    monkeypatch.setattr(main, "analyze_run", partial(main.analyze_run, model=model))
+    assert api(site, "status")["status"] == "idle"
+    api(site, "report", {"base": updated})
+    try:
+        assert entered.wait(5)
+        assert api(site, "status")["status"] == "running"
+        with pytest.raises(HTTPError) as duplicate:
+            api(site, "report", {"base": updated})
+        assert duplicate.value.code == 409
+    finally:
+        proceed.set()
+    deadline = time.monotonic() + 10
+    while (state := api(site, "status"))["status"] == "running" and time.monotonic() < deadline:
+        time.sleep(0.03)
+    assert state["status"] == ("incomplete" if partial_failure else "complete"), state
+    assert len(network.search_requests) == 2
+    query = network.search_requests[0]["query"]
+    assert "place-of-performance IN (AUT)" in query
+    assert '(FT ~ "Copilot") AND (FT ~ "Kurs" OR FT ~ "Seminar")' in query
+    assert model.payloads[0]["company_profile"] == updated["analysis"]["company_profile"]
+    pdf_url = site + state["pdf"]
+    with urlopen(pdf_url, timeout=5) as pdf:
+        assert pdf.headers.get_content_type() == "application/pdf"
+        reader = PdfReader(BytesIO(pdf.read()))
+    assert "Weiterbildung" in " ".join(p.extract_text() for p in reader.pages)
+    with urlopen(urljoin(pdf_url, "../../overview.html"), timeout=5) as overview:
+        assert "Weiterbildung" in overview.read().decode()
+    if partial_failure:
+        assert any("TED offline" in line for line in state["messages"])
