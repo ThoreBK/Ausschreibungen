@@ -3,14 +3,17 @@
 import json
 import subprocess
 import sys
+from functools import partial
 from io import BytesIO
 from pathlib import Path
+from typing import Any
 from urllib.request import Request
 
 import pytest
 
 import main
-from ausschreibungen.ted import SearchError
+from ausschreibungen.ted import SearchError, search
+from tests.test_research import Network, response, row, xml
 
 
 def test_entrypoint() -> None:
@@ -48,7 +51,7 @@ def test_failed_search_preserves_previous_output(
     assert output.read_text("utf-8") == "previous result"
 
 
-def test_successful_search_writes_results_and_displays_notices(
+def test_search_without_xml_link_returns_one_and_preserves_notice(
     tmp_path: Path,
     profile_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -89,13 +92,15 @@ def test_successful_search_writes_results_and_displays_notices(
         return BytesIO(json.dumps(response, ensure_ascii=False).encode("utf-8"))
 
     monkeypatch.setattr("ausschreibungen.ted.urlopen", respond)
-    assert main.main() == 0
+    assert main.main() == 1
     result = json.loads(output.read_text("utf-8"))
+    assert result["status"] == "incomplete"
     assert result["as_of"] == "2026-11-15"
     assert result["profile"]["name"] == "Testprofil"
     assert result["limited"] is False
     assert len(result["notices"]) == 1
     notice = result["notices"][0]
+    assert notice["document"]["status"] == "unavailable"
     assert notice["publication_number"] == "123-2026"
     assert notice["title"] == "Schulung für KI-Assistenten"
     assert notice["buyer"] == ["Test-Auftraggeber"]
@@ -115,6 +120,47 @@ def test_successful_search_writes_results_and_displays_notices(
     assert "KI-Beratung, Schulungen" in captured.out
     assert "Trefferlimit erreicht" not in captured.out
     assert str(output) in captured.out
+
+
+@pytest.mark.parametrize(
+    ("responses", "expected_status", "expected_code", "expected_conflicts"),
+    [
+        pytest.param(
+            [response(row(100, 15)), response()], "complete", 0, [[]], id="complete-original"
+        ),
+        pytest.param([response(), response()], "empty", 0, [], id="empty-search"),
+        pytest.param(
+            [response(row(100, 15)), response(row(100, 15, "Abweichender Titel"))],
+            "incomplete",
+            1,
+            [["notice-title"]],
+            id="conflicting-titles",
+        ),
+    ],
+)
+def test_search_exit_code_with_successful_downloads(
+    tmp_path: Path,
+    profile_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    responses: list[dict[str, Any]],
+    expected_status: str,
+    expected_code: int,
+    expected_conflicts: list[list[str]],
+) -> None:
+    output = tmp_path / "results.json"
+    network = Network(responses, {"https://ted.europa.eu/en/notice/100-2026/xml": xml()})
+    monkeypatch.setattr(main, "search", partial(search, transport=network.search))
+    monkeypatch.setattr(main, "collect", partial(main.collect, download=network.download))
+    monkeypatch.setattr(
+        sys, "argv", ["main.py", "--search", "--config", str(profile_path), "--output", str(output)]
+    )
+
+    exit_code = main.main()
+    result = json.loads(output.read_text("utf-8"))
+    assert result["status"] == expected_status
+    assert [notice["conflicts"] for notice in result["notices"]] == expected_conflicts
+    assert all(notice["document"]["status"] == "ok" for notice in result["notices"])
+    assert exit_code == expected_code
 
 
 def test_analyze_relative_run_path_saves_inspectable_incomplete_result(

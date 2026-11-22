@@ -79,13 +79,13 @@ def main() -> int:
     print(f"Ergebnisse und Rohantworten des Laufs: {run_dir / 'results.json'}")
     if not result["search_incomplete"]:
         print(f"Aktuelle Ergebniskopie: {args.output}")
-    failed = result["search_incomplete"] or any(
+    if result["search_incomplete"] or any(
         notice["document"]["status"] == "error" for notice in result["notices"]
-    )
-    if failed:
+    ):
         print(
             "Abruffehler: Details und erhaltene Daten stehen in der Laufübersicht.", file=sys.stderr
         )
+    failed = result["status"] not in {"complete", "empty"}
     if args.report:
         try:
             analysis = None
@@ -99,9 +99,7 @@ def main() -> int:
                     print("Auswertung unvollständig. Offene Punkte stehen im PDF.", file=sys.stderr)
             pdf = write_report(result, analysis, destination)
             print(f"PDF-Bericht: {pdf}")
-            failed = result["status"] not in {"complete", "empty"} or (
-                analysis is not None and analysis["status"] != "complete"
-            )
+            failed = failed or (analysis is not None and analysis["status"] != "complete")
         except (ValueError, OSError, KeyError) as error:
             print(f"Berichtsfehler: {error}", file=sys.stderr)
             return 1
