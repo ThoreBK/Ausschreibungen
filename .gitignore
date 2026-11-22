@@ -26,6 +26,7 @@ secrets/
 tmp/
 downloads/
 reports/
+/Berichte/
 *.tmp
 *.log
 .DS_Store

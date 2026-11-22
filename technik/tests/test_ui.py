@@ -29,8 +29,10 @@ from tests.support.research import Network, response, row
 
 @pytest.fixture
 def site(tmp_path: Path, profile_path: Path) -> Iterator[str]:
-    shutil.copyfile(profile_path, tmp_path / "search-profile.toml")
-    shutil.copyfile(PROFILE, tmp_path / "analysis-profile.toml")
+    config = tmp_path / "technik"
+    config.mkdir()
+    shutil.copyfile(profile_path, config / "search-profile.toml")
+    shutil.copyfile(PROFILE, config / "analysis-profile.toml")
     with ui.LocalServer(("127.0.0.1", 0), partial(ui.Handler, ui.Application(tmp_path))) as server:
         thread = threading.Thread(target=server.serve_forever)
         thread.start()
@@ -105,6 +107,18 @@ def test_ui_profile_rejects_invalid_and_stale_edits(site: str, tmp_path: Path) -
         api(site, "report", {"base": initial})
     assert stale.value.code == 409
     assert api(site, "status")["status"] == "idle"
+
+
+def test_existing_profile_survives_layout_change(site: str, tmp_path: Path) -> None:
+    settings = api(site, "settings")
+    settings["search"]["name"] = "Gespeichertes Nutzerprofil"
+    (tmp_path / ".ui-profile.json").write_text(json.dumps(settings), encoding="utf-8")
+    assert api(site, "settings") == settings
+    updated = deepcopy(settings)
+    updated["search"]["name"] = "Bearbeitet"
+    api(site, "settings", {"base": settings, "settings": updated})
+    assert json.loads((tmp_path / "technik/.ui-profile.json").read_bytes()) == updated
+    assert api(site, "settings") == updated
 
 
 def test_analysis_progress_survives_reload(site: str, monkeypatch: pytest.MonkeyPatch) -> None:

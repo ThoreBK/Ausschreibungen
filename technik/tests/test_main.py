@@ -32,6 +32,16 @@ def test_entrypoint() -> None:
     assert result.stderr == ""
 
 
+def test_cli_keeps_existing_reports_directory(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    archive = tmp_path / "reports"
+    archive.mkdir()
+    monkeypatch.setattr(main, "PROJECT_DIR", tmp_path)
+    assert main.parse_args(["report"]).output_dir == archive
+    assert main.parse_args(["search"]).output_dir == archive
+
+
 @pytest.mark.parametrize(
     ("command", "shown", "hidden"),
     [
@@ -199,8 +209,8 @@ def test_search_exit_code_with_successful_downloads(
     expected_code: int,
     expected_conflicts: list[list[str]],
 ) -> None:
-    monkeypatch.chdir(tmp_path)
-    output = tmp_path / "reports" / "ted-results.json"
+    monkeypatch.setattr(main, "PROJECT_DIR", tmp_path)
+    output = tmp_path / "Berichte" / "ted-results.json"
     network = Network(responses, {"https://ted.europa.eu/en/notice/100-2026/xml": xml()})
     monkeypatch.setattr(main, "search", partial(search, transport=network.search))
     monkeypatch.setattr(main, "collect", partial(main.collect, download=network.download))
@@ -208,7 +218,7 @@ def test_search_exit_code_with_successful_downloads(
 
     exit_code = main.main()
     result = json.loads(output.read_text("utf-8"))
-    assert Path(result["run_directory"]).parent == tmp_path / "reports" / "runs"
+    assert Path(result["run_directory"]).parent == tmp_path / "Berichte" / "runs"
     assert result["status"] == expected_status
     assert [notice["conflicts"] for notice in result["notices"]] == expected_conflicts
     assert all(notice["document"]["status"] == "ok" for notice in result["notices"])

@@ -14,6 +14,14 @@ from ausschreibungen.report import write_report
 from ausschreibungen.research import collect, save_json
 from ausschreibungen.ted import Profile, SearchError, load_profile, search
 
+PROJECT_DIR = Path(__file__).resolve().parent.parent
+
+
+def default_output_dir(project: Path) -> Path:
+    # Gespeicherte Läufe enthalten absolute Pfade zu ihrem ursprünglichen Archiv.
+    previous = project / "reports"
+    return previous if previous.is_dir() else project / "Berichte"
+
 
 def print_search_results(
     result: dict[str, Any], language: str, run_dir: Path, output: Path
@@ -60,7 +68,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         command.add_argument(
             "--config",
             type=Path,
-            default=Path("search-profile.toml"),
+            default=PROJECT_DIR / "technik" / "search-profile.toml",
             metavar="DATEI",
             help="Suchprofil (Standard: search-profile.toml).",
         )
@@ -74,9 +82,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         output.add_argument(
             "--output-dir",
             type=Path,
-            default=Path("reports"),
+            default=default_output_dir(PROJECT_DIR),
             metavar="ORDNER",
-            help="Ziel für die Laufarchive und ted-results.json (Standard: reports).",
+            help="Ziel für die Laufarchive und ted-results.json (Berichte, bisher: reports).",
         )
         output.add_argument("--output", type=Path, help=argparse.SUPPRESS)
 
@@ -84,7 +92,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         command.add_argument(
             "--analysis-config",
             type=Path,
-            default=Path("analysis-profile.toml"),
+            default=PROJECT_DIR / "technik" / "analysis-profile.toml",
             metavar="DATEI",
             help="Analyseprofil (Standard: analysis-profile.toml).",
         )

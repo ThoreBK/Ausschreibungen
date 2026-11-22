@@ -15,12 +15,11 @@ from typing import Any
 from urllib.parse import quote, unquote
 from urllib.request import urlopen
 
-from main import generate_report
+from main import PROJECT_DIR, default_output_dir, generate_report
 
 from .analysis import load_analysis_profile, parse_analysis_profile
 from .ted import load_profile, parse_profile
 
-ROOT = Path(__file__).resolve().parents[1]
 ASSETS = Path(__file__).with_name("ui_assets")
 SETTINGS = ".ui-profile.json"
 PORT = 8765
@@ -38,12 +37,15 @@ def validate_settings(data: Any) -> dict[str, Any]:
 
 
 def read_settings(root: Path) -> dict[str, Any]:
-    path = root / SETTINGS
+    config = root / "technik"
+    path = config / SETTINGS
+    if not path.exists():
+        path = root / SETTINGS
     if path.exists():
         return validate_settings(json.loads(path.read_text("utf-8")))
     return {
-        "search": asdict(load_profile(root / "search-profile.toml")),
-        "analysis": load_analysis_profile(root / "analysis-profile.toml"),
+        "search": asdict(load_profile(config / "search-profile.toml")),
+        "analysis": load_analysis_profile(config / "analysis-profile.toml"),
     }
 
 
@@ -79,6 +81,7 @@ class Busy(ValueError):
 class Application:
     def __init__(self, root: Path) -> None:
         self.root = root
+        self.output = default_output_dir(root)
         self.lock = threading.Lock()
         self.status = "idle"
         self.messages: list[str] = []
@@ -113,11 +116,12 @@ class Application:
                     raise
             else:
                 settings = validate_settings(data.get("settings"))
-                with NamedTemporaryFile(dir=self.root, suffix=".tmp", delete=False) as temp:
+                config = self.root / "technik"
+                with NamedTemporaryFile(dir=config, suffix=".tmp", delete=False) as temp:
                     path = Path(temp.name)
                 try:
                     path.write_text(json.dumps(settings, ensure_ascii=False, indent=2), "utf-8")
-                    path.replace(self.root / SETTINGS)
+                    path.replace(config / SETTINGS)
                 finally:
                     path.unlink(missing_ok=True)
 
@@ -136,12 +140,12 @@ class Application:
                 pdf, incomplete = generate_report(
                     search,
                     analysis,
-                    self.root / "reports" / "ted-results.json",
+                    self.output / "ted-results.json",
                     self.message,
                     self.message,
                     on_analysis_progress=self.update_analysis_progress,
                 )
-            link = "/runs/" + quote(pdf.relative_to(self.root / "reports" / "runs").as_posix())
+            link = "/runs/" + quote(pdf.relative_to(self.output / "runs").as_posix())
             with self.lock:
                 self.pdf = link
                 self.status = "incomplete" if incomplete else "complete"
@@ -208,7 +212,7 @@ class Handler(BaseHTTPRequestHandler):
         ):
             self.send_error(404)
             return
-        runs = (self.app.root / "reports" / "runs").resolve()
+        runs = (self.app.output / "runs").resolve()
         path = (runs / relative).resolve()
         types = {
             ".html": "text/html; charset=utf-8",
@@ -263,13 +267,13 @@ class LocalServer(ThreadingHTTPServer):
 def serve() -> None:
     url = f"http://127.0.0.1:{PORT}"
     try:
-        server = LocalServer(("127.0.0.1", PORT), partial(Handler, Application(ROOT)))
+        server = LocalServer(("127.0.0.1", PORT), partial(Handler, Application(PROJECT_DIR)))
     except OSError as exc:
         if exc.errno not in {errno.EADDRINUSE, 10048}:
             raise
         try:
             with urlopen(f"{url}/api/instance", timeout=2) as response:
-                matches = json.load(response) == instance_id(ROOT)
+                matches = json.load(response) == instance_id(PROJECT_DIR)
         except (ValueError, OSError):
             matches = False
         if not matches:

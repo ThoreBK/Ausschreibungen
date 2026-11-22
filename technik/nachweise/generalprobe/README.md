@@ -11,10 +11,11 @@ Im Projektordner PowerShell öffnen. Benötigt werden Internetzugang,
 [Codex CLI](https://developers.openai.com/codex/cli) mit einer eigenen ChatGPT-Anmeldung.
 
 ~~~powershell
+cd technik
 . .\dev.ps1
 uv sync --locked
 codex login status
-uv run main.py report --config demo/suchprofil.toml
+uv run main.py report --config nachweise/generalprobe/suchprofil.toml
 ~~~
 
 Falls die Anmeldung fehlt, einmal `codex login` ausführen. Den am Ende angezeigten
@@ -27,14 +28,14 @@ Stand fest. Bei neuen Läufen können sich TED-Treffer und Modellausgaben änder
 Das Demoprofil begrenzt die Treffermenge und enthält einen Kontrollfall mit
 thematisch nebensächlichem Suchwort. Für die gewöhnliche Recherche verwendet
 `uv run main.py report` das breitere Standardprofil. Wie man Suchbegriffe und
-Grenzen im Texteditor anpasst, steht in der [Anleitung](../README.md).
+Grenzen über die Oberfläche anpasst, steht in der [Anleitung](../../../DOKU.md).
 
 ## Aufbau und Entscheidungen
 
-Für die Demo eignet sich der Befehl `report` in [main.py](../main.py).
+Für die Demo eignet sich der Befehl `report` in [main.py](../../main.py).
 Dort sammelt `collect` die TED-Ergebnisse und Originale, `analyze_run`
 wertet sie aus und `write_report` erzeugt das PDF. Die Auswahl in
-[selection.py](../ausschreibungen/selection.py) arbeitet je Los oder Verfahren.
+[selection.py](../../ausschreibungen/selection.py) arbeitet je Los oder Verfahren.
 
 - **Belegbarkeit.** Das Programm übernimmt eindeutig strukturierte XML-Angaben
   mit Fundstellen. Das Modell interpretiert Freitext und Passung. Eine zweite

@@ -1,2 +1,2 @@
 # TED-Testoriginale bytegenau erhalten: SHA-256 gilt auch nach einem Checkout.
-tests/fixtures/real/*.xml -text
+technik/tests/fixtures/real/*.xml -text

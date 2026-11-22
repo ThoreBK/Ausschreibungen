@@ -2,7 +2,6 @@
 name = "tender-research-agent"
 version = "0.1.0"
 description = "Lokale Demo eines Ausschreibungs-Recherche-Agenten"
-readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "openai-codex>=0.169.0",

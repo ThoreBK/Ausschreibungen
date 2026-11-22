@@ -12,6 +12,7 @@ mit eigener ChatGPT-Anmeldung. [uv installieren](https://docs.astral.sh/uv/getti
 1. Öffne PowerShell im Projektordner und führe zur einmaligen Einrichtung diese Befehle aus.
 
    ~~~powershell
+   cd technik
    . .\dev.ps1
    uv sync --locked
    codex login
@@ -22,18 +23,20 @@ mit eigener ChatGPT-Anmeldung. [uv installieren](https://docs.astral.sh/uv/getti
    Suchbegriffe und das Unternehmensprofil anpassen.
 3. Klicke auf **Recherche starten** und nach dem Lauf auf **PDF öffnen**.
    Der Bericht beginnt mit einer Übersicht. Danach folgen Steckbriefe und Belege.
+   Zum Beenden das Startfenster schließen.
 
-Für einen kleinen Beispiellauf in PowerShell verwende nach der Einrichtung
-`uv run main.py report --config demo/suchprofil.toml`. Das Terminal zeigt den
+Für einen kleinen Beispiellauf in PowerShell verwende im Ordner `technik`
+`uv run main.py report --config nachweise/generalprobe/suchprofil.toml`. Das Terminal zeigt den
 PDF-Pfad.
 
 ## Aufbau und Entscheidungen
 
 Oberfläche und Kommandozeile starten denselben Ablauf. Der Einstieg im Code ist
-die Funktion `generate_report`. [main.py](main.py)
+die Funktion `generate_report`. [main.py](technik/main.py)
 
 1. **Treffer suchen und speichern.** Für jeden Lauf legt der Agent unter
-   `reports/runs/` einen Ordner an. Dort speichert er die Suchergebnisse in
+   `Berichte/runs/` einen Ordner an. Gibt es im Projekt bereits den Ordner
+   `reports/`, verwendet der Agent weiterhin `reports/runs/`. Dort speichert er die Suchergebnisse in
    `results.json` und die vollständigen Bekanntmachungen als XML-Dateien.
    Bei Mehrfachtreffern speichert er das Original einmal und vermerkt alle Suchgruppen.
 2. **Angaben auslesen und prüfen.** Fristen und andere strukturierte Angaben liest
@@ -46,7 +49,7 @@ die Funktion `generate_report`. [main.py](main.py)
    jedes Los einzeln. Ohne Losaufteilung bewertet er den gesamten Auftrag.
    Du legst fest, wie viele Treffer höchstens im PDF erscheinen. Diese Obergrenze
    wendet der Agent nach der Auswahl und Sortierung an. Alle Treffer bleiben im
-   Laufordner einsehbar. [Auswahl](ausschreibungen/selection.py)
+   Laufordner einsehbar. [Auswahl](technik/ausschreibungen/selection.py)
 
 ## Grenzen
 
@@ -67,4 +70,16 @@ ruft das Modell bei OpenAI über deine ChatGPT-Anmeldung auf, ohne separaten
 API-Schlüssel. Den Tokenverbrauch deines eigenen Laufs findest du in
 `analysis.json` im Analyseordner.
 
-[Suchprofil und Hilfe bei Problemen](README.md) · [Zusammenarbeit mit dem Coding-Agenten](demo/zusammenarbeit.md)
+## Hilfe bei Problemen
+
+- **Die Oberfläche startet nicht.** Die Meldung im Startfenster nennt den Fehler.
+  Fehlt `uv`, installiere es über den Link oben. Bei Anmeldeproblemen prüfe
+  den Zugang mit `codex login status`.
+- **Die Suche findet keine Treffer.** Öffne **Profil bearbeiten**, erweitere den
+  Zeitraum oder entferne eine zu enge Pflichtgruppe.
+- **Der Lauf ist unvollständig.** Öffne die Laufdetails im Browser. Die
+  `overview.html` im Laufordner zeigt Abruffehler, die `analysis.html` im
+  Analyseordner zeigt offene Punkte der Auswertung.
+
+[Generalprobe mit Beispielprofil](technik/nachweise/generalprobe/README.md) ·
+[Zusammenarbeit mit dem Coding-Agenten](technik/nachweise/generalprobe/zusammenarbeit.md)
