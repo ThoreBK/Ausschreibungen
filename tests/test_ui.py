@@ -2,6 +2,7 @@
 
 import json
 import shutil
+import sys
 import threading
 import time
 from collections.abc import Iterator
@@ -48,6 +49,45 @@ def api(site: str, route: str, data: dict[str, Any] | None = None) -> Any:
     )
     with urlopen(request, timeout=5) as reply:
         return json.load(reply)
+
+
+@pytest.mark.parametrize(
+    "viewport", [{"width": 1280, "height": 720}, {"width": 360, "height": 640}]
+)
+def test_profile_and_start_in_first_view(site: str, viewport: dict[str, int]) -> None:
+    """Browserprüfung mit uv run --group ui-test pytest tests/test_ui.py."""
+    browser_api = pytest.importorskip("playwright.sync_api")
+    with browser_api.sync_playwright() as playwright:
+        browser = playwright.chromium.launch(channel="msedge" if sys.platform == "win32" else None)
+        page = browser.new_page(viewport=viewport)
+        page.goto(site)
+        expect = browser_api.expect
+        start = page.get_by_role("button", name="Recherche starten")
+        expect(start).to_be_enabled()
+        expect(start).to_be_in_viewport(ratio=1)
+        expect(page.get_by_role("heading", name="Testprofil")).to_be_in_viewport(ratio=1)
+        coverage = page.locator("#coverage")
+        expect(coverage).to_have_text(
+            "TED · Aktive Bekanntmachungen · Sitz des Auftraggebers: Deutschland · Letzte 90 Tage"
+        )
+        expect(page.locator("#cpv-filter")).to_be_hidden()
+        topic = page.locator("details").filter(has=page.get_by_text("KI-Beratung", exact=True))
+        rows = topic.get_by_role("listitem")
+        expect(rows).to_have_count(0)
+        topic.locator("summary").click()
+        expect(rows).to_have_text(
+            ["künstliche Intelligenz, artificial intelligence", "Beratung, consulting"]
+        )
+
+        page.get_by_role("button", name="Profil bearbeiten").click()
+        page.get_by_text("Weitere Einstellungen", exact=True).click()
+        page.get_by_label("TED-Suchbereich").select_option("ALL")
+        page.get_by_label("CPV-Codes").fill("72000000, 80000000")
+        page.get_by_role("button", name="Einstellungen speichern").click()
+        expect(coverage).to_contain_text("Einschließlich historischer Bekanntmachungen")
+        expect(page.locator("#cpv-filter")).to_have_text("CPV-Filter: 72000000, 80000000")
+        expect(page.locator("#cpv-filter")).to_be_visible()
+        expect(start).to_be_in_viewport(ratio=1)
 
 
 def test_ui_profile_rejects_invalid_and_stale_edits(site: str, tmp_path: Path) -> None:

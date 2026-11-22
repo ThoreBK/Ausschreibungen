@@ -6,23 +6,28 @@
   <link rel="stylesheet" href="/app.css"><script src="/app.js" defer></script>
 </head>
 <body>
-  <header><div class="bar"><span class="brand"><i aria-hidden="true"></i>Ausschreibungen</span>
-    <button type="button" id="edit" disabled>Einstellungen</button></div></header>
+  <header><div class="bar"><span class="brand"><i aria-hidden="true"></i>Ausschreibungen</span></div></header>
   <main>
     <div id="error" role="alert" hidden></div>
     <section id="home">
-      <h1>Recherche starten</h1>
-      <article class="profile">
-        <div class="profile-top"><small>Aktives Suchprofil</small><h2 id="profile-name">Profil wird geladen …</h2>
-        <p id="coverage"></p></div>
-        <div class="profile-body"><h3>Suchblöcke</h3><div id="summary"></div>
-        <details><summary>Unternehmensprofil für die KI</summary><p id="company-text"></p></details></div>
-      </article>
-      <div class="actions"><button id="start" class="primary" disabled>Bericht mit KI erstellen</button></div>
-      <p class="hint">Die KI wertet Bekanntmachungen mit deinem Unternehmensprofil über dein angemeldetes ChatGPT-Konto aus.</p>
+      <section class="profile" aria-labelledby="profile-name">
+        <div class="profile-heading"><span>Aktives Suchprofil</span>
+          <button type="button" id="edit" disabled>Profil bearbeiten</button></div>
+        <h1 id="profile-name">Profil wird geladen …</h1>
+        <p id="coverage"></p>
+        <p id="cpv-filter" hidden></p>
+        <button id="start" class="primary" disabled>Recherche starten</button>
+        <p class="hint">Die KI prüft die Bekanntmachungen über dein angemeldetes ChatGPT-Konto. Du erhältst einen PDF-Bericht.</p>
+      </section>
       <section id="result" aria-labelledby="result-title" hidden><h2 id="result-title" aria-live="polite"></h2>
         <p id="latest"></p><a class="primary" id="pdf" target="_blank" rel="noopener" hidden>PDF öffnen ↗</a>
         <details><summary>Laufdetails</summary><ul id="log"></ul></details></section>
+      <section class="profile-body" aria-labelledby="topics-title">
+        <h2 id="topics-title">Suchthemen</h2>
+        <p>Ein passendes Thema genügt. Innerhalb eines Themas muss aus jeder Gruppe mindestens ein Begriff vorkommen.</p>
+        <div id="summary"></div>
+        <details><summary>Unternehmensprofil für die KI</summary><p id="company-text"></p></details>
+      </section>
     </section>
     <section id="settings" hidden><h1>Einstellungen</h1>
       <form id="form">

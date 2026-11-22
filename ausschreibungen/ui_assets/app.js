@@ -54,15 +54,23 @@ function error(message) {
 function summary() {
   const profile = saved.search;
   el("profile-name").textContent = profile.name;
-  const countries = profile.countries.map(code => countryNames[code] || code).join(", ") || "Alle Länder";
-  const where = profile.country_field === "buyer-country" ? "Auftraggeber" : "Leistungsort";
-  el("coverage").textContent = where + " · " + countries + "   /   Letzte " + profile.days_back + " Tage";
+  const countries = profile.countries.map(code => countryNames[code] || code).join(", ");
+  const where = profile.country_field === "buyer-country" ? "Sitz des Auftraggebers" : "Leistungsort";
+  const region = countries ? where + ": " + countries : "Alle Länder";
+  const period = profile.days_back === 1 ? "Heute" : "Letzte " + profile.days_back + " Tage";
+  el("scope").value = profile.scope;
+  el("coverage").textContent = ["TED", el("scope").selectedOptions[0].text, region, period].join(" · ");
+  el("cpv-filter").hidden = !profile.cpv_codes.length;
+  el("cpv-filter").textContent = profile.cpv_codes.length ? "CPV-Filter: " + profile.cpv_codes.join(", ") : "";
   el("company-text").textContent = saved.analysis.company_profile;
   el("summary").replaceChildren();
   for (const query of profile.queries) {
     const block = node("details");
-    block.append(node("summary", query.name),
-      node("p", query.term_groups.map(group => "(" + group.join(" oder ") + ")").join(" und ")));
+    const groups = node("ul", undefined, "term-groups");
+    for (const terms of query.term_groups) {
+      groups.append(node("li", terms.join(", ")));
+    }
+    block.append(node("summary", query.name), groups);
     el("summary").append(block);
   }
 }
@@ -132,13 +140,13 @@ function openSettings() {
   saved.search.queries.forEach(addQuery);
   error("");
   el("settings").hidden = false;
-  el("home").hidden = el("edit").hidden = true;
+  el("home").hidden = true;
   el("name").focus();
 }
 
 function home() {
   el("settings").hidden = true;
-  el("home").hidden = el("edit").hidden = false;
+  el("home").hidden = false;
   window.scrollTo(0, 0);
   el("edit").focus();
 }

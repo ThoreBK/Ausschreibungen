@@ -17,6 +17,9 @@ dev = [
     "pytest>=8",
     "ruff>=0.9",
 ]
+ui-test = [
+    "playwright>=1.65.2",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

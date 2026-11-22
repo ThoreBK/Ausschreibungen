@@ -22,12 +22,17 @@ h2 { font-size: clamp(26px, 3.2vw, 38px); line-height: 1.16; margin: 8px 0; }
 h3, legend { font-size: 19px; margin: 0 0 12px; font-weight: 650; }
 small { font-size: 14px; }
 p { line-height: 1.55; margin: 8px 0 12px; }
-.profile, fieldset, .advanced, #result { background: #fffef9; border: 1px solid var(--line); border-radius: 12px; }
-.profile { overflow: hidden; }
-.profile-top { padding: 24px 30px; color: #fffdf1; background: var(--green); }
-.profile-top small, #coverage { color: #dae9dc; }
-#coverage { margin-bottom: 0; }
-.profile-body, #result { padding: 22px 30px; }
+.profile, .profile-body, fieldset, .advanced, #result { background: #fffef9; border: 1px solid var(--line); border-radius: 12px; }
+.profile, .profile-body, #result { padding: 22px 30px; overflow-wrap: anywhere; }
+.profile-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 14px; }
+#profile-name { font-size: clamp(32px, 4vw, 46px); margin: 8px 0; }
+#coverage, #cpv-filter { margin: 4px 0; }
+#start { margin-top: 16px; }
+.profile .hint { margin-bottom: 0; }
+.profile-body { margin-top: 20px; }
+.profile-body h2 { font-size: 27px; margin: 0; }
+.term-groups { padding-left: 24px; margin: 0 0 14px; color: var(--ink); line-height: 1.5; }
+.term-groups li + li { margin-top: 7px; }
 #summary { margin-bottom: 16px; }
 details { border-top: 1px solid var(--line); }
 summary { cursor: pointer; padding: 11px 0; font-weight: 550; }
@@ -66,7 +71,7 @@ textarea { resize: vertical; }
   .bar, main { width: calc(100% - 28px); }
   .bar { min-height: 62px; }
   .grid { grid-template-columns: 1fr; }
-  .profile-body, .profile-top, #result, fieldset, .advanced { padding: 16px; }
+  .profile-body, .profile, #result, fieldset, .advanced { padding: 16px; }
   .query-heading { align-items: start; flex-direction: column; }
   .query-heading label { width: 100%; }
 }
