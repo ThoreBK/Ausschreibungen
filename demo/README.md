@@ -14,7 +14,7 @@ Im Projektordner PowerShell öffnen. Benötigt werden Internetzugang,
 . .\dev.ps1
 uv sync --locked
 codex login status
-uv run main.py --report --config demo/suchprofil.toml
+uv run main.py report --config demo/suchprofil.toml
 ~~~
 
 Falls die Anmeldung fehlt, einmal `codex login` ausführen. Den am Ende angezeigten
@@ -26,12 +26,12 @@ Stand fest. Bei neuen Läufen können sich TED-Treffer und Modellausgaben änder
 
 Das Demoprofil begrenzt die Treffermenge und enthält einen Kontrollfall mit
 thematisch nebensächlichem Suchwort. Für die gewöhnliche Recherche verwendet
-`uv run main.py --report` das breitere Standardprofil. Wie man Suchbegriffe und
+`uv run main.py report` das breitere Standardprofil. Wie man Suchbegriffe und
 Grenzen im Texteditor anpasst, steht in der [Anleitung](../README.md).
 
 ## Aufbau und Entscheidungen
 
-Für die Demo eignet sich der `--report`-Pfad in [main.py](../main.py).
+Für die Demo eignet sich der Befehl `report` in [main.py](../main.py).
 Dort sammelt `collect` die TED-Ergebnisse und Originale, `analyze_run`
 wertet sie aus und `write_report` erzeugt das PDF. Die Auswahl in
 [selection.py](../ausschreibungen/selection.py) arbeitet je Los oder Verfahren.

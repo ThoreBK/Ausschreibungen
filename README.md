@@ -19,11 +19,11 @@ Für jeden Bericht im Projektordner starten:
 
 ~~~powershell
 . .\dev.ps1
-uv run main.py --report
+uv run main.py report
 ~~~
 
 Öffne die am Ende angezeigte **bericht.pdf**. Für eine reine TED-Suche ohne KI
-verwende `--search`. Mit `--report --structured-only` entsteht ein PDF aus den
+verwende `uv run main.py search`. Mit `uv run main.py report --structured-only` entsteht ein PDF aus den
 strukturierten XML-Angaben. Die thematische Passung bleibt dabei ungeklärt.
 
 ## Suchbegriffe und Profil anpassen
@@ -51,7 +51,7 @@ einer nichtleeren Begriffsgruppe muss bleiben.
 | --- | --- |
 | `countries`, `country_field` | `["DEU", "AUT"]` für Deutschland und Österreich, `[]` für alle Länder. `buyer-country` filtert nach Auftraggeberland, `place-of-performance` nach Leistungsort. |
 | `days_back` | Suchzeitraum in Kalendertagen einschließlich Stichtag. |
-| `max_results` | 1–250 Bekanntmachungen je Suchgruppe. Bei `--search` gilt das Limit auch für die gemeinsame Kandidatenliste. |
+| `max_results` | 1–250 Bekanntmachungen je Suchgruppe. Bei `search` gilt das Limit auch für die gemeinsame Kandidatenliste. |
 | `report_limit` | 1–250 Lose oder Verfahren nach fachlicher Auswahl und Sortierung. Für höchstens fünf Lose oder Verfahren auf `5` setzen. |
 | `scope`, `language` | `ACTIVE` für laut TED aktive Bekanntmachungen, `ALL` einschließlich historischer, `LATEST` für die aktuelle Amtsblattausgabe. Die Sprache steuert die bevorzugten Ergebnisfelder und Links. |
 
@@ -65,7 +65,7 @@ Die Suchbegriffe auf TED werden separat im Suchprofil gepflegt.
   dieser Gruppe folgen belegte Passung und die nächste eindeutige Einreichungsfrist.
   Die Nummern in den Steckbriefen führen zu Originalzitaten und XML-Fundstellen.
 - **overview.html** zeigt Suchprofil, Suchgruppen, Kandidaten, Abruffehler und
-  gespeicherte Originale. Bei `--search` erscheint der Pfad im Terminal.
+  gespeicherte Originale. Bei `search` erscheint der Pfad im Terminal.
 - **analysis.html** zeigt auch ausgeschlossene Einträge, frühere zugeordnete
   Dokumentstände und Treffer außerhalb des Berichtslimits. Fehlende Angaben,
   Unsicherheiten und Widersprüche sind gekennzeichnet.
@@ -79,12 +79,21 @@ Um einen gespeicherten Lauf erneut zu analysieren, ersetze `LAUFORDNER` durch de
 tatsächlichen Namen. Ohne `--notice` werden alle Bekanntmachungen des Laufs ausgewertet.
 
 ~~~powershell
-uv run main.py --analyze reports/runs/LAUFORDNER --notice 773064-2026
+uv run main.py analyze reports/runs/LAUFORDNER --notice 773064-2026
 ~~~
 
-Andere Profile lassen sich mit `--config` und `--analysis-config` wählen,
-der Suchstichtag mit `--as-of YYYY-MM-DD` und der Pfad zur aktuellen Ergebniskopie
-mit `--output`. Alle Optionen zeigt `uv run main.py --help`.
+Für ein anderes Suchprofil verwende bei `search` oder `report` die Option `--config DATEI`.
+Mit `--as-of YYYY-MM-DD` legst du den Suchstichtag fest. Für ein anderes Unternehmensprofil
+verwende bei `report` oder `analyze` die Option `--analysis-config DATEI`.
+
+Mit `uv run main.py report --output-dir meine-berichte` landen die Laufarchive unter
+`meine-berichte/runs/`. Bei vollständiger TED-Suche liegt die aktuelle Ergebniskopie
+daneben als `meine-berichte/ted-results.json`. Das Terminal zeigt den PDF-Pfad im Laufarchiv.
+
+`uv run main.py --help` zeigt die drei Befehle. Ihre Optionen findest du zum Beispiel mit
+`uv run main.py analyze --help`. Vorhandene Aufrufe mit `--report`, `--search` oder
+`--analyze` funktionieren weiterhin. Bei `search` und `report` unterstützt `--output DATEI`
+weiterhin einen eigenen Dateinamen für die JSON-Kopie.
 
 ## Kosten und Grenzen
 

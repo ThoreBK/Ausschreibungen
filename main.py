@@ -46,25 +46,99 @@ def print_report_problems(result: dict[str, Any]) -> None:
             )
 
 
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Tender Research Agent: TED-Ausschreibungen")
+    commands = parser.add_subparsers(dest="command", title="Befehle")
+    report = commands.add_parser("report", help="Auf TED suchen und einen PDF-Bericht erstellen.")
+    search_command = commands.add_parser(
+        "search", help="Auf TED suchen und die Originale speichern."
+    )
+    analyze = commands.add_parser("analyze", help="Einen gespeicherten Lauf erneut auswerten.")
+    analyze.add_argument(
+        "--notice", metavar="NUMMER", help="Nur diese TED-Bekanntmachung auswerten."
+    )
+
+    for command in (report, search_command):
+        command.add_argument(
+            "--config",
+            type=Path,
+            default=Path("search-profile.toml"),
+            metavar="DATEI",
+            help="Suchprofil (Standard: search-profile.toml).",
+        )
+        command.add_argument(
+            "--as-of",
+            type=date.fromisoformat,
+            metavar="YYYY-MM-DD",
+            help="Stichtag für die TED-Suche (Standard: heute).",
+        )
+        output = command.add_mutually_exclusive_group()
+        output.add_argument(
+            "--output-dir",
+            type=Path,
+            default=Path("reports"),
+            metavar="ORDNER",
+            help="Ziel für die Laufarchive und ted-results.json (Standard: reports).",
+        )
+        output.add_argument("--output", type=Path, help=argparse.SUPPRESS)
+
+    for command in (report, analyze):
+        command.add_argument(
+            "--analysis-config",
+            type=Path,
+            default=Path("analysis-profile.toml"),
+            metavar="DATEI",
+            help="Analyseprofil (Standard: analysis-profile.toml).",
+        )
+        command.add_argument(
+            "--structured-only",
+            action="store_true",
+            help="Nur strukturierte XML-Angaben auswerten, ohne KI.",
+        )
+
+    # Alte Aufrufe erlauben Optionen vor dem Aktionsflag. Der zuständige Parser
+    # liest sie in Originalreihenfolge und prüft auch fehlende Optionswerte.
+    aliases = {"--search": search_command, "--report": report, "--analyze": analyze}
+    if argv and argv[0].startswith("-"):
+        for arg in argv:
+            flag = arg.partition("=")[0]
+            if arg == "--":
+                break
+            if flag in aliases:
+                selected = aliases[flag]
+                if selected is analyze:
+                    selected.add_argument(
+                        flag,
+                        dest="run_dir",
+                        type=Path,
+                        metavar="LAUFORDNER",
+                        required=True,
+                        help="Ordner mit results.json.",
+                    )
+                else:
+                    selected.add_argument(
+                        flag, action="store_true", required=True, help=argparse.SUPPRESS
+                    )
+                selected.set_defaults(command=flag[2:])
+                return selected.parse_args(argv)
+
+    analyze.add_argument(
+        "run_dir", type=Path, metavar="LAUFORDNER", help="Ordner mit results.json."
+    )
+    args = parser.parse_args(argv)
+    if args.command is None:
+        parser.print_help()
+    return args
+
+
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Tender Research Agent: TED-Suche")
-    parser.add_argument("--config", type=Path, default=Path("search-profile.toml"))
-    parser.add_argument("--output", type=Path, default=Path("reports/ted-results.json"))
-    parser.add_argument("--as-of", type=date.fromisoformat, help="Stichtag YYYY-MM-DD")
-    actions = parser.add_mutually_exclusive_group()
-    actions.add_argument("--search", action="store_true", help="Live-Suche starten")
-    actions.add_argument("--report", action="store_true", help="Live suchen und PDF erstellen")
-    actions.add_argument("--analyze", type=Path, help="Gespeicherten Laufordner auswerten")
-    parser.add_argument("--analysis-config", type=Path, default=Path("analysis-profile.toml"))
-    parser.add_argument("--notice", help="Nur diese Veröffentlichungsnummer auswerten")
-    parser.add_argument("--structured-only", action="store_true", help="Nur XML-Fakten, ohne KI")
-    args = parser.parse_args()
-    if args.notice and args.report:
-        parser.error("--notice gilt für --analyze. Für --report report_limit im Profil wählen.")
-    if args.analyze:
+    args = parse_args(sys.argv[1:])
+    if args.command is None:
+        return 0
+    if args.command == "analyze":
         try:
             directory = analyze_run(
-                args.analyze,
+                args.run_dir,
                 args.analysis_config,
                 number=args.notice,
                 structured_only=args.structured_only,
@@ -77,22 +151,20 @@ def main() -> int:
         print(f"Ergebnisdaten: {directory / 'analysis.json'}")
         print(f"Analysestatus: {status}")
         return 0 if status == "complete" else 1
-    if not (args.search or args.report):
-        parser.print_help()
-        return 0
+    output_file = args.output or args.output_dir / "ted-results.json"
     try:
         profile = load_profile(args.config)
-        if args.report:
+        if args.command == "report":
             print("Suche auf TED und lade Bekanntmachungen …", flush=True)
         result, run_dir = collect(
             profile,
             args.config.read_bytes(),
-            args.output.parent / "runs",
+            output_file.parent / "runs",
             today=args.as_of,
-            search_fn=partial(search, all_returned=True) if args.report else search,
+            search_fn=partial(search, all_returned=True) if args.command == "report" else search,
         )
         if not result["search_incomplete"]:
-            save_json(args.output, result)
+            save_json(output_file, result)
     except (ValueError, OSError, SearchError) as error:
         print(f"Fehler: {error}", file=sys.stderr)
         return 1
@@ -101,8 +173,8 @@ def main() -> int:
     if result["limited"]:
         print("Trefferlimit erreicht: Ausgabe ist eine begrenzte Auswahl.")
     print(f"Laufstatus: {result['status']}")
-    if args.search:
-        print_search_results(result, profile.language, run_dir, args.output)
+    if args.command == "search":
+        print_search_results(result, profile.language, run_dir, output_file)
         if result["search_incomplete"] or any(
             n["document"]["status"] == "error" for n in result["notices"]
         ):
@@ -111,7 +183,7 @@ def main() -> int:
         print_report_problems(result)
         print(f"Details zur Recherche: {run_dir / 'overview.html'}", file=sys.stderr)
     failed = result["status"] not in {"complete", "empty"}
-    if args.report:
+    if args.command == "report":
         try:
             analysis = None
             destination = run_dir

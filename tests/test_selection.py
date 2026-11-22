@@ -156,7 +156,8 @@ def test_report_selects_and_consolidates_before_applying_limit(
         ),
         encoding="utf-8",
     )
-    output = tmp_path / "results.json"
+    output_dir = tmp_path / "Demo Berichte"
+    output = output_dir / "ted-results.json"
     monkeypatch.setattr(main, "search", partial(search, transport=network.search))
     monkeypatch.setattr(main, "collect", partial(collect, download=network.download))
     monkeypatch.setattr(main, "analyze_run", partial(analyze_run, model=evaluate, now=NOW))
@@ -165,13 +166,13 @@ def test_report_selects_and_consolidates_before_applying_limit(
         "argv",
         [
             "main.py",
-            "--report",
+            "report",
             "--config",
             str(config),
             "--analysis-config",
             str(PROFILE),
-            "--output",
-            str(output),
+            "--output-dir",
+            str(output_dir),
             "--as-of",
             "2026-11-16",
         ],
@@ -185,7 +186,9 @@ def test_report_selects_and_consolidates_before_applying_limit(
     assert [request["limit"] for request in network.search_requests] == [4, 4]
     assert len(network.document_requests) == len(set(network.document_requests)) == 7
     research = json.loads(output.read_bytes())
-    [directory] = (Path(research["run_directory"]) / "analyses").iterdir()
+    run_dir = Path(research["run_directory"])
+    assert run_dir.parent == output_dir / "runs"
+    [directory] = (run_dir / "analyses").iterdir()
     assert output_lines[-1] == f"PDF-Bericht: {directory / 'bericht.pdf'}"
     analysis = json.loads((directory / "analysis.json").read_bytes())
     selection = analysis["selection"]
