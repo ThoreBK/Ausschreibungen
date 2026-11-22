@@ -32,14 +32,13 @@ def test_entrypoint() -> None:
     assert result.stderr == ""
 
 
-def test_cli_keeps_existing_reports_directory(
+def test_cli_always_uses_berichte_as_default(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    archive = tmp_path / "reports"
-    archive.mkdir()
+    (tmp_path / "reports").mkdir()
     monkeypatch.setattr(main, "PROJECT_DIR", tmp_path)
-    assert main.parse_args(["report"]).output_dir == archive
-    assert main.parse_args(["search"]).output_dir == archive
+    assert main.parse_args(["report"]).output_dir == tmp_path / "Berichte"
+    assert main.parse_args(["search"]).output_dir == tmp_path / "Berichte"
 
 
 @pytest.mark.parametrize(
@@ -155,8 +154,8 @@ def test_search_without_xml_link_returns_one_and_preserves_notice(
     result = json.loads(output.read_text("utf-8"))
     assert result["status"] == "incomplete"
     run_dir = Path(result["run_directory"])
-    assert run_dir.parent == output_dir / "runs"
-    assert (run_dir / "results.json").is_file()
+    assert run_dir.parent == output_dir
+    assert (run_dir / "Details/results.json").is_file()
     assert result["as_of"] == "2026-11-15"
     assert result["profile"]["name"] == "Testprofil"
     assert result["limited"] is False
@@ -218,7 +217,7 @@ def test_search_exit_code_with_successful_downloads(
 
     exit_code = main.main()
     result = json.loads(output.read_text("utf-8"))
-    assert Path(result["run_directory"]).parent == tmp_path / "Berichte" / "runs"
+    assert Path(result["run_directory"]).parent == tmp_path / "Berichte"
     assert result["status"] == expected_status
     assert [notice["conflicts"] for notice in result["notices"]] == expected_conflicts
     assert all(notice["document"]["status"] == "ok" for notice in result["notices"])
@@ -226,16 +225,20 @@ def test_search_exit_code_with_successful_downloads(
 
 
 @pytest.mark.parametrize("action", [["analyze", "."], ["--analyze", "."], ["--analyze=."]])
+@pytest.mark.parametrize("subdirectory", ["Details", "."])
 def test_analyze_relative_run_path_saves_inspectable_incomplete_result(
     action: list[str],
+    subdirectory: str,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     from tests.support.notices import PROFILE, lot, saved_run, xml
 
-    saved_run(tmp_path, xml(lot()))
-    saved = tmp_path / "results.json"
+    details = tmp_path / subdirectory
+    details.mkdir(exist_ok=True)
+    saved_run(details, xml(lot()))
+    saved = details / "results.json"
     research = json.loads(saved.read_bytes())
     research["notices"].append(
         {"publication_number": "200-2026", "document": {"status": "unavailable"}}
@@ -256,7 +259,7 @@ def test_analyze_relative_run_path_saves_inspectable_incomplete_result(
         ],
     )
     assert main.main() == 1
-    files = list((tmp_path / "analyses").glob("*/analysis.json"))
+    files = list((details / "analyses").glob("*/analysis.json"))
     assert len(files) == 1
     result = json.loads(files[0].read_text("utf-8"))
     [doc] = result["documents"]

@@ -15,16 +15,11 @@ from ausschreibungen.research import collect, save_json
 from ausschreibungen.ted import Profile, SearchError, load_profile, search
 
 PROJECT_DIR = Path(__file__).resolve().parent.parent
-
-
-def default_output_dir(project: Path) -> Path:
-    # Gespeicherte Läufe enthalten absolute Pfade zu ihrem ursprünglichen Archiv.
-    previous = project / "reports"
-    return previous if previous.is_dir() else project / "Berichte"
+REPORTS_FOLDER = "Berichte"
 
 
 def print_search_results(
-    result: dict[str, Any], language: str, run_dir: Path, output: Path
+    result: dict[str, Any], language: str, details_dir: Path, output: Path
 ) -> None:
     for notice in result["notices"]:
         html = (notice["links"] or {}).get("html", {})
@@ -32,7 +27,7 @@ def print_search_results(
         groups = ", ".join(notice["matched_queries"])
         print(f"{notice['publication_number']}: {notice['title'] or '(Titel fehlt)'}")
         print(f"  {groups} · XML: {notice['document']['status']}" + (f" · {url}" if url else ""))
-    print(f"Gespeicherte Übersicht: {run_dir / 'overview.html'}")
+    print(f"Gespeicherte Übersicht: {details_dir / 'overview.html'}")
     if not result["search_incomplete"]:
         print(f"Aktuelle Ergebniskopie: {output}")
 
@@ -82,9 +77,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         output.add_argument(
             "--output-dir",
             type=Path,
-            default=default_output_dir(PROJECT_DIR),
+            default=PROJECT_DIR / REPORTS_FOLDER,
             metavar="ORDNER",
-            help="Ziel für die Laufarchive und ted-results.json (Berichte, bisher: reports).",
+            help="Ziel für die Laufarchive und ted-results.json (Standard: Berichte).",
         )
         output.add_argument("--output", type=Path, help=argparse.SUPPRESS)
 
@@ -119,7 +114,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
                         type=Path,
                         metavar="LAUFORDNER",
                         required=True,
-                        help="Ordner mit results.json.",
+                        help="Ordner des gespeicherten Laufs.",
                     )
                 else:
                     selected.add_argument(
@@ -129,7 +124,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
                 return selected.parse_args(argv)
 
     analyze.add_argument(
-        "run_dir", type=Path, metavar="LAUFORDNER", help="Ordner mit results.json."
+        "run_dir", type=Path, metavar="LAUFORDNER", help="Ordner des gespeicherten Laufs."
     )
     args = parser.parse_args(argv)
     if args.command is None:
@@ -171,12 +166,12 @@ def main() -> int:
             )
             print(f"PDF-Bericht: {pdf}")
             return int(failed)
-        profile, result, run_dir = research(args.config, output_file, args.as_of, report=False)
+        profile, result, details_dir = research(args.config, output_file, args.as_of, report=False)
     except (ValueError, OSError, SearchError, KeyError) as error:
         print(f"Fehler: {error}", file=sys.stderr)
         return 1
     describe_result(result, print)
-    print_search_results(result, profile.language, run_dir, output_file)
+    print_search_results(result, profile.language, details_dir, output_file)
     if result["search_incomplete"] or any(
         n["document"]["status"] == "error" for n in result["notices"]
     ):
@@ -188,16 +183,16 @@ def research(
     config: Path, output: Path, as_of: date | None, *, report: bool
 ) -> tuple[Profile, dict[str, Any], Path]:
     profile = load_profile(config)
-    result, run_dir = collect(
+    result, details_dir = collect(
         profile,
         config.read_bytes(),
-        output.parent / "runs",
+        output.parent,
         today=as_of,
         search_fn=partial(search, all_returned=True) if report else search,
     )
     if not result["search_incomplete"]:
         save_json(output, result)
-    return profile, result, run_dir
+    return profile, result, details_dir
 
 
 def describe_result(result: dict[str, Any], progress: Callable[[str], None]) -> None:
@@ -220,18 +215,18 @@ def generate_report(
     on_analysis_progress: Callable[[int, int], None] | None = None,
 ) -> tuple[Path, bool]:
     progress("Suche auf TED und lade Bekanntmachungen …")
-    _, result, run_dir = research(config, output_file, as_of, report=True)
+    _, result, details_dir = research(config, output_file, as_of, report=True)
     describe_result(result, progress)
     if result["status"] == "incomplete":
         report_problems(result, warn)
-        warn(f"Details zur Recherche: {run_dir / 'overview.html'}")
+        warn(f"Details zur Recherche: {details_dir / 'overview.html'}")
     failed = result["status"] not in {"complete", "empty"}
     analysis = None
-    destination = run_dir
+    destination = details_dir
     if result["notices"]:
         progress("Werte die Bekanntmachungen aus …")
         destination = analyze_run(
-            run_dir,
+            details_dir,
             analysis_config,
             structured_only=structured_only,
             on_progress=on_analysis_progress,
@@ -241,7 +236,7 @@ def generate_report(
             warn("Auswertung unvollständig. Offene Punkte stehen im PDF.")
             failed = True
     progress("Erstelle den PDF-Bericht …")
-    return write_report(result, analysis, destination), failed
+    return write_report(result, analysis, destination, output_dir=details_dir.parent), failed
 
 
 if __name__ == "__main__":

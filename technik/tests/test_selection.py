@@ -187,9 +187,10 @@ def test_report_selects_and_consolidates_before_applying_limit(
     assert len(network.document_requests) == len(set(network.document_requests)) == 7
     research = json.loads(output.read_bytes())
     run_dir = Path(research["run_directory"])
-    assert run_dir.parent == output_dir / "runs"
-    [directory] = (run_dir / "analyses").iterdir()
-    assert output_lines[-1] == f"PDF-Bericht: {directory / 'bericht.pdf'}"
+    assert run_dir.parent == output_dir
+    [directory] = (run_dir / "Details/analyses").iterdir()
+    assert {path.name for path in run_dir.iterdir()} == {"bericht.pdf", "Details"}
+    assert output_lines[-1] == f"PDF-Bericht: {run_dir / 'bericht.pdf'}"
     analysis = json.loads((directory / "analysis.json").read_bytes())
     selection = analysis["selection"]
     first, corrected = selection["selected"]
@@ -232,7 +233,15 @@ def test_report_selects_and_consolidates_before_applying_limit(
             doc["publication_number"]
         )
         assert doc["provenance"]["original_file"].endswith(doc["publication_number"] + ".xml")
-    pages = [" ".join(p.extract_text().split()) for p in PdfReader(directory / "bericht.pdf").pages]
+    reader = PdfReader(run_dir / "bericht.pdf")
+    links = {
+        ref.get_object().get("/A", {}).get("/URI")
+        for page in reader.pages
+        for ref in page.get("/Annots", [])
+    }
+    assert f"Details/analyses/{directory.name}/analysis.html#berichtsauswahl" in links
+    assert "Details/overview.html" in links
+    pages = [" ".join(p.extract_text().split()) for p in reader.pages]
     assert pages[0].index("104-2026") < pages[0].index("102-2026")
     assert "Abruflimit: 4 Treffer je Suchgruppe." in pages[0]
     assert "Berichtslimit: 2 Lose oder Verfahren" in pages[0]

@@ -17,6 +17,7 @@ import pytest
 
 import main
 from ausschreibungen.notices import inspect_document
+from ausschreibungen.research import create_run_directory
 from ausschreibungen.ted import Profile, SearchError, load_profile
 from tests.support.notices import FIXTURES
 from tests.support.research import RETRIEVED, Network, execute, response, row, xml
@@ -83,6 +84,13 @@ def test_t2_02_limit_and_complete_originals(tmp_path: Path, profile: Profile) ->
     assert (directory / "documents/200-2026.xml").read_bytes() == xml(200)
     assert "zwölf Workshops" in (directory / "documents/100-2026.html").read_text("utf-8")
     assert not (directory / "documents/300-2026.xml").exists()
+
+
+def test_run_names_distinguish_repeated_berlin_time(tmp_path: Path) -> None:
+    first = create_run_directory(tmp_path, datetime.fromisoformat("2026-10-25T00:30:07+00:00"))
+    second = create_run_directory(tmp_path, datetime.fromisoformat("2026-10-25T01:30:07+00:00"))
+    assert first.name == "2026-10-25_02-30-07"
+    assert second.name == "2026-10-25_02-30-07 (2)"
 
 
 def test_t2_03_runs_are_immutable_and_traceable(tmp_path: Path, profile: Profile) -> None:
@@ -296,9 +304,9 @@ sys.exit(main.main())
         check=False,
     )
     assert completed.returncode == 1
-    directories = list((output.parent / "runs").iterdir())
+    directories = [path for path in output.parent.iterdir() if path.is_dir()]
     assert len(directories) == 1
-    directory = directories[0]
+    directory = directories[0] / "Details"
     page = (directory / "overview.html").read_text("utf-8")
     for text in [
         "Testprofil",
@@ -385,7 +393,7 @@ def test_t2_09_truncated_http_response_keeps_other_documents(
         "https://ted.europa.eu/en/notice/200-2026/xml",
         "https://ted.europa.eu/en/notice/300-2026/xml",
     ]
-    directory = next((tmp_path / "runs").iterdir())
+    [directory] = [path.parent for path in tmp_path.glob("*/Details/results.json")]
     stored = json.loads((directory / "results.json").read_text("utf-8"))
     assert json.loads(output.read_text("utf-8")) == stored
     assert stored["status"] == "incomplete"

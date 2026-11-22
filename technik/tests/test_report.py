@@ -46,7 +46,7 @@ def test_report_cli_distinguishes_empty_and_failed(
         ],
     )
     assert main.main() == int(failed)
-    text = PdfReader(run / "bericht.pdf").pages[0].extract_text()
+    text = PdfReader(run.parent / "bericht.pdf").pages[0].extract_text()
     captured = capsys.readouterr()
     if failed:
         assert "TED offline" in captured.err
@@ -96,13 +96,13 @@ def test_pdf_distinguishes_searches_with_identical_names(
     assert f"Digitalisierung: {expected}" in text
     assert f"CPV-Filter: {filter_text}" in text
     assert absent not in text
-    assert run.name in text
+    assert research["run_id"] in text
     uri = page["/Annots"][0].get_object()["/A"]["/URI"]
     overview = run / uri
     assert overview == run / "overview.html"
     assert 'href="results.json"' in overview.read_text("utf-8")
     archived = json.loads(overview.with_name("results.json").read_bytes())
-    assert archived["run_id"] == run.name
+    assert archived["run_id"] == research["run_id"]
     assert archived["queries"][0]["request"] == network.search_requests[0]
 
 

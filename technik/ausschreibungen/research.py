@@ -6,19 +6,24 @@ from collections.abc import Callable
 from dataclasses import asdict
 from datetime import UTC, date, datetime
 from html import escape
+from itertools import count
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
 from uuid import uuid4
+from zoneinfo import ZoneInfo
 
 from ausschreibungen.notices import Download, download_document, html_page, inspect_document
 from ausschreibungen.ted import ENDPOINT, Profile, SearchError, search
 
 
 def save_json(path: Path, value: dict[str, Any]) -> None:
-    temporary = path.with_suffix(".tmp")
-    temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding="utf-8")
-    temporary.replace(path)
+    temporary = path.with_suffix(f".{uuid4().hex}.tmp")
+    try:
+        temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding="utf-8")
+        temporary.replace(path)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 def text_value(value: Any) -> str:
@@ -163,6 +168,17 @@ def overview(result: dict[str, Any]) -> str:
     return html_page("TED-Recherche — " + result["run_id"], "".join(body))
 
 
+def create_run_directory(directory: Path, started_at: datetime) -> Path:
+    name = started_at.astimezone(ZoneInfo("Europe/Berlin")).strftime("%Y-%m-%d_%H-%M-%S")
+    for number in count(1):
+        path = directory / (name if number == 1 else f"{name} ({number})")
+        try:
+            path.mkdir(parents=True)
+        except FileExistsError:
+            continue
+        return path
+
+
 def collect(
     profile: Profile,
     config_bytes: bytes,
@@ -174,13 +190,14 @@ def collect(
 ) -> tuple[dict[str, Any], Path]:
     now = datetime.now(UTC)
     run_id = now.strftime("%Y%m%dT%H%M%S%fZ") + "-" + uuid4().hex[:8]
-    run_dir = directory / run_id
-    run_dir.mkdir(parents=True, exist_ok=False)
-    (run_dir / "profile.toml").write_bytes(config_bytes)
-    (run_dir / "documents").mkdir()
+    archive = create_run_directory(directory, now)
+    details_dir = archive / "Details"
+    details_dir.mkdir()
+    (details_dir / "profile.toml").write_bytes(config_bytes)
+    (details_dir / "documents").mkdir()
     result: dict[str, Any] = {
         "run_id": run_id,
-        "run_directory": str(run_dir.resolve()),
+        "run_directory": str(archive.resolve()),
         "started_at": now.isoformat(),
         "status": "running",
         "stage": "search",
@@ -193,10 +210,10 @@ def collect(
     }
 
     def save() -> None:
-        save_json(run_dir / "results.json", result)
-        temporary = run_dir / "overview.tmp"
+        save_json(details_dir / "results.json", result)
+        temporary = details_dir / "overview.tmp"
         temporary.write_text(overview(result), encoding="utf-8")
-        temporary.replace(run_dir / "overview.html")
+        temporary.replace(details_dir / "overview.html")
 
     def progress(snapshot: dict[str, Any]) -> None:
         result.update(snapshot)
@@ -240,14 +257,14 @@ def collect(
                     size_bytes=len(retrieved.content),
                 )
                 # Auch unbrauchbare Antworten als Beleg behalten, niemals als gültiges XML ausgeben.
-                payload = run_dir / "documents" / f"{number}.response"
+                payload = details_dir / "documents" / f"{number}.response"
                 payload.write_bytes(retrieved.content)
-                doc["response_file"] = payload.relative_to(run_dir).as_posix()
+                doc["response_file"] = payload.relative_to(details_dir).as_posix()
                 metadata, reading = inspect_document(retrieved.content, number)
                 original = payload.with_suffix(".xml")
                 payload.replace(original)
                 doc.pop("response_file")
-                doc.update(file=original.relative_to(run_dir).as_posix(), metadata=metadata)
+                doc.update(file=original.relative_to(details_dir).as_posix(), metadata=metadata)
                 reading_path = original.with_suffix(".html")
                 reading_path.write_text(
                     html_page(
@@ -262,7 +279,7 @@ def collect(
                     ),
                     encoding="utf-8",
                 )
-                doc["reading_copy"] = reading_path.relative_to(run_dir).as_posix()
+                doc["reading_copy"] = reading_path.relative_to(details_dir).as_posix()
                 doc["status"] = "ok"
             except (SearchError, ValueError) as error:
                 doc.update(status="error", error=str(error))
@@ -284,4 +301,4 @@ def collect(
     finally:
         result["finished_at"] = datetime.now(UTC).isoformat()
         save()
-    return result, run_dir
+    return result, details_dir

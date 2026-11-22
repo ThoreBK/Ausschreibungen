@@ -1,7 +1,9 @@
 """Berichtsübersicht, Reihenfolge der Steckbriefe und Ausgabe als PDF."""
 
 from html import escape
+from os.path import relpath
 from pathlib import Path
+from urllib.parse import quote
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
@@ -132,7 +134,7 @@ def add_overview(
                 "Keine ausgewerteten Lose oder Verfahren für die Berichtsliste ausgewählt."
             )
         layout.paragraph(
-            '<a href="analysis.html#berichtsauswahl" color="#125B62">Berichtsauswahl und '
+            f'<a href="{layout.analysis_href}#berichtsauswahl" color="#125B62">Berichtsauswahl und '
             f"Dokumentstände prüfen</a> · {len(selection['excluded'])} ausgeschlossen · "
             f"{len(selection['unavailable'])} Bekanntmachungen ohne Auswertung",
             "source",
@@ -248,9 +250,8 @@ def add_overview(
             f"Gesamtlimit: {len(notices)} von {research['unique_retrieved']} verschiedenen "
             "gelieferten Bekanntmachungen ausgewählt."
         )
-    overview_path = "../../overview.html" if analysis else "overview.html"
     layout.paragraph(
-        f'<a href="{overview_path}" color="#125B62"><u>Laufübersicht ({overview_path})</u></a>'
+        f'<a href="{layout.overview_href}" color="#125B62"><u>Laufübersicht öffnen</u></a>'
         " · Suchanfragen und Rohantworten",
         "source",
         markup=True,
@@ -263,8 +264,15 @@ def add_overview(
         )
 
 
-def write_report(research: Data, analysis: Data | None, directory: Path) -> Path:
-    layout = ReportLayout()
+def write_report(
+    research: Data, analysis: Data | None, directory: Path, *, output_dir: Path | None = None
+) -> Path:
+    output_dir = output_dir or directory
+    details = directory.parent.parent if analysis else directory
+    layout = ReportLayout(
+        overview_href=quote(Path(relpath(details / "overview.html", output_dir)).as_posix()),
+        analysis_href=quote(Path(relpath(directory / "analysis.html", output_dir)).as_posix()),
+    )
     notices = research["notices"]
     documents = {d["publication_number"]: d for d in (analysis or {}).get("documents", [])}
     selection = (analysis or {}).get("selection")
@@ -309,7 +317,7 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
         canvas.drawRightString(A4[0] - 18 * mm, 12 * mm, f"Seite {document.page}")
         canvas.restoreState()
 
-    target = directory / "bericht.pdf"
+    target = output_dir / "bericht.pdf"
     temporary = target.with_suffix(".pdf.tmp")
     document = SimpleDocTemplate(
         str(temporary),

@@ -221,7 +221,8 @@ def test_ui_report_uses_settings_and_serves_pdf(
         assert pdf.headers.get_content_type() == "application/pdf"
         reader = PdfReader(BytesIO(pdf.read()))
     assert "Weiterbildung" in " ".join(p.extract_text() for p in reader.pages)
-    with urlopen(urljoin(pdf_url, "../../overview.html"), timeout=5) as overview:
+    assert pdf_url.endswith("/bericht.pdf")
+    with urlopen(urljoin(pdf_url, "Details/overview.html"), timeout=5) as overview:
         assert "Weiterbildung" in overview.read().decode()
     if partial_failure:
         assert any("TED offline" in line for line in state["messages"])

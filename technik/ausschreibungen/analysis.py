@@ -1067,6 +1067,8 @@ def analyze_run(
     on_progress: Callable[[int, int], None] | None = None,
 ) -> Path:
     run_dir = run_dir.resolve()
+    if (run_dir / "Details").is_dir():
+        run_dir = run_dir / "Details"
     profile = load_analysis_profile(profile_path)
     original_profile = profile_path.read_bytes()
     research_bytes = (run_dir / "results.json").read_bytes()

@@ -22,7 +22,8 @@ mit eigener ChatGPT-Anmeldung. [uv installieren](https://docs.astral.sh/uv/getti
    Startfenster geöffnet. Im Browser kannst du unter **Profil bearbeiten** die
    Suchbegriffe und das Unternehmensprofil anpassen.
 3. Klicke auf **Recherche starten** und nach dem Lauf auf **PDF öffnen**.
-   Der Bericht beginnt mit einer Übersicht. Danach folgen Steckbriefe und Belege.
+   Du findest `bericht.pdf` auch direkt im Laufordner. Der Bericht beginnt mit
+   einer Übersicht. Danach folgen Steckbriefe und Belege.
    Zum Beenden das Startfenster schließen.
 
 Für einen kleinen Beispiellauf in PowerShell verwende im Ordner `technik`
@@ -35,9 +36,8 @@ Oberfläche und Kommandozeile starten denselben Ablauf. Der Einstieg im Code ist
 die Funktion `generate_report`. [main.py](technik/main.py)
 
 1. **Treffer suchen und speichern.** Für jeden Lauf legt der Agent unter
-   `Berichte/runs/` einen Ordner an. Gibt es im Projekt bereits den Ordner
-   `reports/`, verwendet der Agent weiterhin `reports/runs/`. Dort speichert er die Suchergebnisse in
-   `results.json` und die vollständigen Bekanntmachungen als XML-Dateien.
+   `Berichte/` einen Ordner mit Datum und Uhrzeit des Starts an.
+   Weitere Angaben zum Lauf findest du in `Details/`.
    Bei Mehrfachtreffern speichert er das Original einmal und vermerkt alle Suchgruppen.
 2. **Angaben auslesen und prüfen.** Fristen und andere strukturierte Angaben liest
    der Agent direkt aus dem XML. Das Sprachmodell liest die Leistungsbeschreibung,
@@ -78,7 +78,7 @@ API-Schlüssel. Den Tokenverbrauch deines eigenen Laufs findest du in
 - **Die Suche findet keine Treffer.** Öffne **Profil bearbeiten**, erweitere den
   Zeitraum oder entferne eine zu enge Pflichtgruppe.
 - **Der Lauf ist unvollständig.** Öffne die Laufdetails im Browser. Die
-  `overview.html` im Laufordner zeigt Abruffehler, die `analysis.html` im
+  `Details/overview.html` im Laufordner zeigt Abruffehler, die `analysis.html` im
   Analyseordner zeigt offene Punkte der Auswertung.
 
 [Generalprobe mit Beispielprofil](technik/nachweise/generalprobe/README.md) ·

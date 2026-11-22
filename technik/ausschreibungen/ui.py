@@ -15,7 +15,7 @@ from typing import Any
 from urllib.parse import quote, unquote
 from urllib.request import urlopen
 
-from main import PROJECT_DIR, default_output_dir, generate_report
+from main import PROJECT_DIR, REPORTS_FOLDER, generate_report
 
 from .analysis import load_analysis_profile, parse_analysis_profile
 from .ted import load_profile, parse_profile
@@ -81,7 +81,7 @@ class Busy(ValueError):
 class Application:
     def __init__(self, root: Path) -> None:
         self.root = root
-        self.output = default_output_dir(root)
+        self.output = root / REPORTS_FOLDER
         self.lock = threading.Lock()
         self.status = "idle"
         self.messages: list[str] = []
@@ -145,7 +145,7 @@ class Application:
                     self.message,
                     on_analysis_progress=self.update_analysis_progress,
                 )
-            link = "/runs/" + quote(pdf.relative_to(self.output / "runs").as_posix())
+            link = "/runs/" + quote(pdf.relative_to(self.output).as_posix())
             with self.lock:
                 self.pdf = link
                 self.status = "incomplete" if incomplete else "complete"
@@ -207,12 +207,14 @@ class Handler(BaseHTTPRequestHandler):
             self.reply({"error": str(exc)}, 400)
 
     def archive_file(self, relative: str) -> None:
-        if any(piece in {"", ".", ".."} for piece in relative.split("/")) or any(
-            ch in relative for ch in (":", "\\", "\0")
+        if (
+            "/" not in relative
+            or any(piece in {"", ".", ".."} for piece in relative.split("/"))
+            or any(ch in relative for ch in (":", "\\", "\0"))
         ):
             self.send_error(404)
             return
-        runs = (self.app.output / "runs").resolve()
+        runs = self.app.output.resolve()
         path = (runs / relative).resolve()
         types = {
             ".html": "text/html; charset=utf-8",

@@ -467,7 +467,7 @@ def add_brief(
                 pub = escape(origin["publication_number"])
                 if "unit_index" in origin:
                     anchor = f"los-{pub}-{origin['unit_index']}"
-                    citations.append(f'<a href="analysis.html#{anchor}">TED {pub}</a>')
+                    citations.append(f'<a href="{layout.analysis_href}#{anchor}">TED {pub}</a>')
                 else:
                     citations.append(f"TED {pub}")
             layout.paragraph(f"{escape(point['reason'])} ({', '.join(citations)})", markup=True)
@@ -477,7 +477,9 @@ def add_brief(
                 pub, old_index = stage["publication_number"], stage["unit_index"]
                 label = "Aktueller Stand" if pub == number else "Früherer Stand"
                 old_unit = documents[pub]["units"][old_index]
-                source_link = f'<a href="analysis.html#los-{pub}-{old_index}">TED {pub}</a>'
+                source_link = (
+                    f'<a href="{layout.analysis_href}#los-{pub}-{old_index}">TED {pub}</a>'
+                )
                 dates = ", ".join(
                     deadline_text(d)
                     for d in old_unit["fields"]["deadlines"]["values"]

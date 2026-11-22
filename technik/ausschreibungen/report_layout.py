@@ -79,7 +79,9 @@ def xml_leaf(item: Data) -> str:
 
 
 class ReportLayout:
-    def __init__(self) -> None:
+    def __init__(self, *, overview_href: str, analysis_href: str) -> None:
+        self.overview_href = overview_href
+        self.analysis_href = analysis_href
         register_fonts()
         self.styles = {
             key: ParagraphStyle(
