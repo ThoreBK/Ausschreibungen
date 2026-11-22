@@ -13,8 +13,8 @@ from ausschreibungen.analysis import CORRECTED_SUMMARY, PROPOSAL, Model, analyze
 from ausschreibungen.notices import NS
 from ausschreibungen.report import write_report
 from ausschreibungen.ted import Profile
-from tests.test_analysis import FIXTURES, NOW, PROFILE, lot, xml
-from tests.test_research import Network, execute, response, row
+from tests.support.notices import FIXTURES, NOW, PROFILE, lot, xml
+from tests.support.research import Network, execute, response, row
 
 
 def fixed_model(

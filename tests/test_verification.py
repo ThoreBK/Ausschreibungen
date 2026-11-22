@@ -11,57 +11,18 @@ import pytest
 from ausschreibungen.analysis import (
     CORRECTED_FIT,
     CORRECTED_NON_FIT,
-    PROPOSAL,
-    VERIFICATION,
     analyze_run,
     expand_claim,
-    extract,
     interpret,
     load_analysis_profile,
     model_payload,
 )
+from ausschreibungen.extraction import extract
 from ausschreibungen.llm import ModelError
 from ausschreibungen.notices import NS
-from tests.test_analysis import (
-    FIXTURES,
-    NOW,
-    PROFILE,
-    citation,
-    lot,
-    original_path,
-    proposal,
-    saved_run,
-    wire_proposal,
-    wire_verdict,
-    xml,
-)
-
-CASES = json.loads((FIXTURES / "real/verification-cases.json").read_text("utf-8"))
-
-
-def decision(claim_id: str, item: dict[str, Any], status: str) -> dict[str, Any]:
-    return {
-        "claim_id": claim_id,
-        "status": status,
-        "reason": "Fest vorgegebenes Offline-Urteil zur Prüfung der Verarbeitung.",
-        "evidence": deepcopy(item["evidence"]),
-    }
-
-
-class Answers:
-    def __init__(self, answer: dict[str, Any], judgments: dict[str, Any] | Exception) -> None:
-        self.answer = answer
-        self.judgments = judgments
-        self.requests: list[dict[str, Any]] = []
-
-    def __call__(self, instructions: str, payload: dict[str, Any], schema: dict[str, Any]) -> Any:
-        self.requests.append(deepcopy(payload))
-        if schema == PROPOSAL:
-            return wire_proposal(self.answer, payload)
-        assert schema == VERIFICATION
-        if isinstance(self.judgments, Exception):
-            raise self.judgments
-        return wire_verdict(self.judgments, payload)
+from tests.support.live import CASES
+from tests.support.models import Answers, decision, original_path
+from tests.support.notices import FIXTURES, NOW, PROFILE, citation, lot, proposal, saved_run, xml
 
 
 def resolve_span(span: dict[str, Any], payload: dict[str, Any]) -> str:
@@ -331,7 +292,7 @@ def test_only_exact_structured_duplicate_skips_model_review(change: str) -> None
 
 
 def test_live_oracle_requires_confirmed_email_not_just_a_retained_quote() -> None:
-    from tests.test_analysis_live import assert_missing_notice_fields
+    from tests.support.live import assert_missing_notice_fields
 
     email = {"value": "Einreichungsform: per E-Mail an vergabestelle@ukaachen.de"}
     unit = {
@@ -359,7 +320,7 @@ def test_live_oracle_requires_confirmed_email_not_just_a_retained_quote() -> Non
 @pytest.mark.parametrize("limit", ["tokens", "calls", "unknown"])
 def test_controlled_live_budget_prevents_further_model_calls(limit: str, tmp_path: Path) -> None:
     from ausschreibungen.llm import CodexModel
-    from tests.test_verification_live import Budget
+    from tests.support.live import Budget
 
     budget = Budget()
     if limit == "tokens":

@@ -9,8 +9,8 @@ from pypdf import PdfReader
 from ausschreibungen.analysis import analyze_run
 from ausschreibungen.report import write_report
 from ausschreibungen.ted import Profile
-from tests.test_analysis import NOW, PROFILE, lot, xml
-from tests.test_research import Network, execute, response, row
+from tests.support.notices import NOW, PROFILE, lot, xml
+from tests.support.research import Network, execute, response, row
 
 SAMPLE = "Łódź | Υπηρεσίες | София | 𝑃𝐵𝑖𝑒𝑡𝑒𝑟"
 REFERENCES = Path(__file__).parent / "fixtures" / "pdf-fonts"

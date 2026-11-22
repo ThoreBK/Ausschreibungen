@@ -9,7 +9,6 @@ import json
 import os
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Any
 from uuid import uuid4
 
 import pytest
@@ -17,7 +16,8 @@ import pytest
 from ausschreibungen.analysis import analyze_run
 from ausschreibungen.notices import NS
 from ausschreibungen.research import save_json
-from tests.test_analysis import FIXTURES, NOW, PROFILE
+from tests.support.live import assert_missing_notice_fields
+from tests.support.notices import FIXTURES, NOW, PROFILE
 
 pytestmark = pytest.mark.skipif(
     os.environ.get("RUN_LIVE_ANALYSIS") != "1",
@@ -155,22 +155,3 @@ def test_real_model_against_prepared_oracles(case: str, number: str, expected: s
         assert "Vermögens- und sonstige Schäden" in text
     if case == "missing":
         assert_missing_notice_fields(units[0])
-
-
-def assert_missing_notice_fields(unit: dict[str, Any]) -> None:
-    deadline = unit["fields"]["deadlines"]
-    assert deadline["status"] == "uncertain"
-    assert any(
-        "09.12.2026" in value["original"]
-        and "09:00 Uhr" in value["original"]
-        and value["berlin"] is None
-        for value in deadline["values"]
-    )
-    submission = json.dumps(unit["fields"]["submission"]["values"], ensure_ascii=False)
-    assert "per E-Mail an vergabestelle@ukaachen.de" in submission, (
-        "E-Mail-Abgabeform nicht bestätigt"
-    )
-    assert "Mindestens drei Referenzen" in json.dumps(
-        unit["fields"]["selection_criteria"]["values"], ensure_ascii=False
-    )
-    assert unit["participation"]["status"] == "ungeklärt"

@@ -2,177 +2,22 @@
 
 import hashlib
 import json
-import xml.etree.ElementTree as ET
 from copy import deepcopy
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import pytest
 
 from ausschreibungen.analysis import (
-    PROPOSAL,
-    VERIFICATION,
     analyze_run,
-    berlin_time,
-    extract,
     information_quality,
     interpret,
     load_analysis_profile,
 )
+from ausschreibungen.extraction import extract
 from ausschreibungen.llm import ModelError
-from ausschreibungen.notices import NS
-
-NOW = datetime(2026, 11, 17, 14, tzinfo=UTC)
-FIXTURES = Path(__file__).parent / "fixtures"
-PROFILE = Path(__file__).parents[1] / "analysis-profile.toml"
-
-
-def xml(lots: str = "", *, extra: str = "", version: str = "01") -> bytes:
-    return f"""<ContractNotice xmlns="urn:oasis:names:specification:ubl:schema:xsd:ContractNotice-2"
-      xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
-      xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
-      xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2"
-      xmlns:efext="http://data.europa.eu/p27/eforms-ubl-extensions/1"
-      xmlns:efac="http://data.europa.eu/p27/eforms-ubl-extension-aggregate-components/1"
-      xmlns:efbc="http://data.europa.eu/p27/eforms-ubl-extension-basic-components/1">
-      <ext:UBLExtensions><ext:UBLExtension><ext:ExtensionContent><efext:EformsExtension>
-      <efac:Publication><efbc:NoticePublicationID>100-2026</efbc:NoticePublicationID>
-      </efac:Publication></efext:EformsExtension></ext:ExtensionContent></ext:UBLExtension>
-      </ext:UBLExtensions><cbc:ID>notice</cbc:ID><cbc:VersionID>{version}</cbc:VersionID>
-      {extra}{lots}</ContractNotice>""".encode()
-
-
-def lot(
-    identifier: str = "LOT-1",
-    day: str = "2026-12-01Z",
-    clock: str = "12:00:00Z",
-    *,
-    subject: str = "KI-Beratung",
-    criterion: str = "Referenz über zwei KI-Schulungen",
-) -> str:
-    return f"""<cac:ProcurementProjectLot><cbc:ID>{identifier}</cbc:ID>
-      <cac:ProcurementProject><cbc:Description>{subject}</cbc:Description>
-      </cac:ProcurementProject><cac:TenderingProcess><cac:TenderSubmissionDeadlinePeriod>
-      <cbc:EndDate>{day}</cbc:EndDate><cbc:EndTime>{clock}</cbc:EndTime>
-      </cac:TenderSubmissionDeadlinePeriod></cac:TenderingProcess><cac:TenderingTerms>
-      <cac:TendererQualificationRequest><cac:SpecificTendererRequirement>
-      <cbc:Description>{criterion}</cbc:Description></cac:SpecificTendererRequirement>
-      </cac:TendererQualificationRequest></cac:TenderingTerms></cac:ProcurementProjectLot>"""
-
-
-def citation(document: dict[str, Any], text: str) -> dict[str, str]:
-    return {
-        "path": next(r["path"] for r in document["records"] if text in r["value"]),
-        "quote": text,
-    }
-
-
-def proposal(document: dict[str, Any], *, status: str = "passend") -> dict[str, Any]:
-    return {
-        "facts": [],
-        "fit": {
-            "status": status,
-            "reason": "Beauftragte KI-Beratung passt zum Profil.",
-            "evidence": [citation(document, "KI-Beratung")],
-        },
-        "checkpoints": [],
-    }
-
-
-def original_path(record: dict[str, Any], payload: dict[str, Any]) -> str:
-    path = record["path"]
-    seen = set()
-    while not path.startswith("/"):
-        prefix, rest = path.split("/", 1)
-        assert prefix not in seen
-        seen.add(prefix)
-        path = payload["paths"][prefix] + "/" + rest
-    return path
-
-
-def wire_claim(item: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
-    """Fixtures nennen unabhängige Originalfundstellen; nur Transport-IDs übersetzen."""
-    result = deepcopy(item)
-    result["evidence"] = [
-        {
-            "source": next(
-                (
-                    r["id"]
-                    for r in payload["records"]
-                    if original_path(r, payload) == ev["path"]
-                    and ev["quote"] in payload["texts"][r["text_id"]]
-                ),
-                "unknown-source",
-            )
-        }
-        for ev in item["evidence"]
-    ]
-    return result
-
-
-def wire_proposal(answer: Any, payload: dict[str, Any]) -> Any:
-    if (
-        not isinstance(answer, dict)
-        or set(answer) != {"facts", "fit", "checkpoints"}
-        or not answer["fit"]
-    ):
-        return deepcopy(answer)
-    return {
-        "units": [
-            {
-                "unit_id": u["unit_id"],
-                "facts": [wire_claim(f, payload) for f in answer["facts"]],
-                "criteria_summaries": [],
-                "fit": wire_claim(answer["fit"], payload),
-                "checkpoints": [wire_claim(c, payload) for c in answer["checkpoints"]],
-            }
-            for u in payload["units"]
-        ]
-    }
-
-
-def wire_verdict(verdict: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
-    return {
-        "claims": [
-            {**wire_claim(c, payload), "claim_id": "u0/" + c["claim_id"]} for c in verdict["claims"]
-        ]
-    }
-
-
-class ControlledModel:
-    def __init__(self, answer: Any, verdict: Any = None) -> None:
-        self.answer = answer
-        self.verdict = verdict
-        self.payloads: list[dict[str, Any]] = []
-
-    def __call__(self, instructions: str, payload: dict[str, Any], schema: dict[str, Any]) -> Any:
-        self.payloads.append(deepcopy(payload))
-        assert "nicht vertrauenswürdige" in instructions
-        if isinstance(self.answer, Exception):
-            raise self.answer
-        if schema == PROPOSAL:
-            return wire_proposal(self.answer, payload)
-        assert schema == VERIFICATION
-        if self.verdict and "claims" in self.verdict:
-            return wire_verdict(self.verdict, payload)
-        decisions = []
-        for request in payload["claims"]:
-            key = request["claim_id"]
-            kind, _, index = key.split("/", 1)[1].partition(":")
-            item = self.answer[kind][int(index)] if index else self.answer[kind]
-            approved = True
-            if self.verdict:
-                approved = self.verdict[kind][int(index)] if index else self.verdict[kind]
-            decisions.append(
-                {
-                    "claim_id": key,
-                    "status": "bestätigt" if approved else "nicht entscheidbar",
-                    "reason": "Kontrolliertes Testurteil; keine Aussage über Modellqualität.",
-                    "evidence": wire_claim(item, payload)["evidence"],
-                }
-            )
-        return {"claims": deepcopy(decisions)}
+from tests.support.models import ControlledModel
+from tests.support.notices import FIXTURES, NOW, PROFILE, citation, lot, proposal, saved_run, xml
 
 
 @pytest.mark.parametrize("global_description", [False, True])
@@ -210,32 +55,6 @@ def test_missing_service_description_is_decided_per_lot(global_description: bool
         assert "fehlt eine Leistungsbeschreibung" in first["fit"]["reason"]
         assert first["fit"]["evidence"] == []
         assert first["rejected_claims"] == []
-
-
-def saved_run(tmp_path: Path, content: bytes, number: str = "100-2026") -> Path:
-    (tmp_path / "documents").mkdir()
-    (tmp_path / "documents" / f"{number}.xml").write_bytes(content)
-    (tmp_path / "results.json").write_text(
-        json.dumps(
-            {
-                "run_id": "fixed-research-run",
-                "notices": [
-                    {
-                        "publication_number": number,
-                        "document": {
-                            "status": "ok",
-                            "file": f"documents/{number}.xml",
-                            "sha256": hashlib.sha256(content).hexdigest(),
-                            "retrieved_at": "2026-11-17T11:05:48+00:00",
-                            "source_url": f"https://ted.europa.eu/en/notice/{number}/xml",
-                        },
-                    }
-                ],
-            }
-        ),
-        encoding="utf-8",
-    )
-    return tmp_path
 
 
 def test_t4_01_saved_complete_fields_and_unchanged_original(tmp_path: Path) -> None:
@@ -402,47 +221,6 @@ def test_t4_04_missing_uncertain_conflicting_and_errors() -> None:
         extract(b"not XML", "100-2026", now=NOW)
 
 
-@pytest.mark.parametrize(
-    "day,clock,expected",
-    [
-        ("2026-01-10Z", "12:30:00Z", "2026-01-10T13:30:00+01:00"),
-        ("2026-07-10Z", "12:30:00Z", "2026-07-10T14:30:00+02:00"),
-        ("2026-07-10+02:00", "12:30:00+02:00", "2026-07-10T12:30:00+02:00"),
-        ("2026-07-10", "12:30:00", None),
-        ("2026-07-10Z", None, None),
-        (None, "12:30:00Z", None),
-        ("2026-07-10+01:00", "12:30:00+02:00", None),
-        ("2026-02-30Z", "12:30:00Z", None),
-        ("2026-07-10+15:00", "12:30:00+15:00", None),
-        ("2026-07-10+01:99", "12:30:00+01:99", None),
-    ],
-)
-def test_t4_05_berlin_conversion(day: str | None, clock: str | None, expected: str | None) -> None:
-    assert berlin_time(day, clock) == expected
-
-
-def test_t4_05_participation_requires_notice_and_reliable_deadline() -> None:
-    content = xml(lot())
-    assert (
-        extract(content, "100-2026", now=NOW)["units"][0]["participation"]["status"]
-        == "Frist offen"
-    )
-    past = extract(xml(lot(day="2026-01-01Z")), "100-2026", now=NOW)
-    assert past["units"][0]["participation"]["status"] == "Frist abgelaufen"
-    unknown = extract(xml(lot(day="2026-12-01", clock="12:00:00")), "100-2026", now=NOW)
-    assert unknown["units"][0]["participation"]["status"] == "ungeklärt"
-    award = content.replace(b"ContractNotice", b"ContractAwardNotice")
-    assert (
-        extract(award, "100-2026", now=NOW)["units"][0]["participation"]["status"] == "nicht offen"
-    )
-    info = content.replace(b"ContractNotice", b"PriorInformationNotice")
-    assert extract(info, "100-2026", now=NOW)["units"][0]["participation"]["status"] == "ungeklärt"
-    other = content.replace(
-        b"TenderSubmissionDeadlinePeriod", b"AdditionalInformationRequestPeriod"
-    )
-    assert extract(other, "100-2026", now=NOW)["units"][0]["participation"]["status"] == "ungeklärt"
-
-
 @pytest.mark.parametrize("status", ["passend", "unpassend", "unklar"])
 def test_t4_06_profile_is_really_passed_to_both_model_steps(tmp_path: Path, status: str) -> None:
     profile_text = PROFILE.read_text("utf-8").replace(
@@ -565,13 +343,6 @@ def test_ambiguous_lot_identity_is_never_interpreted(ids: tuple[str, str]) -> No
     assert doc["units"][0]["fit"]["status"] == "unklar"
 
 
-def test_structured_extraction_leaves_freetext_for_model() -> None:
-    doc = extract((FIXTURES / "real/788030-2026.xml").read_bytes(), "788030-2026", now=NOW)
-    fields = doc["units"][0]["fields"]
-    for key in ("duration", "selection_criteria", "award_criteria", "submission"):
-        assert fields[key] == {"status": "missing", "display": "nicht angegeben", "values": []}
-
-
 def test_mixed_location_description_contributes_only_verified_geography() -> None:
     location = "Schulungen finden beim Auftraggeber in Lübeck statt."
     non_geography = "Die Software muss auf Dänisch bedienbar sein."
@@ -601,27 +372,6 @@ def test_mixed_location_description_contributes_only_verified_geography() -> Non
     assert any(r["value"] == f"{location} {non_geography}" for r in doc["records"])
 
 
-def test_real_labelled_freetext_deadline_needs_no_model_approval() -> None:
-    doc = extract((FIXTURES / "real/788030-2026.xml").read_bytes(), "788030-2026", now=NOW)
-    unit = doc["units"][0]
-    field = unit["fields"]["deadlines"]
-    assert field["status"] == "uncertain"
-    assert len(field["values"]) == 1
-    value = field["values"][0]
-    assert value["original"] == "Einreichungsfrist: Mittwoch, den 09.12.2026, 09:00 Uhr"
-    assert value["original_date"] == "09.12.2026"
-    assert value["original_time"] == "09:00 Uhr"
-    assert value["berlin"] is None
-    assert value["method"] == "labelled_text"
-    assert value["lot_id"] == "PAR-0001"
-    assert (
-        value["evidence"][0]["path"]
-        == "/PriorInformationNotice/cac:ProcurementProject[1]/cbc:Note[1]"
-    )
-    assert unit["participation"]["status"] == "nicht offen"
-    assert unit["participation"]["evidence"][0]["quote"] == "pin-only"
-
-
 def test_labelled_deadline_survives_rejected_duplicate_from_model() -> None:
     note = "Frist und Form zur Abgabe Ihrer Unterlagen: "
     text = "Einreichungsfrist: Mittwoch, den 09.12.2026, 09:00 Uhr"
@@ -643,151 +393,6 @@ def test_labelled_deadline_survives_rejected_duplicate_from_model() -> None:
     assert values[-1]["original"] == text
     assert values[-1]["method"] == "labelled_text"
     assert unit["rejected_claims"] == []
-
-
-@pytest.mark.parametrize("change", ["example", "invalid_date", "wrong_weekday", "invalid_time"])
-def test_labelled_text_rejects_unreliable_deadline_variants(change: str) -> None:
-    note = "Frist und Form zur Abgabe Ihrer Unterlagen: Einreichungsfrist: "
-    note += "Mittwoch, den 09.12.2026, 09:00 Uhr Einreichungsform: per E-Mail"
-    if change == "example":
-        note = "Beispiel: " + note
-    elif change == "invalid_date":
-        note = note.replace("09.12.2026", "32.12.2026")
-    elif change == "wrong_weekday":
-        note = note.replace("Mittwoch", "Montag")
-    else:
-        note = note.replace("09:00", "25:00")
-    doc = extract(xml(extra=f"<cbc:Note>{note}</cbc:Note>"), "100-2026", now=NOW)
-    assert doc["units"][0]["fields"]["deadlines"]["values"] == []
-
-
-def test_labelled_deadlines_keep_different_lots_separate() -> None:
-    def with_note(identifier: str, day: str) -> str:
-        content = lot(identifier)
-        note = "Frist und Form zur Abgabe Ihrer Unterlagen: "
-        note += f"Einreichungsfrist: {day}, 10:00 Uhr Einreichungsform: per E-Mail"
-        return content.replace(
-            "</cac:ProcurementProject>", f"<cbc:Note>{note}</cbc:Note></cac:ProcurementProject>"
-        )
-
-    doc = extract(
-        xml(with_note("LOT-A", "10.12.2026") + with_note("LOT-B", "11.12.2026")),
-        "100-2026",
-        now=NOW,
-    )
-    assert [u["fields"]["deadlines"]["values"][-1]["original_date"] for u in doc["units"]] == [
-        "10.12.2026",
-        "11.12.2026",
-    ]
-
-
-def test_global_freetext_is_not_distributed_to_multiple_lots() -> None:
-    note = "Frist und Form zur Abgabe Ihrer Unterlagen: "
-    note += "Einreichungsfrist: 10.12.2026, 10:00 Uhr Einreichungsform: per E-Mail"
-    doc = extract(
-        xml(lot("LOT-A") + lot("LOT-B"), extra=f"<cbc:Note>{note}</cbc:Note>"), "100-2026", now=NOW
-    )
-    assert all(len(unit["fields"]["deadlines"]["values"]) == 1 for unit in doc["units"])
-
-
-@pytest.mark.parametrize(
-    "number", ["773064-2026", "798622-2026", "799785-2026", "788030-2026", "800874-2026"]
-)
-def test_real_oracles_match_original_and_structured_extraction(number: str) -> None:
-    expected = json.loads((FIXTURES / "real/expectations.json").read_text("utf-8"))[number]
-    content = (FIXTURES / "real" / f"{number}.xml").read_bytes()
-    provenance = json.loads((FIXTURES / "real/provenance.json").read_text("utf-8"))["documents"][
-        number
-    ]
-    assert hashlib.sha256(content).hexdigest() == provenance["sha256"]
-    root = ET.fromstring(content)
-    # Unabhängige Prüfung festgelegter Fundstellen direkt gegen das Original.
-    for ev in expected.get("evidence", []):
-        node = root.find("./" + ev["path"].split("/", 2)[2], NS)
-        assert node is not None and ev["quote"] in (node.text or "")
-    if "freetext_source" in expected:
-        note = root.find("./" + expected["freetext_source"].split("/", 2)[2], NS)
-        assert note is not None
-        for key in ("original_deadline", "original_submission", "original_selection"):
-            assert expected[key] in (note.text or "")
-    doc = extract(content, number, now=NOW)
-    unit = doc["units"][0]
-    for key, value in expected.get("fields", {}).items():
-        if key == "selection_criteria_free_text":
-            # Fachliche Zuordnung ist erst Gegenstand des echten KI-Laufs.
-            assert value in content.decode("utf-8")
-            continue
-        if key == "selection_criteria_document_source":
-            selection = unit["fields"]["selection_criteria"]
-            assert selection["status"] == "uncertain"
-            assert [source["value"] for source in selection["document_sources"]] == [value]
-            continue
-        field = unit["fields"][key]
-        if value == "nicht angegeben":
-            assert field["status"] == "missing"
-            assert field["display"] == "nicht angegeben"
-        elif key == "deadlines":
-            assert field["values"][0]["berlin"] == value
-        else:
-            values = [v["value"] for v in field["values"]]
-            assert all(v in values for v in (value if isinstance(value, list) else [value]))
-    for unit in doc["units"]:
-        if "lot_durations_months" in expected:
-            assert (
-                unit["fields"]["duration"]["values"][0]["value"]
-                == expected["lot_durations_months"][unit["lot_id"]]
-            )
-            assert unit["fields"]["duration"]["values"][0]["attributes"]["unitCode"] == "MONTH"
-            assert unit["fields"]["deadlines"]["values"][0]["berlin"] == expected["deadline_berlin"]
-
-
-def test_deadline_without_time_retains_original_and_unknown_state() -> None:
-    content = xml(lot()).replace(b"<cbc:EndTime>12:00:00Z</cbc:EndTime>", b"")
-    unit = extract(content, "100-2026", now=NOW)["units"][0]
-    field = unit["fields"]["deadlines"]
-    assert field["status"] == "uncertain"
-    assert field["values"][0]["original_date"] == "2026-12-01Z"
-    assert field["values"][0]["original_time"] is None
-    assert field["values"][0]["berlin"] is None
-    assert unit["participation"]["status"] == "ungeklärt"
-
-
-def test_conflicting_structured_deadlines_and_procedures_keep_both_values() -> None:
-    content = xml(
-        lot(),
-        extra="<cac:TenderingProcess><cbc:ProcedureCode>open</cbc:ProcedureCode>"
-        "<cbc:ProcedureCode>restricted</cbc:ProcedureCode></cac:TenderingProcess>",
-    )
-    content = content.replace(
-        b"<cbc:EndDate>2026-12-01Z</cbc:EndDate>",
-        b"<cbc:EndDate>2026-12-01Z</cbc:EndDate><cbc:EndDate>2026-12-10Z</cbc:EndDate>",
-    )
-    unit = extract(content, "100-2026", now=NOW)["units"][0]
-    assert unit["fields"]["deadlines"]["status"] == "conflict"
-    period = unit["fields"]["deadlines"]["values"][0]
-    assert period["dates"] == ["2026-12-01Z", "2026-12-10Z"]
-    assert period["times"] == ["12:00:00Z"]
-    assert period["original_date"] is None and period["berlin"] is None
-    assert unit["fields"]["procedure"]["status"] == "conflict"
-    assert [v["value"] for v in unit["fields"]["procedure"]["values"]] == ["open", "restricted"]
-    assert [e["quote"] for e in unit["fields"]["deadlines"]["values"][0]["evidence"]] == [
-        "2026-12-01Z",
-        "2026-12-10Z",
-        "12:00:00Z",
-    ]
-    assert unit["participation"]["status"] == "ungeklärt"
-
-
-@pytest.mark.parametrize(("second", "status"), [("StartDate", "present"), ("EndDate", "conflict")])
-def test_duration_compares_only_same_component_in_same_period(second: str, status: str) -> None:
-    periods = (
-        "<cac:PlannedPeriod><cbc:EndDate>2027-12-01</cbc:EndDate>"
-        f"<cbc:{second}>2027-01-01</cbc:{second}></cac:PlannedPeriod>"
-        "<cac:PlannedPeriod><cbc:EndDate>2028-12-01</cbc:EndDate></cac:PlannedPeriod>"
-    )
-    content = lot().replace("</cac:ProcurementProject>", periods + "</cac:ProcurementProject>")
-    unit = extract(xml(content), "100-2026", now=NOW)["units"][0]
-    assert unit["fields"]["duration"]["status"] == status
 
 
 def test_freetext_deadline_preserves_date_clock_and_missing_timezone() -> None:

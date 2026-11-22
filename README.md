@@ -1,215 +1,121 @@
 # Ausschreibungen suchen
 
-Der Agent sucht öffentliche Ausschreibungen auf TED anhand eigener Suchbegriffe.
-Die Suche speichert vollständige TED-Bekanntmachungen samt Herkunft in getrennten
-Läufen. Eine lokale HTML-Übersicht und Lesekopien machen die Ergebnisse prüfbar.
-Gespeicherte Bekanntmachungen können anschließend mit belegten Pflichtangaben und
-einer KI-Einschätzung der thematischen Passung ausgewertet werden.
+Das Tool sucht öffentliche TED-Bekanntmachungen zu einem einstellbaren Unternehmensprofil.
+Der PDF-Bericht zeigt passende Lose, Teilnahmefristen und die Belege aus dem Original.
 
-## Von der Suche zum PDF
+## Einrichten und den ersten Bericht erstellen
 
-Nach der Einrichtung und der ChatGPT-Anmeldung (`codex login`) im Projektordner starten:
+Du brauchst [uv](https://docs.astral.sh/uv/getting-started/installation/), eine Internetverbindung
+und für die KI-Auswertung die [Codex CLI](https://developers.openai.com/codex/cli) mit
+ChatGPT-Anmeldung. Öffne PowerShell im Projektordner. Einmalig einrichten:
 
-```powershell
-. .\dev.ps1
-uv run main.py --report
-```
-
-Für höchstens fünf Lose oder Verfahren im PDF in `search-profile.toml`
-`report_limit = 5` setzen. Das Programm sucht live auf TED, lädt die Originale,
-wertet die gefundenen Bekanntmachungen aus und zeigt den Pfad zu **bericht.pdf**.
-Bei der KI-Auswertung werden die Bekanntmachungstexte und das konfigurierte
-Unternehmensprofil über die bestehende ChatGPT-Anmeldung an OpenAI gesendet.
-Mit `--report --structured-only` bleibt die Auswertung lokal und die Passung ungeklärt.
-
-Die Übersicht zeigt je Los die fachliche Passung, den Teilnahmestand und den
-Stand der Teilnahmevoraussetzungen. Zuerst kommen Einträge mit offener Frist,
-innerhalb dieser Gruppe zuerst die belegten Treffer und dann die jeweils nächste
-eindeutige Einreichungsfrist. Fachlich unklare Fälle sind gekennzeichnet.
-Die verlinkte `analysis.html` enthält auch ausgeschlossene Einträge und solche
-außerhalb des Berichtslimits. Sie verknüpft bei eindeutig zugeordneten
-Berichtigungen die im Lauf verfügbaren alten und neuen Dokumentstände.
-Der Steckbrief zeigt je Los beleggeprüfte Kurzfassungen der Eignungs- und
-Zuschlagskriterien, soweit sie aus der Bekanntmachung bestätigt werden konnten.
-Nummern in eckigen Klammern führen zum Belegverzeichnis der jeweiligen Bekanntmachung.
-Der Laufordner enthält die Originale. Auch eine erfolgreiche Suche ohne Treffer
-und ein unvollständiger Abruf erzeugen einen Bericht. Bei unvollständiger Recherche
-oder Analyse meldet das Programm Exitcode 1.
-
-## Einrichten und starten
-
-Voraussetzung: Projektdateien, [uv](https://docs.astral.sh/uv/getting-started/installation/)
-und eine Internetverbindung. Python wird bei Bedarf von `uv` heruntergeladen.
-Die Suche benötigt keinen API-Schlüssel. Die KI-Auswertung verwendet dein bestehendes
-ChatGPT-Konto über die offizielle Codex-Schnittstelle.
-
-PowerShell im Projektordner öffnen und ausführen:
-
-```powershell
+~~~powershell
 . .\dev.ps1
 uv sync --locked
-uv run main.py --search
-```
+codex login
+~~~
 
-`uv sync --locked` richtet die Abhängigkeiten ein. Für weitere Suchen genügt
-`uv run main.py --search`; in einem neuen PowerShell-Fenster zuerst wieder
-`. .\dev.ps1` laden. Ohne `--search` erscheint nur die Befehlsübersicht.
+Für jeden Bericht im Projektordner starten:
 
-## Suche konfigurieren
+~~~powershell
+. .\dev.ps1
+uv run main.py --report
+~~~
 
-[search-profile.toml](search-profile.toml) im Texteditor bearbeiten, speichern und
-die Suche erneut starten. Standard: KI- und Microsoft-365-Themen, Auftraggeber
-in Deutschland, letzte 90 Kalendertage, höchstens 20 Treffer je Suchgruppe.
+Öffne die am Ende angezeigte **bericht.pdf**. Für eine reine TED-Suche ohne KI
+verwende `--search`. Mit `--report --structured-only` entsteht ein PDF aus den
+strukturierten XML-Angaben. Die thematische Passung bleibt dabei ungeklärt.
 
-Die allgemeinen Einstellungen stehen vor dem ersten `[[queries]]`-Block:
+## Suchbegriffe und Profil anpassen
 
-| Einstellung | Bedeutung / Beispiel |
-| --- | --- |
-| `name` | Frei wählbarer Name des Suchprofils. |
-| `countries = ["DEU"]` | Ländercodes, z. B. `["DEU", "AUT"]`; `[]` für alle Länder. |
-| `country_field = "buyer-country"` | Land des Auftraggebers; `"place-of-performance"` für den Leistungsort. |
-| `days_back = 90` | Zeitraum in Kalendertagen einschließlich heute. |
-| `max_results = 20` | 1–250 Bekanntmachungen je Suchgruppe. Bei `--search` auch Obergrenze für die gemeinsame Kandidatenliste. |
-| `report_limit = 20` | 1–250 Lose oder Verfahren im PDF, nach fachlicher Auswahl, Zusammenführung und Sortierung. |
-| `scope = "ACTIVE"` | Laut TED aktive Bekanntmachungen; `"ALL"` einschließlich historischer, `"LATEST"` nur aktuelle Amtsblattausgabe. |
-| `language = "deu"` | Bevorzugte Sprache für Ergebnisse und Links; kein Sprachfilter und keine Übersetzung. |
+Bearbeite [search-profile.toml](search-profile.toml) im Texteditor. Standardmäßig sucht
+das Tool für Auftraggeber in Deutschland über die letzten 90 Tage. Jeder
+`[[queries]]`-Block ist eine eigene Suche mit einem eindeutigen Namen.
 
-Die übrigen Einstellungen können für den ersten Lauf unverändert bleiben.
-
-### Suchbegriffe
-
-Jeder `[[queries]]`-Block ist eine eigene Suche mit eindeutigem Namen:
-
-```toml
+~~~toml
 [[queries]]
 name = "Microsoft-Beratung und Schulung"
 term_groups = [
     ["Microsoft 365", "Copilot"],
     ["Beratung", "Schulung"],
 ]
-```
+~~~
 
-**Innerhalb einer Gruppe gilt ODER, zwischen den Gruppen UND.** Das Beispiel
-findet also etwa „Copilot“ zusammen mit „Schulung“. Soll „Copilot“ allein genügen,
-die zweite Gruppe entfernen. Alternative und englische Begriffe bei Bedarf ergänzen.
+Innerhalb einer Gruppe gilt **ODER**, zwischen den Gruppen **UND**. Das Beispiel
+findet etwa „Copilot“ zusammen mit „Schulung“. Soll „Copilot“ allein genügen,
+entferne die zweite Gruppe. Mehrere Suchblöcke liefern alternative Treffer.
+Ersetze die mitgelieferten Blöcke für eine eigene Suche. Mindestens ein Block mit
+einer nichtleeren Begriffsgruppe muss bleiben.
 
-Mehrere Suchblöcke sind Alternativen; ihre Treffer werden zusammengeführt.
-Die vier mitgelieferten Blöcke ersetzen oder entfernen, wenn nur eigene Themen
-gewünscht sind. Mindestens ein Block mit einer nichtleeren Begriffsgruppe muss bleiben.
-Anführungszeichen, Kommas und Klammern wie im Beispiel beibehalten; Suchbegriffe
-dürfen keine zusätzlichen Anführungszeichen, Rückwärts-Schrägstriche oder Zeilenumbrüche enthalten.
+| Einstellung | Wirkung |
+| --- | --- |
+| `countries`, `country_field` | `["DEU", "AUT"]` für Deutschland und Österreich, `[]` für alle Länder. `buyer-country` filtert nach Auftraggeberland, `place-of-performance` nach Leistungsort. |
+| `days_back` | Suchzeitraum in Kalendertagen einschließlich Stichtag. |
+| `max_results` | 1–250 Bekanntmachungen je Suchgruppe. Bei `--search` gilt das Limit auch für die gemeinsame Kandidatenliste. |
+| `report_limit` | 1–250 Lose oder Verfahren nach fachlicher Auswahl und Sortierung. Für höchstens fünf Lose oder Verfahren auf `5` setzen. |
+| `scope`, `language` | `ACTIVE` für laut TED aktive Bekanntmachungen, `ALL` einschließlich historischer, `LATEST` für die aktuelle Amtsblattausgabe. Die Sprache steuert die bevorzugten Ergebnisfelder und Links. |
 
-### Andere Konfigurations- oder Ergebnisdatei verwenden
+Beschreibe in [analysis-profile.toml](analysis-profile.toml) unter `company_profile`
+die angebotenen Leistungen. Die KI verwendet dieses Profil zur Passungsprüfung.
+Die Suchbegriffe auf TED werden separat im Suchprofil gepflegt.
 
-```powershell
-uv run main.py --search --config meine-suche.toml --output reports/meine-ergebnisse.json
-```
+## Ergebnisse lesen
 
-Mit `--as-of 2026-11-15` lässt sich optional der Stichtag für den Suchzeitraum
-festlegen. Alle Optionen zeigt `uv run main.py --help`.
+- **bericht.pdf** beginnt mit der Übersicht. Offene Fristen stehen zuerst, innerhalb
+  dieser Gruppe folgen belegte Passung und die nächste eindeutige Einreichungsfrist.
+  Die Nummern in den Steckbriefen führen zu Originalzitaten und XML-Fundstellen.
+- **overview.html** zeigt Suchprofil, Suchgruppen, Kandidaten, Abruffehler und
+  gespeicherte Originale. Bei `--search` erscheint der Pfad im Terminal.
+- **analysis.html** zeigt auch ausgeschlossene Einträge, frühere zugeordnete
+  Dokumentstände und Treffer außerhalb des Berichtslimits. Fehlende Angaben,
+  Unsicherheiten und Widersprüche sind gekennzeichnet.
 
-## Ergebnisse
+Jeder Lauf liegt standardmäßig unter `reports/runs/`. Dort bleiben das Suchprofil,
+die TED-Rohantworten in `results.json` und die Originale erhalten. Die Analyse liegt
+unter `analyses/` im jeweiligen Lauf. Ein unvollständiger Lauf meldet Exitcode 1.
+Auch bei einzelnen Abruffehlern bleiben erfolgreiche Ergebnisse verfügbar.
 
-Titel, Links, Abrufstatus und der Pfad zur Übersicht erscheinen im Terminal.
-**Zum Prüfen die dort genannte `overview.html` im Browser öffnen.** Das geht auch
-nach Programmende und ohne Internet. Die Übersicht zeigt Suchprofil, Grenzen,
-Suchgruppen sowie für jeden Kandidaten Herkunft und Abrufstatus.
+Um einen gespeicherten Lauf erneut zu analysieren, ersetze `LAUFORDNER` durch den
+tatsächlichen Namen. Ohne `--notice` werden alle Bekanntmachungen des Laufs ausgewertet.
 
-Jeder Lauf bleibt in einem eigenen Ordner unter `reports/runs/` erhalten,
-zusammen mit dem verwendeten Profil und den heruntergeladenen Bekanntmachungen.
-Auch bei einzelnen Abruffehlern bleiben erfolgreiche Ergebnisse gespeichert.
-Fehler und offene Prüfpunkte stehen in der Übersicht; bei einem Abbruch die
-Übersicht des betreffenden Laufs prüfen.
-
-## Gespeicherten Lauf analysieren
-
-In [analysis-profile.toml](analysis-profile.toml) beschreibt `company_profile` die
-angebotenen Leistungen. Änderungen wirken auf die nächste Passungsprüfung;
-die Suchbegriffe werden weiterhin separat in `search-profile.toml` gepflegt.
-Das mitgelieferte Profil entspricht dem fachlichen Unternehmensprofil in PROJECT.md.
-
-Für KI-Auswertungen einmal mit `codex login` bei ChatGPT anmelden, falls du noch
-nicht angemeldet bist. Die Codex-Desktop-App stellt diesen Befehl auf diesem Rechner
-bereits bereit; alternativ die [Codex CLI installieren](https://developers.openai.com/codex/cli).
-`codex login status` zeigt die Anmeldeart. API-Anmeldung ist im Programm gesperrt;
-es gibt keinen kostenpflichtigen API-Fallback. Eine `.env`-Datei wird nicht benötigt
-oder gelesen. Die vollständigen Bekanntmachungstexte und das Unternehmensprofil
-werden über Codex an OpenAI gesendet.
-
-Den Laufordner aus der Suchausgabe einsetzen, optional auf einen Treffer begrenzen:
-
-```powershell
+~~~powershell
 uv run main.py --analyze reports/runs/LAUFORDNER --notice 773064-2026
-```
+~~~
 
-Ohne `--notice` werden alle gespeicherten Treffer ausgewertet. Mit
-`--analysis-config anderes-profil.toml` ein anderes Analyseprofil verwenden.
-`--structured-only` liest ausschließlich strukturierte XML-Angaben ohne Modellzugriff;
-die fachliche Auswertung bleibt dabei ausdrücklich unvollständig.
+Andere Profile lassen sich mit `--config` und `--analysis-config` wählen,
+der Suchstichtag mit `--as-of YYYY-MM-DD` und der Pfad zur aktuellen Ergebniskopie
+mit `--output`. Alle Optionen zeigt `uv run main.py --help`.
 
-Jede Analyse liegt unter `LAUFORDNER/analyses/` in einem eigenen Ordner.
-`analysis.html` lokal öffnen; `analysis.json` enthält alle Pflichtfelder, Originalzitate,
-XML-Fundstellen, Losbezüge, Herkunft und Dokumentstände für die spätere Berichterstellung.
-Profil, Modellanfragen, Antworten und Tokenverbrauch bleiben im Analyseordner erhalten.
-Fehlende Angaben heißen **nicht angegeben**; Unsicherheiten, Widersprüche,
-abgelehnte Aussagen und Verarbeitungsfehler sind getrennt sichtbar. Ein unvollständiger
-Lauf liefert Exitcode 1 und bewahrt seine bisherigen Ergebnisse.
+## Kosten und Grenzen
 
-Die KI interpretiert Freitext und Passung; ein zweiter Modellaufruf prüft die
-inhaltliche Stützung. Zusätzlich prüft das Tool Zitate, Fundstellen und Losbezug.
-Auch bestätigte KI-Interpretationen können falsch sein und benötigen fachliche Kontrolle.
-Thematische Passung ist keine Teilnahmeempfehlung. Unternehmensnachweise werden nicht
-geprüft. „Frist offen“ bedeutet nur: Aufruf zur Teilnahme mit eindeutig datierter,
-noch nicht abgelaufener Einreichungsfrist. Fehlende Zeitbestandteile werden nicht ergänzt.
+Die KI-Auswertung sendet die vollständigen Bekanntmachungstexte und das konfigurierte
+Unternehmensprofil über die eigene ChatGPT-Anmeldung an OpenAI. Der Lauf verbraucht
+Kontingent oder vorhandenes Guthaben. Die Schätzung beträgt **0 USD zusätzliche
+API-Gebühren** bei Nutzung des bestehenden Kontos, ohne anteiligen Abopreis. Die
+Generalprobe benötigte für fünf Bekanntmachungen zehn Modellaufrufe mit zusammen
+312.007 Eingabe- und 47.287 Ausgabetokens. Den Verbrauch deines Laufs findest du in
+`analysis.json`. [Abgabenachweis](demo/abgabenachweis.md) ·
+[Codex-Nutzung nach Tarif](https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan)
 
-Kostenbasis (17.11.2026): Die Analyse nutzt das vorhandene ChatGPT-Kontingent und
-verursacht **0 USD zusätzliche API-Kosten**. Ein vorhandener Abopreis wird nicht
-auf einzelne Läufe umgerechnet; Tarifgrenzen und gegebenenfalls bereits vorhandene
-Nutzungsguthaben gelten weiterhin. Es werden keine Guthaben gekauft.
-[Codex mit ChatGPT verwenden](https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan).
-Je Bekanntmachung erfolgen eine gemeinsame Analyse aller Lose und, bei prüfpflichtigen
-Aussagen, eine gemeinsame Gegenprüfung. Ergebnisse und Belege bleiben je Los getrennt.
-Kurze Quellenkennungen werden lokal in Originalzitate und XML-Fundstellen aufgelöst.
-Die Gegenprüfung erhält alle Originalquellen und die prüfpflichtigen Aussagen.
-Die bereits daraus abgeleiteten Ergebnisfelder werden nur in der Erstanalyse übergeben.
-Das tatsächliche Modell, die Anmeldeart und der
-Tokenverbrauch stehen in `analysis.json`; unbekannter Verbrauch bleibt gekennzeichnet.
-`model = "default"` verwendet das für dein Konto angebotene Standardmodell.
+- Grundlage sind die erfolgreich abgerufenen TED-Bekanntmachungen. Zusätzliche
+  Vergabeunterlagen sind verlinkt und werden in dieser Version nicht ausgewertet.
+- Suchbereich, Trefferlimit und unterstützte XML-Formate begrenzen die Abdeckung.
+  Fehlende Vorgänger einer Berichtigung erscheinen als offene Prüfpunkte.
+- Die KI prüft vorgeschlagene Aussagen gegen die Quellen. Auch bestätigte Deutungen
+  können falsch sein. Eine offene Frist sagt nichts über die Erfüllung der
+  Teilnahmevoraussetzungen aus. Die Teilnahmeentscheidung bleibt beim Menschen.
 
-## Wichtige Grenzen
+Für die Weiterverwendung gelten die [TED-Nutzungshinweise](https://ted.europa.eu/en/legal-notice).
+Suchen möglichst nacheinander starten, um die Abrufgrenzen des
+[öffentlichen TED-Zugangs](https://ted.europa.eu/en/simap/developers-corner-for-reusers) einzuhalten.
 
-- Die TED-Suche filtert als Ergebnisbekanntmachung gekennzeichnete Meldungen aus.
-  Die Berichtsauswahl prüft zusätzlich die ausgewertete Passung und den Teilnahmestand.
-- TED-Suchbereich und Abruflimit begrenzen den Kandidatenbestand. Fehlt bei einer
-  Berichtigung der frühere Stand im Lauf, erscheint die Zuordnung als Prüfpunkt.
-- Zusätzliche Vergabeunterlagen werden **nicht heruntergeladen oder ausgewertet**.
-  Vorhandene Unterlagenlinks lassen sich in der Übersicht öffnen.
-- Nicht alle älteren Bekanntmachungsformate werden unterstützt. Fehlgeschlagene
-  oder fehlende Abrufe sind in der Übersicht gekennzeichnet.
-- Sehr große Analysepakete können die Modellgrenze überschreiten. Das wird als
-  Verarbeitungsfehler ausgegeben; eine gekürzte Fassung gilt nicht als vollständige Analyse.
+## Hilfe bei Problemen
 
-TED stellt einen [öffentlichen Such- und Downloadzugang](https://ted.europa.eu/en/simap/developers-corner-for-reusers)
-bereit, den das Tool verwendet. Bei einer
-Weiterverwendung der Inhalte die [TED-Nutzungshinweise](https://ted.europa.eu/en/legal-notice)
-beachten. Mehrere Suchen möglichst nacheinander starten, um die TED-Abrufgrenzen
-einzuhalten.
+| Problem | Was hilft |
+| --- | --- |
+| `uv` oder Projektdatei fehlt | PowerShell im Ordner mit `main.py` öffnen und `. .\dev.ps1` laden. Bei Bedarf `uv` installieren. |
+| Ungültiges Profil oder keine Treffer | Bei Konfigurationsfehlern die genannte Einstellung und TOML-Schreibweise prüfen. Bei leeren Ergebnissen Pflichtgruppen reduzieren, Begriffe ergänzen oder den Zeitraum verlängern. |
+| TED-Abruffehler | Betroffene Suchgruppe oder Bekanntmachung in `overview.html` prüfen. Bei Verbindungsproblemen später erneut starten. |
+| Analyse unvollständig | Den konkreten Hinweis in `analysis.html` prüfen. Bei Anmelde- oder Kontingentproblemen helfen `codex login status` und die Kontoprüfung. Sehr große Bekanntmachungen können die Modellgrenze überschreiten. |
 
-## Häufige Probleme
-
-- **`uv` nicht gefunden:** `. .\dev.ps1` laden; auf einem neuen Rechner `uv` installieren.
-- **Datei nicht gefunden:** PowerShell im Projektordner mit `main.py` und `search-profile.toml` öffnen.
-- **Konfigurationsfehler:** Genannte Einstellung sowie Anführungszeichen, Kommas und Klammern prüfen.
-- **TED-/HTTP-Fehler:** Internetverbindung prüfen und später erneut versuchen.
-- **Analyse unvollständig:** `analysis.html` prüfen. `codex login status`,
-  ChatGPT-Anmeldung, Modellzugang und verbleibendes Kontingent kontrollieren;
-  Originale bleiben erhalten. Bei erschöpftem Kontingent später erneut starten.
-- **Keine Treffer:** Weniger Pflichtgruppen, mehr alternative Begriffe oder einen längeren Zeitraum verwenden.
-
-Der Programmcode liegt in `ausschreibungen/`, der Einstieg bleibt `main.py`.
-`tests/` enthält Tests und feste Beispieldaten, `reports/` die lokal erzeugten
-Ergebnisse und `tmp/` temporäre Arbeits- und Review-Dateien.
-
-Das fachliche Ziel und den geplanten Ablauf beschreibt [PROJECT.md](PROJECT.md).
-
-Für die Generalprobe gibt es eine [Kurzanleitung mit angepasstem Suchprofil](demo/README.md).
+[Demo mit Beispielprofil](demo/README.md) · [Projektziel und fachliche Entscheidungen](PROJECT.md)

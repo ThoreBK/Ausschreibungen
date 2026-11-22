@@ -8,11 +8,11 @@ from typing import Any
 
 import pytest
 
-from ausschreibungen.analysis import PROPOSAL, interpret, load_analysis_profile
-from ausschreibungen.analysis import extract as extract_notice
+from ausschreibungen.analysis import interpret, load_analysis_profile
+from ausschreibungen.extraction import extract as extract_notice
 from ausschreibungen.notices import NS
-from tests.test_analysis import FIXTURES, NOW, PROFILE, lot, original_path, xml
-from tests.test_verification import Answers, decision
+from tests.support.models import Answers, LotAnswers, decision
+from tests.support.notices import FIXTURES, NOW, PROFILE, two_lots
 
 
 def test_real_foreign_lot_criterion_stays_out_of_structured_and_ai_facts() -> None:
@@ -55,88 +55,6 @@ def test_real_foreign_lot_criterion_stays_out_of_structured_and_ai_facts() -> No
     assert any(v["value"].startswith("Referenzen Los 1:") for v in values)
     assert any("(Lose 1 bis 3)" in v["value"] for v in values)
     assert any(c["evidence"][0]["path"] == path for c in unit["checkpoints"])
-
-
-class LotAnswers:
-    """Nur die Modellgrenze ersetzen; feste fachliche Werte je Los zurückgeben."""
-
-    def __init__(self, failure: str = "") -> None:
-        self.failure = failure
-        self.requests: list[dict[str, Any]] = []
-
-    def __call__(self, instructions: str, payload: dict[str, Any], schema: dict[str, Any]) -> Any:
-        self.requests.append(deepcopy(payload))
-        sources = {
-            r["lot_id"]: r["id"]
-            for r in payload["records"]
-            if original_path(r, payload).endswith("/cac:ProcurementProject[1]/cbc:Description[1]")
-        }
-        if schema == PROPOSAL:
-            answers = [
-                {
-                    "unit_id": "u0",
-                    "facts": [],
-                    "criteria_summaries": [],
-                    "checkpoints": [],
-                    "fit": {
-                        "status": "passend",
-                        "reason": "KI-Beratung wird beauftragt.",
-                        "evidence": [{"source": sources["LOT-A"]}],
-                    },
-                },
-                {
-                    "unit_id": "u1",
-                    "facts": [],
-                    "criteria_summaries": [],
-                    "checkpoints": [],
-                    "fit": {
-                        "status": "unpassend",
-                        "reason": "Bauarbeiten werden beauftragt.",
-                        "evidence": [{"source": sources["LOT-B"]}],
-                    },
-                },
-            ]
-            if self.failure == "missing":
-                answers.pop()
-            elif self.failure == "duplicate":
-                answers[1]["unit_id"] = "u0"
-            elif self.failure == "unknown":
-                answers[1]["unit_id"] = "u99"
-            elif self.failure == "analysis_scope":
-                answers[0]["fit"]["evidence"] = [{"source": sources["LOT-B"]}]
-            return {"units": list(reversed(answers))}
-        answers = [
-            {
-                "claim_id": "u0/fit",
-                "status": "bestätigt",
-                "reason": "KI-Beratung ist genannt.",
-                "evidence": [{"source": sources["LOT-A"]}],
-            },
-            {
-                "claim_id": "u1/fit",
-                "status": "bestätigt",
-                "reason": "Bauleistung ist genannt.",
-                "evidence": [{"source": sources["LOT-B"]}],
-            },
-        ]
-        if self.failure == "verification_scope":
-            answers[0]["evidence"] = [{"source": sources["LOT-B"]}]
-        elif self.failure == "verification_scope_mixed":
-            answers[0]["evidence"].append({"source": sources["LOT-B"]})
-        if self.failure == "analysis_scope":
-            answers = answers[1:]
-        return {"claims": list(reversed(answers))}
-
-
-def two_lots() -> dict[str, Any]:
-    return extract_notice(
-        xml(
-            lot("LOT-A") + lot("LOT-B", subject="Bauarbeiten"),
-            extra="<cbc:Note>Gemeinsam 🙂</cbc:Note>",
-        ),
-        "100-2026",
-        now=NOW,
-    )
 
 
 def test_two_lots_share_calls_but_reordered_results_remain_separate() -> None:

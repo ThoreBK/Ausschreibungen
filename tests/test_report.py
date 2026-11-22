@@ -11,25 +11,19 @@ import pytest
 from pypdf import PageObject, PdfReader
 
 import main
-from ausschreibungen.analysis import PROPOSAL, analyze_run, extract
+from ausschreibungen.analysis import PROPOSAL, analyze_run
+from ausschreibungen.extraction import extract
 from ausschreibungen.report import write_report
 from ausschreibungen.selection import select_results
 from ausschreibungen.ted import Profile, Query, SearchError
-from tests.test_analysis import (
-    FIXTURES,
-    NOW,
-    PROFILE,
-    ControlledModel,
-    citation,
-    lot,
-    proposal,
-    xml,
-)
-from tests.test_research import Network, execute, response, row
+from tests.support.models import ControlledModel
+from tests.support.notices import FIXTURES, NOW, PROFILE, citation, lot, proposal, xml
+from tests.support.research import Network, execute, response, row
 
 
 @pytest.mark.parametrize("failed", [True, False])
 def test_report_cli_distinguishes_empty_and_failed(
+    capsys: pytest.CaptureFixture[str],
     failed: bool,
     tmp_path: Path,
     profile: Profile,
@@ -53,7 +47,10 @@ def test_report_cli_distinguishes_empty_and_failed(
     )
     assert main.main() == int(failed)
     text = PdfReader(run / "bericht.pdf").pages[0].extract_text()
+    captured = capsys.readouterr()
     if failed:
+        assert "TED offline" in captured.err
+        assert str(run / "overview.html") in captured.err
         assert "1 von 2 Suchgruppen erfolgreich abgefragt" in text
         assert "TED offline" in text
         assert "Keine Treffer im Suchbereich" not in text

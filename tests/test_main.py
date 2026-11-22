@@ -13,7 +13,7 @@ import pytest
 
 import main
 from ausschreibungen.ted import SearchError, search
-from tests.test_research import Network, response, row, xml
+from tests.support.research import Network, response, row, xml
 
 
 def test_entrypoint() -> None:
@@ -114,7 +114,7 @@ def test_search_without_xml_link_returns_one_and_preserves_notice(
         assert "publication-date <= 20261115" in sent["query"]
     captured = capsys.readouterr()
     assert captured.err == ""
-    assert "1 Bekanntmachungen" in captured.out
+    assert "1 Bekanntmachung gefunden." in captured.out
     assert "123-2026: Schulung für KI-Assistenten" in captured.out
     assert "https://example.org/bekanntmachung/123" in captured.out
     assert "KI-Beratung, Schulungen" in captured.out
@@ -168,7 +168,7 @@ def test_analyze_relative_run_path_saves_inspectable_incomplete_result(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    from tests.test_analysis import PROFILE, lot, saved_run, xml
+    from tests.support.notices import PROFILE, lot, saved_run, xml
 
     saved_run(tmp_path, xml(lot()))
     monkeypatch.chdir(tmp_path)

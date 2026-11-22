@@ -5,13 +5,13 @@ from typing import Any
 
 import pytest
 
-from ausschreibungen.analysis import extract as extract_notice
 from ausschreibungen.analysis import (
     interpret,
     load_analysis_profile,
 )
-from tests.test_analysis import NOW, PROFILE, citation, lot, original_path, xml
-from tests.test_verification import Answers, decision
+from ausschreibungen.extraction import extract as extract_notice
+from tests.support.models import Answers, decision, original_path
+from tests.support.notices import NOW, PROFILE, citation, lot, xml
 
 
 def context_fixture() -> dict[str, Any]:

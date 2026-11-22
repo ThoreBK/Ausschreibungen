@@ -15,10 +15,10 @@ from ausschreibungen.analysis import (
     VERIFICATION,
     analyze_run,
     estimate_cost,
-    extract,
     load_analysis_profile,
     model_payload,
 )
+from ausschreibungen.extraction import extract
 from ausschreibungen.llm import (
     MAX_MODEL_INPUT_BYTES,
     CodexModel,
@@ -26,16 +26,8 @@ from ausschreibungen.llm import (
     object_schema,
     runtime_overrides,
 )
-from tests.test_analysis import (
-    NOW,
-    PROFILE,
-    lot,
-    proposal,
-    saved_run,
-    wire_proposal,
-    wire_verdict,
-    xml,
-)
+from tests.support.models import wire_proposal, wire_verdict
+from tests.support.notices import NOW, PROFILE, lot, proposal, saved_run, xml
 
 
 class Data:
@@ -304,7 +296,8 @@ def test_oversized_input_is_an_error_before_model_start(
 def test_one_invalid_fit_correction_preserves_other_lot_through_adapter(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, malformed: str
 ) -> None:
-    from tests.test_bundled_analysis import LotAnswers, two_lots
+    from tests.support.models import LotAnswers
+    from tests.support.notices import two_lots
 
     payload, _ = model_payload(two_lots(), load_analysis_profile(PROFILE))
     fixture = LotAnswers()

@@ -1,230 +1,64 @@
-"""Lesbare TED-Berichte mit kompakten Steckbriefen und auflösbaren XML-Belegen."""
+"""Berichtsübersicht, Reihenfolge der Steckbriefe und Ausgabe als PDF."""
 
-from collections.abc import Iterable
-from datetime import datetime
 from html import escape
 from pathlib import Path
-from typing import Any
-from zoneinfo import ZoneInfo
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.pdfgen.canvas import Canvas
-from reportlab.platypus import (
-    CondPageBreak,
-    PageBreak,
-    Paragraph,
-    SimpleDocTemplate,
-    Table,
-    TableStyle,
-)
+from reportlab.platypus import CondPageBreak, PageBreak, SimpleDocTemplate, Table, TableStyle
 
-from ausschreibungen.analysis import CRITERIA_FIELDS, deadline_components
 from ausschreibungen.notices import PARTICIPATION_PERIODS
-from ausschreibungen.report_fonts import BOLD, REGULAR, apply_fonts, font_runs, register_fonts
+from ausschreibungen.report_brief import add_brief
+from ausschreibungen.report_fonts import REGULAR, font_runs
+from ausschreibungen.report_layout import Data, ReportLayout, deadline_text, local_time, xml_leaf
 from ausschreibungen.research import link, text_value
 
-LABELS = {
-    "buyer": "Auftraggeber",
-    "subject": "Gegenstand",
-    "place": "Leistungsort",
-    "procedure": "Verfahrensart",
-    "deadlines": "Fristen",
-    "tender_validity": "Angebotsbindefrist",
-    "duration": "Laufzeit",
-    "selection_criteria": "Eignungskriterien",
-    "award_criteria": "Zuschlagskriterien",
-    "submission": "Abgabeform",
-    "source_link": "Quellenlink",
-}
-STATES = {"missing": "nicht angegeben", "uncertain": "unsicher", "conflict": "Widerspruch"}
-DEADLINES = {
-    "TenderSubmissionDeadlinePeriod": "Angebotsfrist",
-    "ParticipationRequestReceptionPeriod": "Frist für Teilnahmeanträge",
-    "InterestExpressionReceptionPeriod": "Frist für Interessenbekundungen",
-    "AdditionalInformationRequestPeriod": "Frist für Rückfragen",
-}
 LIMIT = "in dieser Version nicht abgerufen und nicht ausgewertet"
-FIELD_PREVIEW_LENGTH = 240
-Data = dict[str, Any]
-CriteriaDetails = tuple[str, str, list[int]]
+ReportRow = tuple[Data, int, Data | None]
 
 
-def local_time(value: str | None) -> str:
-    if not value:
-        return "nicht angegeben"
-    local = datetime.fromisoformat(value).astimezone(ZoneInfo("Europe/Berlin"))
-    abbreviation = local.strftime("%Z")
-    zone = {"CET": "MEZ", "CEST": "MESZ"}.get(abbreviation, abbreviation)
-    return local.strftime("%d.%m.%Y, %H:%M") + " " + zone
-
-
-def excerpt(value: str, limit: int) -> str:
-    return value if len(value) <= limit else value[:limit].rsplit(" ", 1)[0] + " […]"
-
-
-def deadline_text(item: Data) -> str:
-    kind = DEADLINES.get(item["kind"], item["kind"])
-    if context := item.get("context"):
-        kind += f" ({context})"
-    if original := item.get("original"):
-        detail = STATES.get(item["status"], item["status"])
-        if (
-            item["kind"] == "AdditionalInformationRequestPeriod"
-            and item["status"] == "uncertain"
-            and not item.get("original_time")
-        ):
-            kind = "Rückfragen"
-            detail = "Uhrzeit ungeklärt"
-        return f"{kind}: {original} · {detail}"
-    if "dates" not in item:
-        # Ältere Analysen enthalten Alternativen nur als indizierte XML-Belege.
-        def originals(leaf: str, scalar: str) -> list[str]:
-            quotes = [
-                e["quote"]
-                for e in item["evidence"]
-                if e["path"].rsplit("/", 1)[-1].startswith(f"cbc:{leaf}[")
-            ]
-            return quotes or [item.get(scalar) or ""]
-
-        item = deadline_components(
-            originals("EndDate", "original_date"), originals("EndTime", "original_time")
-        )
-    parts = []
-    for values, label in ((item["dates"], "Datum"), (item["times"], "Uhrzeit")):
-        if len(values) > 1:
-            parts.append(f"{label} widersprüchlich ({' oder '.join(values)})")
-        else:
-            parts.append(values[0] if values else f"{label} nicht angegeben")
-    text = f"{kind}: " + ", ".join(parts)
-    if item["berlin"]:
-        text = f"{kind}: {local_time(item['berlin'])}"
-    if item["reason"]:
-        text += " · " + item["reason"]
-    return text
-
-
-def xml_leaf(item: Data) -> str:
-    if item.get("method") == "xml" and item.get("evidence"):
-        return item["evidence"][0]["path"].rsplit("/", 1)[-1].partition("[")[0]
-    return ""
-
-
-def criteria_originals(unit: Data, key: str, summaries: list[Data]) -> list[Data]:
-    field = unit["fields"][key]
-    summarized_paths = {e["path"] for summary in summaries for e in summary["evidence"]}
-    originals = []
-    for review in unit.get("claim_reviews", []):
-        claim = review["claim"]
-        if claim.get("field") != key or "value" not in claim:
-            continue
-        if (review.get("model_check") or {}).get("status") != "bestätigt":
-            continue
-        # Frühere Gegenprüfungen haben die inhaltliche Abdeckung nicht protokolliert.
-        # Deren Originalzitate bleiben über die Originalangaben des Feldes erreichbar.
-        paths = {e["path"] for e in claim["evidence"]}
-        if not review.get("covered_by", paths <= summarized_paths):
-            originals.append(claim)
-    # Ältere Analysen können eigene Auszüge enthalten. Längere Originale derselben
-    # Fundstelle schließen solche Ausschnitte bereits ein.
-    for excerpt_value in field.get("notice_excerpts", []):
-        path = excerpt_value["evidence"][0]["path"]
-        if path not in summarized_paths:
-            full = next(
-                (
-                    v
-                    for v in field["values"]
-                    if xml_leaf(v) == "cbc:Description" and v["evidence"][0]["path"] == path
-                ),
-                excerpt_value,
-            )
-            originals.append(full)
-    return [
-        v
-        for v in originals
-        if not any(
-            v["value"] != other["value"]
-            and v["value"] in other["value"]
-            and v["evidence"][0]["path"] == other["evidence"][0]["path"]
-            for other in originals
-        )
-    ]
-
-
-def field_value(item: Data) -> str:
-    value = item["value"]
-    if item.get("method") == "xml":
-        leaf = item["evidence"][0]["path"].rsplit("/", 1)[-1].partition("[")[0]
-        value = {
-            ("cbc:DurationTypeCode", "UNLIMITED"): "Unbefristet",
-            ("cbc:DescriptionCode", "UNLIMITED"): "Unbefristet",
-            ("cbc:ProcedureCode", "neg-w-call"): "Verhandlungsverfahren mit Teilnahmewettbewerb",
-            ("cbc:SubmissionMethodCode", "required"): "Elektronische Abgabe vorgeschrieben",
-            ("cbc:SubmissionMethodCode", "allowed"): "Elektronische Abgabe zulässig",
-            ("cbc:SubmissionMethodCode", "not-allowed"): "Elektronische Abgabe nicht zulässig",
-            ("cbc:Region", "anyw"): "Beliebiger Ort",
-            ("cbc:Region", "anyw-cou"): "Landesweit",
-            ("cbc:Region", "anyw-eea"): "Im gesamten Europäischen Wirtschaftsraum",
-            ("cbc:ProcedureCode", "open"): "Offenes Verfahren",
-            ("cbc:ProcedureCode", "restricted"): "Nichtoffenes Verfahren",
-        }.get((leaf, value), value)
-        prefix = {"cbc:StartDate": "Beginn", "cbc:EndDate": "Ende"}.get(leaf)
-        if prefix:
-            if "/cac:PlannedPeriod[" in item["evidence"][0]["path"]:
-                prefix = {"Beginn": "Planbeginn", "Ende": "Planende"}[prefix]
-            try:
-                value = datetime.strptime(value[:10], "%Y-%m-%d").strftime("%d.%m.%Y")
-            except ValueError:
-                pass
-            value = f"{prefix}: {value}"
-    if unit := item.get("attributes", {}).get("unitCode"):
-        units = {"YEAR": ("Jahr", "Jahre"), "MONTH": ("Monat", "Monate"), "DAY": ("Tag", "Tage")}
-        value += " " + units.get(unit, (f"({unit})", f"({unit})"))[value != "1"]
-    if item.get("kind") == "minimum_service_months":
-        return "Mindestlaufzeit ab Leistungsbeginn: " + value
-    return value
-
-
-def write_report(research: Data, analysis: Data | None, directory: Path) -> Path:
-    register_fonts()
-    styles = {
-        key: ParagraphStyle(
-            key,
-            fontName=BOLD if heading else REGULAR,
-            fontSize=size,
-            leading=size * 1.4,
-            spaceBefore=before,
-            spaceAfter=3,
-            keepWithNext=heading,
-            textColor=colors.HexColor(color),
-        )
-        for key, size, before, heading, color in [
-            ("title", 21, 3, True, "#12334A"),
-            ("heading", 13, 10, True, "#125B62"),
-            ("label", 10, 6, True, "#12334A"),
-            ("body", 9, 0, False, "#192C36"),
-            ("source", 8, 0, False, "#394E5C"),
-        ]
-    }
-    story = []
-
-    def paragraph(
-        value: str, style: str = "body", *, markup: bool = False, field: str = ""
-    ) -> None:
-        content = Paragraph(value if markup else escape(value), styles[style])
-        apply_fonts(content, field or content.getPlainText()[:80])
-        story.append(content)
-
+def research_details(layout: ReportLayout, research: Data, analysis: Data | None) -> None:
     profile = research["profile"]
-    notices = research["notices"]
-    notice_titles = {n["publication_number"]: text_value(n.get("title")) for n in notices}
-    documents = {d["publication_number"]: d for d in (analysis or {}).get("documents", [])}
-    selection = (analysis or {}).get("selection")
-    notices_by_number = {n["publication_number"]: n for n in notices}
-    selected_units: dict[str, dict[int, Data]] = {}
-    paragraph("Ausschreibungsübersicht", "title")
+    layout.paragraph('<a name="recherche"/>Suchprofil und Recherchegrenzen', "heading", markup=True)
+    country_label = (
+        "Auftraggeberland" if profile["country_field"] == "buyer-country" else "Leistungsort"
+    )
+    layout.paragraph(
+        f"Stichtag {research['as_of']} · {profile['days_back']} Tage · "
+        f"{country_label}: "
+        f"{', '.join(profile['countries']) or 'alle Länder'} · Suchbereich {profile['scope']}"
+    )
+    codes = profile["cpv_codes"]
+    layout.paragraph("CPV-Filter: " + (" ODER ".join(codes) if codes else "keiner"))
+    layout.paragraph("Volltextsuche · mindestens eine Suchgruppe muss passen", "label")
+    for query in profile["queries"]:
+        conditions = [
+            terms[0] if len(terms) == 1 else "(" + " ODER ".join(terms) + ")"
+            for terms in query["term_groups"]
+        ]
+        layout.paragraph(f"{query['name']}: " + " UND ".join(conditions))
+    if analysis:
+        layout.paragraph("Unternehmensprofil: " + analysis["profile"]["company_profile"])
+
+
+def overview_rows(
+    notices: list[Data], documents: dict[str, Data], selection: Data | None
+) -> list[ReportRow]:
+    if selection is not None:
+        notices_by_number = {n["publication_number"]: n for n in notices}
+        rows = []
+        for entry in selection["selected"]:
+            number, index = entry["publication_number"], entry["unit_index"]
+            unit = {
+                **documents[number]["units"][index],
+                "fit": entry["fit"],
+                "participation": entry["participation"],
+                "selection_entry": entry,
+            }
+            rows.append((notices_by_number[number], index, unit))
+        return rows
     rows = [
         (notice, index, unit)
         for notice in notices
@@ -241,56 +75,63 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
             {"passend": 0, "unklar": 1, "unpassend": 2}.get(fit, 3),
         )
 
-    if selection is not None:
-        rows = []
-        for entry in selection["selected"]:
-            number, index = entry["publication_number"], entry["unit_index"]
-            unit = {
-                **documents[number]["units"][index],
-                "fit": entry["fit"],
-                "participation": entry["participation"],
-                "selection_entry": entry,
-            }
-            selected_units.setdefault(number, {})[index] = unit
-            rows.append((notices_by_number[number], index, unit))
-    else:
-        rows.sort(key=priority)
+    return sorted(rows, key=priority)
 
+
+def add_overview(
+    layout: ReportLayout,
+    research: Data,
+    analysis: Data | None,
+    documents: dict[str, Data],
+    rows: list[ReportRow],
+) -> None:
+    notices = research["notices"]
+    profile = research["profile"]
+    selection = (analysis or {}).get("selection")
+    layout.paragraph("Ausschreibungsübersicht", "title")
     units = [unit for _, _, unit in rows if unit]
     open_matches = sum(
         u["fit"]["status"] == "passend" and u["participation"]["status"] == "Frist offen"
         for u in units
     )
     if notices:
-        paragraph(
+        layout.paragraph(
             f"{len(notices)} {'Bekanntmachung' if len(notices) == 1 else 'Bekanntmachungen'}"
             f" · {len(units)} {'Los / Verfahren' if len(units) == 1 else 'Lose / Verfahren'}",
             "heading",
         )
-        paragraph(f"{open_matches} fachlich passend mit offener Frist", "label")
-    paragraph(profile["name"] + " · Recherche am " + local_time(research["started_at"]))
+        layout.paragraph(f"{open_matches} fachlich passend mit offener Frist", "label")
+    layout.paragraph(profile["name"] + " · Recherche am " + local_time(research["started_at"]))
     if analysis:
-        paragraph("Teilnahmestand zum Prüfzeitpunkt " + local_time(analysis["checked_at"]))
+        layout.paragraph("Teilnahmestand zum Prüfzeitpunkt " + local_time(analysis["checked_at"]))
     if research["status"] == "empty":
-        paragraph("Suche erfolgreich abgeschlossen. Keine Treffer im Suchbereich.", "heading")
+        layout.paragraph(
+            "Suche erfolgreich abgeschlossen. Keine Treffer im Suchbereich.", "heading"
+        )
     elif research["status"] != "complete":
-        paragraph("Recherche unvollständig. Die Trefferzahl ist nur ein Zwischenstand.", "heading")
+        layout.paragraph(
+            "Recherche unvollständig. Die Trefferzahl ist nur ein Zwischenstand.", "heading"
+        )
     if research.get("error"):
-        paragraph(research["error"])
+        layout.paragraph(research["error"])
     for q in research["queries"]:
         if q.get("error"):
-            paragraph(f"Abruffehler · {q['name']}: {q['error']}")
+            layout.paragraph(f"Abruffehler · {q['name']}: {q['error']}")
     if analysis and analysis["status"] != "complete":
-        paragraph("Auswertung unvollständig. Offene Punkte stehen in der Auswertung und im PDF.")
+        layout.paragraph(
+            "Auswertung unvollständig. Offene Punkte stehen in der Auswertung und im PDF."
+        )
     if selection is not None:
-        paragraph(
+        layout.paragraph(
             f"Berichtslimit: {selection['limit']} Lose oder Verfahren nach Auswahl und "
             f"Zusammenführung. {len(selection['limited'])} weitere Einträge am Limit ausgelassen."
         )
-        paragraph(selection["order"], "source")
+        layout.paragraph(selection["order"], "source")
         if not rows:
-            paragraph("Keine ausgewerteten Lose oder Verfahren für die Berichtsliste ausgewählt.")
-        paragraph(
+            layout.paragraph(
+                "Keine ausgewerteten Lose oder Verfahren für die Berichtsliste ausgewählt."
+            )
+        layout.paragraph(
             '<a href="analysis.html#berichtsauswahl" color="#125B62">Berichtsauswahl und '
             f"Dokumentstände prüfen</a> · {len(selection['excluded'])} ausgeschlossen · "
             f"{len(selection['unavailable'])} Bekanntmachungen ohne Auswertung",
@@ -298,14 +139,14 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
             markup=True,
         )
         if selection["unavailable"]:
-            paragraph(
+            layout.paragraph(
                 "Auswertung fehlt für TED " + ", ".join(selection["unavailable"]) + ".",
                 "source",
             )
     requirements = {u["participation_requirements"]["status"] for u in units}
     shared = len(requirements) == 1 and len(units) == len(rows)
     if rows:
-        paragraph(
+        layout.paragraph(
             (
                 "Teilnahmevoraussetzungen: " + next(iter(requirements)) + " bei allen. "
                 if shared
@@ -315,31 +156,15 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
             "source",
         )
 
-    def notice_heading(notice: Data) -> None:
-        number = notice["publication_number"]
-        paragraph(
-            text_value(notice.get("title")).split(" – ", 2)[-1],
-            "label",
-            field=f"Titel · TED {number}",
-        )
-        url = f"https://ted.europa.eu/de/notice/-/detail/{number}"
-        retrieved = local_time(notice.get("document", {}).get("retrieved_at"))
-        paragraph(
-            link(url, f"TED {number}") + " · Abruf: " + escape(retrieved), "source", markup=True
-        )
-
-    def cell(markup: str, style: str = "body", field: str = "") -> Paragraph:
-        content = Paragraph(markup, styles[style])
-        apply_fonts(content, field or content.getPlainText()[:80])
-        return content
-
     if rows:
         retrievals = {local_time(n.get("document", {}).get("retrieved_at")) for n in notices}
         if len(retrievals) == 1:
-            paragraph("TED-Abruf aller Bekanntmachungen: " + next(iter(retrievals)), "source")
+            layout.paragraph(
+                "TED-Abruf aller Bekanntmachungen: " + next(iter(retrievals)), "source"
+            )
         table = [
             [
-                cell(x, "label")
+                layout.cell(x, "label")
                 for x in ("Ausschreibung / Los", "Passung", "Teilnahmestand und Frist")
             ]
         ]
@@ -365,7 +190,7 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                 buyers = [v["value"] for v in unit["fields"]["buyer"]["values"]]
                 if buyers:
                     title = " · ".join([*buyers, title])
-            name = cell(
+            name = layout.cell(
                 f'<a href="#{anchor}">{escape(title)}</a><br/><font size="7">{metadata}</font>',
                 "label",
                 f"Titel · TED {number}",
@@ -385,8 +210,8 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
             table.append(
                 [
                     name,
-                    cell(escape(fit)),
-                    cell("<br/>".join(map(escape, [status, *dict.fromkeys(details)]))),
+                    layout.cell(escape(fit)),
+                    layout.cell("<br/>".join(map(escape, [status, *dict.fromkeys(details)]))),
                 ]
             )
         grid = Table(table, colWidths=[81 * mm, 24 * mm, 64 * mm], repeatRows=1, splitInRow=1)
@@ -399,33 +224,11 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                 ]
             )
         )
-        story.append(grid)
-
-    def research_details() -> None:
-        paragraph('<a name="recherche"/>Suchprofil und Recherchegrenzen', "heading", markup=True)
-        country_label = (
-            "Auftraggeberland" if profile["country_field"] == "buyer-country" else "Leistungsort"
-        )
-        paragraph(
-            f"Stichtag {research['as_of']} · {profile['days_back']} Tage · "
-            f"{country_label}: "
-            f"{', '.join(profile['countries']) or 'alle Länder'} · Suchbereich {profile['scope']}"
-        )
-        codes = profile["cpv_codes"]
-        paragraph("CPV-Filter: " + (" ODER ".join(codes) if codes else "keiner"))
-        paragraph("Volltextsuche · mindestens eine Suchgruppe muss passen", "label")
-        for query in profile["queries"]:
-            conditions = [
-                terms[0] if len(terms) == 1 else "(" + " ODER ".join(terms) + ")"
-                for terms in query["term_groups"]
-            ]
-            paragraph(f"{query['name']}: " + " UND ".join(conditions))
-        if analysis:
-            paragraph("Unternehmensprofil: " + analysis["profile"]["company_profile"])
+        layout.story.append(grid)
 
     if not rows:
-        research_details()
-    paragraph(
+        research_details(layout, research, analysis)
+    layout.paragraph(
         "Analysegrundlage sind die erfolgreich abgerufenen vollständigen "
         "TED-Bekanntmachungen. Zusätzliche Vergabeunterlagen: " + LIMIT + "."
     )
@@ -433,491 +236,66 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
     search_limit = (
         "je Suchgruppe" if research.get("all_returned") else "je Suchgruppe und insgesamt"
     )
-    paragraph(
+    layout.paragraph(
         f"{len(successful)} von {len(profile['queries'])} Suchgruppen erfolgreich abgefragt. "
         f"Nur neueste Fassungen, nach Veröffentlichungsdatum absteigend. "
         f"Abruflimit: {profile['max_results']} Treffer {search_limit}."
     )
     if any(q.get("limited") for q in successful):
-        paragraph("TED meldete für mindestens eine Suchgruppe weitere Treffer.")
+        layout.paragraph("TED meldete für mindestens eine Suchgruppe weitere Treffer.")
     if research.get("unique_retrieved", 0) > len(notices):
-        paragraph(
+        layout.paragraph(
             f"Gesamtlimit: {len(notices)} von {research['unique_retrieved']} verschiedenen "
             "gelieferten Bekanntmachungen ausgewählt."
         )
     overview_path = "../../overview.html" if analysis else "overview.html"
-    paragraph(
+    layout.paragraph(
         f'<a href="{overview_path}" color="#125B62"><u>Laufübersicht ({overview_path})</u></a>'
         " · Suchanfragen und Rohantworten",
         "source",
         markup=True,
     )
     if rows:
-        paragraph(
+        layout.paragraph(
             '<a href="#recherche" color="#125B62">Suchprofil und Recherchegrenzen ansehen</a>',
             "source",
             markup=True,
         )
-    appendices: list[
-        tuple[str, dict[tuple[str, str], int], list[CriteriaDetails], list[Paragraph]]
-    ] = []
 
-    def source_links(number: str, ids: Iterable[int]) -> str:
-        links = [f'<a href="#beleg-{number}-{i}" color="#125B62">{i}</a>' for i in ids]
-        return " [" + ", ".join(links) + "]" if links else ""
 
-    def add_brief(notice: Data) -> None:
-        number = notice["publication_number"]
-        doc = documents.get(number, {})
-        source = notice.get("document", {})
-        paragraph("Steckbrief", "title")
-        notice_heading(notice)
-        if versions := source.get("metadata", {}).get("versions"):
-            paragraph("Dokumentversion: " + ", ".join(versions), "source")
-        if conflicts := notice.get("conflicts"):
-            paragraph("Widersprüchliche Suchangaben: " + ", ".join(conflicts))
-        if doc.get("error") or not doc.get("units"):
-            paragraph(
-                "Auswertung unvollständig: "
-                + str(source.get("error") or doc.get("error") or "Keine auswertbaren Angaben.")
-            )
-        sources: dict[tuple[str, str], int] = {}
-        criteria_details: list[CriteriaDetails] = []
+def write_report(research: Data, analysis: Data | None, directory: Path) -> Path:
+    layout = ReportLayout()
+    notices = research["notices"]
+    documents = {d["publication_number"]: d for d in (analysis or {}).get("documents", [])}
+    selection = (analysis or {}).get("selection")
+    rows = overview_rows(notices, documents, selection)
+    add_overview(layout, research, analysis, documents, rows)
 
-        def source_ids(items: Iterable[Data]) -> list[int]:
-            return list(
-                dict.fromkeys(
-                    sources.setdefault((e["path"], e["quote"]), len(sources) + 1)
-                    for item in items
-                    for e in item.get("evidence", [])
-                )
-            )
+    selected_units: dict[str, dict[int, Data]] = {}
+    brief_notices = notices
+    if selection is not None:
+        for notice, index, unit in rows:
+            if unit is not None:
+                selected_units.setdefault(notice["publication_number"], {})[index] = unit
+        notices_by_number = {n["publication_number"]: n for n in notices}
+        brief_notices = [notices_by_number[n] for n in [*selected_units, *selection["unavailable"]]]
 
-        def refs(item: Data) -> str:
-            return source_links(number, source_ids([item]))
-
-        def add_criteria(unit: Data, key: str, label: str) -> None:
-            field = unit["fields"][key]
-            summaries = unit.get("criteria_summaries", {}).get(key, [])
-            rejected = any(
-                claim["claim"].get("field") == key and "summary" in claim["claim"]
-                for claim in unit["rejected_claims"]
-            )
-            state = field["status"]
-            if state == "missing" and (summaries or rejected):
-                state = "uncertain" if rejected else "present"
-            originals = criteria_originals(unit, key, summaries)
-            summarized_paths = {e["path"] for summary in summaries for e in summary["evidence"]}
-            long_originals = [
-                item
-                for item in originals
-                if len(item["value"]) > FIELD_PREVIEW_LENGTH
-                and any(e["path"] in summarized_paths for e in item["evidence"])
-            ]
-            grouped: dict[str, list[Data]] = {}
-            for item in [*summaries, *(v for v in originals if v not in long_originals)]:
-                value = item.get("summary") or item["value"]
-                grouped.setdefault(" ".join(value.split()), []).append(item)
-            lines = [
-                escape(value) + source_links(number, source_ids(items))
-                for value, items in grouped.items()
-            ]
-            if long_originals:
-                lines.append(
-                    "Ergänzende Originalpassagen vollständig lesen"
-                    + source_links(number, source_ids(long_originals))
-                )
-            if document_sources := field.get("document_sources"):
-                label_source = (
-                    "Verweis auf Vergabeunterlagen"
-                    if lines
-                    else "Einzelanforderungen in den Vergabeunterlagen prüfen."
-                )
-                lines.append(label_source + source_links(number, source_ids(document_sources)))
-            raw_ids = source_ids(field["values"])
-            if not lines:
-                lines = ["keine geprüfte Kurzfassung" if state != "missing" else ""]
-            if set(raw_ids).difference(source_ids([*originals, *summaries])):
-                anchor = f"kriterien-{number}-{len(criteria_details) + 1}"
-                scope = unit["lot_id"] or "Verfahren ohne Losaufteilung"
-                criteria_details.append((anchor, f"{scope} · {label}", raw_ids))
-                lines[-1] += f' · <a href="#{anchor}" color="#125B62">Originalangaben</a>'
-            paragraph(
-                f"{label}: " + " · ".join(filter(None, [STATES.get(state), lines[0]])),
-                markup=True,
-            )
-            for line in lines[1:]:
-                paragraph(line, markup=True)
-
-        def checkpoint_line(point: Data) -> Paragraph:
-            claim = point.get("claim", {})
-            value = claim.get("value") or claim.get("reason")
-            if claim.get("kind") == "minimum_service_months":
-                value = f"Mindestlaufzeit ab Leistungsbeginn von {value} Monaten"
-            label = f"Zu prüfen: {str(value).rstrip('.')}. " if value else ""
-            ids = source_ids([point, point.get("verification") or {}])
-            line = escape(label + point["reason"]) + source_links(number, ids)
-            if url := point.get("url"):
-                line += " · " + link(url, "Unterlagen öffnen")
-            return cell(line)
-
-        detail_blocks: list[Paragraph] = []
-        if not doc.get("units"):
-            paragraph(f'<a name="los-{number}-0"/>', markup=True)
-        brief_units = (
-            selected_units.get(number, {}).items()
-            if selection is not None
-            else enumerate(doc.get("units", []))
-        )
-        first_buyer = None
-        for position, (index, unit) in enumerate(brief_units):
-            scope = unit["lot_id"] or "Verfahren ohne Losaufteilung"
-            if position:
-                story.append(PageBreak())
-                paragraph(f"Steckbrief · TED {number}", "title")
-            paragraph(f'<a name="los-{number}-{index}"/>{escape(scope)}', "heading", markup=True)
-            for key, label in (
-                ("participation", "Teilnahmestand"),
-                ("fit", "Fachliche Passung"),
-                ("participation_requirements", "Teilnahmevoraussetzungen"),
-            ):
-                value = unit[key]
-                paragraph(
-                    f"<b>{label}: {escape(value['status'])}.</b> "
-                    + escape(value["reason"])
-                    + refs(value)
-                    + refs(value.get("verification") or {}),
-                    markup=True,
-                )
-            paragraph("Pflichtangaben", "label")
-            duration_checks = [
-                p
-                for p in unit["checkpoints"]
-                if p.get("field") == "duration" or p.get("method") == "xml_duration_comparison"
-            ]
-            comparisons = [
-                {e["path"] for e in p["evidence"]}
-                for p in duration_checks
-                if p.get("method") == "xml_duration_comparison"
-            ]
-            # Zusätzliche KI-Hinweise zu denselben Vergleichsgrundlagen bleiben im Anhang.
-            # Eine identische Belegmenge allein beweist keine sinngleiche Aussage.
-            related = [
-                p
-                for p in unit["checkpoints"]
-                if p.get("method") == "ai_verified"
-                and {e["path"] for e in p["evidence"]} in comparisons
-            ]
-            for key, label in LABELS.items():
-                if key in CRITERIA_FIELDS:
-                    add_criteria(unit, key, label)
-                    continue
-                if key == "tender_validity" and key not in unit["fields"]:
-                    paragraph(f"{label}: nicht ausgewertet")
-                    continue
-                field = unit["fields"][key]
-                state = STATES.get(field["status"], "")
-                if key == "deadlines" and field["values"]:
-                    grouped: dict[str, list[Data]] = {}
-                    for item in field["values"]:
-                        grouped.setdefault(deadline_text(item), []).append(item)
-                    for line, items in grouped.items():
-                        paragraph(
-                            escape(line) + source_links(number, source_ids(items)), markup=True
-                        )
-                    if field["status"] in {"uncertain", "conflict"} and not any(
-                        item.get("status") == field["status"] for item in field["values"]
-                    ):
-                        paragraph(f"{label}: {state}")
-                    continue
-                if key == "buyer" and position and field == first_buyer:
-                    continue
-                if key == "buyer" and not position:
-                    first_buyer = field
-                items = field["values"]
-                if key == "place":
-                    # Ältere Analysen haben die Zusatzbeschreibung als Ortswert übernommen.
-                    items = [v for v in items if xml_leaf(v) != "cbc:Description"]
-                    if not items and not state:
-                        state = STATES["missing"]
-                if key == "submission":
-                    items = sorted(items, key=lambda v: v.get("method") != "ai_quote_verified")
-                extension_texts = []
-                if key == "duration":
-                    extension_texts = [
-                        v
-                        for v in items
-                        if xml_leaf(v) == "cbc:OptionsDescription"
-                        or (
-                            xml_leaf(v) == "cbc:Description"
-                            and "/cac:ContractExtension[" in v["evidence"][0]["path"]
-                        )
-                    ]
-                    extension_paths = {e["path"] for v in extension_texts for e in v["evidence"]}
-                    items = [
-                        v
-                        for v in items
-                        if v not in extension_texts
-                        and not (
-                            v.get("method") == "ai_quote_verified"
-                            and field["status"] != "conflict"
-                            and all(e["path"] in extension_paths for e in v["evidence"])
-                            and (
-                                v.get("kind") == "minimum_service_months"
-                                or any(v["value"] in ext["value"] for ext in extension_texts)
-                            )
-                        )
-                    ]
-                preferred = {
-                    "subject": {"cbc:Name"},
-                    "duration": {
-                        "cbc:StartDate",
-                        "cbc:EndDate",
-                        "cbc:DurationMeasure",
-                        "cbc:Description",
-                        "cbc:DescriptionCode",
-                        "cbc:DurationTypeCode",
-                    },
-                }.get(key, set())
-                visible = [
-                    v
-                    for v in items
-                    if xml_leaf(v) in preferred
-                    or (key == "duration" and v.get("method") == "ai_quote_verified")
-                ] or items
-                if state and (key != "duration" or field["status"] == "conflict"):
-                    visible = items
-                extra = [v for v in items if v not in visible]
-                values = []
-                for v in visible:
-                    value = field_value(v)
-                    if (
-                        key == "submission"
-                        and field["status"] == "conflict"
-                        and xml_leaf(v) == "cbc:SubmissionMethodCode"
-                    ):
-                        value = "Strukturierte Angabe: " + value
-                    if xml_leaf(v) in {"cbc:EndpointID", "cbc:URI"} and value.startswith(
-                        ("https://", "http://")
-                    ):
-                        display = link(
-                            value, "Portal öffnen" if key == "submission" else "TED öffnen"
-                        )
-                    elif key == "source_link" and value.startswith(("https://", "http://")):
-                        display = link(value, f"TED {number}")
-                    else:
-                        display = escape(
-                            value
-                            if key in {"duration", "tender_validity", "submission"}
-                            else excerpt(value, FIELD_PREVIEW_LENGTH)
-                        )
-                    values.append(display + refs(v))
-                if extra:
-                    anchor = f"feld-{number}-{index}-{key}"
-                    criteria_details.append((anchor, f"{scope} · {label}", source_ids(extra)))
-                    values.append(f'<a href="#{anchor}" color="#125B62">Details</a>')
-                if state or values or not extension_texts:
-                    paragraph(
-                        f"<b>{label}:</b> " + " · ".join(filter(None, [state, *values])),
-                        markup=True,
-                    )
-                for item in sorted(
-                    extension_texts, key=lambda v: xml_leaf(v) == "cbc:OptionsDescription"
-                ):
-                    prefix = (
-                        "Optionen und Bedingungen"
-                        if xml_leaf(item) == "cbc:OptionsDescription"
-                        else "Verlängerung"
-                    )
-                    if not (state or values):
-                        prefix = f"{label} · {prefix}"
-                    paragraph(
-                        f"<b>{prefix}:</b> " + escape(" ".join(item["value"].split())) + refs(item),
-                        markup=True,
-                    )
-                if key == "duration":
-                    story.extend(checkpoint_line(p) for p in duration_checks if p not in related)
-            entry = unit.get("selection_entry", {})
-            history = entry.get("history", [])
-            show_history = len(history) > 1 or any(
-                stage.get("duplicate_reason") for stage in history
-            )
-            if (
-                duration_checks
-                and not related
-                and not unit["processing_errors"]
-                and not unit["rejected_claims"]
-                and not entry.get("checkpoints")
-                and not show_history
-                and all(p in duration_checks for p in unit["checkpoints"])
-            ):
-                continue
-            paragraph("Informationsqualität und Prüfpunkte", "label")
-            for point in entry.get("checkpoints", []):
-                citations = []
-                for origin in point["sources"]:
-                    pub = escape(origin["publication_number"])
-                    if "unit_index" in origin:
-                        anchor = f"los-{pub}-{origin['unit_index']}"
-                        citations.append(f'<a href="analysis.html#{anchor}">TED {pub}</a>')
-                    else:
-                        citations.append(f"TED {pub}")
-                paragraph(f"{escape(point['reason'])} ({', '.join(citations)})", markup=True)
-            if show_history:
-                paragraph("Dokumentstände und Herkunft", "label")
-                for stage in history:
-                    pub, old_index = stage["publication_number"], stage["unit_index"]
-                    label = "Aktueller Stand" if pub == number else "Früherer Stand"
-                    old_unit = documents[pub]["units"][old_index]
-                    source_link = f'<a href="analysis.html#los-{pub}-{old_index}">TED {pub}</a>'
-                    dates = ", ".join(
-                        deadline_text(d)
-                        for d in old_unit["fields"]["deadlines"]["values"]
-                        if d["kind"] in (*PARTICIPATION_PERIODS, "Einreichungsfrist (Freitext)")
-                    )
-                    paragraph(f"{label} · {source_link} · {escape(dates)}", "source", markup=True)
-                    if stage.get("duplicate_reason"):
-                        copies = ", ".join(
-                            f"TED {n['publication_number']}" for n in stage["ted_occurrences"]
-                        )
-                        paragraph(stage["duplicate_reason"] + " " + copies, "source")
-            for error in unit["processing_errors"]:
-                paragraph("Verarbeitungsfehler: " + error)
-            for rejected in unit["rejected_claims"]:
-                if not any(p.get("claim_id") == rejected["claim_id"] for p in unit["checkpoints"]):
-                    paragraph("Unbestätigte Aussage: " + rejected["reason"])
-            extended = []
-            immediate = {}
-            summary_failures = {
-                r["claim_id"] for r in unit["rejected_claims"] if "summary" in r["claim"]
-            }
-            diagnostics = []
-            for point in unit["checkpoints"]:
-                if point in duration_checks or point in related:
-                    continue
-                if point.get("claim_id") in summary_failures:
-                    diagnostics.append(point)
-                elif point.get("method") == "ai_verified":
-                    extended.append(point)
-                elif point.get("method") == "xml_lot_scope":
-                    immediate.setdefault(point["reason"], []).append(point)
-                else:
-                    story.append(checkpoint_line(point))
-            for reason, group in immediate.items():
-                paragraph(escape(reason) + source_links(number, source_ids(group)), markup=True)
-            if extended:
-                critical_paths = {
-                    e["path"]
-                    for field in unit["fields"].values()
-                    if field["status"] in {"conflict", "uncertain"}
-                    for item in field["values"]
-                    for e in item.get("evidence", [])
-                }
-                document_paths = {
-                    e["path"]
-                    for item in unit["fields"]["selection_criteria"].get("document_sources", [])
-                    for e in item["evidence"]
-                }
-                candidates = [
-                    p
-                    for p in extended
-                    if all(e["path"] not in document_paths for e in p.get("evidence", []))
-                ]
-                if candidates:
-                    preview = next(
-                        (
-                            p
-                            for p in candidates
-                            if any(e["path"] in critical_paths for e in p.get("evidence", []))
-                        ),
-                        candidates[0],
-                    )
-                    story.append(checkpoint_line(preview))
-                    extended.remove(preview)
-            remaining = [*related, *diagnostics, *extended]
-            if remaining:
-                anchor = f"pruefung-{number}-{index}"
-                detail_blocks.append(
-                    cell(f'<a name="{anchor}"/>{escape(scope)} · Weitere Prüfpunkte', "label")
-                )
-                detail_blocks.extend(checkpoint_line(point) for point in remaining)
-                status = "Kurzfassung der Kriterien nicht bestätigt · " if diagnostics else ""
-                paragraph(
-                    f'{status}<a href="#{anchor}" color="#125B62">'
-                    f"Weitere Prüfpunkte ({len(remaining)})</a>",
-                    "source",
-                    markup=True,
-                )
-            if not (
-                unit["processing_errors"]
-                or unit["rejected_claims"]
-                or unit["checkpoints"]
-                or entry.get("checkpoints")
-            ):
-                paragraph("Keine zusätzlichen Prüfpunkte erfasst.")
-        if doc.get("checkpoints"):
-            paragraph("Prüfpunkte zur Bekanntmachung", "heading")
-            grouped = {}
-            for point in doc["checkpoints"]:
-                grouped.setdefault((point.get("url"), point["reason"]), []).append(point)
-            for (url, reason), group in grouped.items():
-                scopes = list(dict.fromkeys(p.get("lot_id") or "Bekanntmachung" for p in group))
-                label = ", ".join(scopes) + " · " if url else ""
-                line = escape(label + reason) + source_links(number, source_ids(group))
-                if url:
-                    line += " · " + link(url, "Unterlagen öffnen")
-                paragraph(line, markup=True)
-        if sources or detail_blocks:
-            appendices.append((number, sources, criteria_details, detail_blocks))
-
-    brief_notices = (
-        [notices_by_number[n] for n in [*selected_units, *selection["unavailable"]]]
-        if selection is not None
-        else notices
-    )
+    appendices = []
     section_start_space = 215 * mm
     for index, notice in enumerate(brief_notices):
-        # Nach einer kurzen Fortsetzung passt der nächste Steckbrief auf dieselbe Seite.
-        story.append(CondPageBreak(section_start_space) if index else PageBreak())
-        add_brief(notice)
-
-    for number, sources, criteria_details, detail_blocks in appendices:
-        story.append(CondPageBreak(section_start_space))
-        paragraph(f"Belegverzeichnis · TED {number}", "heading")
-        if " – " in notice_titles[number]:
-            paragraph(notice_titles[number], "source", field=f"Titel · TED {number}")
-        paragraph(
-            "Die Nummern im Steckbrief verweisen auf folgende Originalzitate und "
-            "XML-Fundstellen dieser Bekanntmachung.",
-            "source",
+        layout.story.append(CondPageBreak(section_start_space) if index else PageBreak())
+        selected = (
+            selected_units.get(notice["publication_number"], {}) if selection is not None else None
         )
-        story.extend(detail_blocks)
-        for anchor, label, ids in criteria_details:
-            paragraph(
-                f'<a name="{anchor}"/>{escape(label)}' + source_links(number, ids),
-                "source",
-                markup=True,
-            )
-        original_quotes: dict[str, int] = {}
-        for (path, quote), index in sources.items():
-            paragraph(
-                f'<a name="beleg-{number}-{index}"/>[{index}] TED {number} · {escape(path)}',
-                "source",
-                markup=True,
-            )
-            if len(quote) > 250 and quote in original_quotes:
-                previous = original_quotes[quote]
-                paragraph(
-                    f'Gleicher Wortlaut wie <a href="#beleg-{number}-{previous}" '
-                    f'color="#125B62">Beleg [{previous}]</a>.',
-                    markup=True,
-                )
-            else:
-                paragraph(quote, "body", field=f"Beleg {index} · TED {number} · {path}")
-                original_quotes[quote] = index
+        appendix = add_brief(layout, notice, documents, selected)
+        if appendix.sources or appendix.detail_blocks:
+            appendices.append(appendix)
 
+    for appendix in appendices:
+        layout.story.append(CondPageBreak(section_start_space))
+        appendix.write(layout)
     if rows:
-        research_details()
+        research_details(layout, research, analysis)
 
     def footer(canvas: Canvas, document: SimpleDocTemplate) -> None:
         canvas.saveState()
@@ -942,6 +320,6 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
         bottomMargin=20 * mm,
         title="TED-Ausschreibungsbericht",
     )
-    document.build(story, onFirstPage=footer, onLaterPages=footer)
+    document.build(layout.story, onFirstPage=footer, onLaterPages=footer)
     temporary.replace(target)
     return target

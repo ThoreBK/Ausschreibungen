@@ -11,12 +11,13 @@ import pytest
 from pypdf import PdfReader
 
 import main
-from ausschreibungen.analysis import PROPOSAL, Model, analyze_run, extract
+from ausschreibungen.analysis import PROPOSAL, Model, analyze_run
+from ausschreibungen.extraction import extract
 from ausschreibungen.report import write_report
 from ausschreibungen.research import collect
 from ausschreibungen.ted import Profile, search
-from tests.test_analysis import FIXTURES, NOW, PROFILE, lot, xml
-from tests.test_research import Network, execute, response, row
+from tests.support.notices import FIXTURES, NOW, PROFILE, lot, xml
+from tests.support.research import Network, execute, response, row
 
 Data = dict[str, Any]
 ORIGINAL = "fe845e3b-c2a7-4183-b842-0b6ada5b9cfa"
@@ -97,7 +98,10 @@ def evaluate(_: str, payload: Data, schema: Data) -> Data:
 
 
 def test_report_selects_and_consolidates_before_applying_limit(
-    tmp_path: Path, profile_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path,
+    profile_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     assistant = "Konzeption und Einführung eines KI-Assistenten"
     training = lot("LOT-2", day="2027-01-08Z", subject="Schulung zu Microsoft 365")
@@ -174,10 +178,15 @@ def test_report_selects_and_consolidates_before_applying_limit(
     )
 
     assert main.main() == 0
+    output_lines = capsys.readouterr().out.splitlines()
+    assert "7 Bekanntmachungen gefunden." in output_lines
+    assert "Werte die Bekanntmachungen aus …" in output_lines
+    assert not any("104-2026" in line for line in output_lines)
     assert [request["limit"] for request in network.search_requests] == [4, 4]
     assert len(network.document_requests) == len(set(network.document_requests)) == 7
     research = json.loads(output.read_bytes())
     [directory] = (Path(research["run_directory"]) / "analyses").iterdir()
+    assert output_lines[-1] == f"PDF-Bericht: {directory / 'bericht.pdf'}"
     analysis = json.loads((directory / "analysis.json").read_bytes())
     selection = analysis["selection"]
     first, corrected = selection["selected"]

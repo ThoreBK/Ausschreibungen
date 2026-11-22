@@ -6,7 +6,6 @@ Das Tokenbudget wird zwischen Aufrufen geprüft; ein laufender Aufruf kann es
 überschreiten, da die verwendete Schnittstelle kein hartes Ausgabetokenlimit anbietet.
 """
 
-import json
 import os
 from copy import deepcopy
 from pathlib import Path
@@ -19,48 +18,21 @@ import pytest
 from ausschreibungen.analysis import (
     PROPOSAL,
     estimate_cost,
-    extract,
     information_quality,
     interpret,
     load_analysis_profile,
 )
-from ausschreibungen.llm import CodexModel, ModelError
+from ausschreibungen.extraction import extract
+from ausschreibungen.llm import CodexModel
 from ausschreibungen.research import save_json
-from tests.test_analysis import FIXTURES, NOW, PROFILE, wire_proposal
-from tests.test_verification import CASES
+from tests.support.live import CASES, Budget
+from tests.support.models import wire_proposal
+from tests.support.notices import FIXTURES, NOW, PROFILE
 
 pytestmark = pytest.mark.skipif(
     os.environ.get("RUN_LIVE_VERIFICATION") != "1",
     reason="Kleiner echter Modellvergleich nur mit RUN_LIVE_VERIFICATION=1.",
 )
-
-
-class Budget:
-    def __init__(self) -> None:
-        self.calls: list[dict[str, Any]] = []
-        self.max_calls = 5
-        self.max_tokens = 150_000
-
-    def run(
-        self, client: CodexModel, instructions: str, payload: dict[str, Any], schema: dict[str, Any]
-    ) -> dict[str, Any]:
-        usage = estimate_cost(self.calls)
-        if (
-            len(self.calls) >= self.max_calls
-            or usage["unknown_usage_calls"]
-            or sum(usage["tokens"].values()) >= self.max_tokens
-        ):
-            raise ModelError(
-                "Kontrolllauf-Budget erreicht oder Verbrauch unbekannt; kein Folgeaufruf."
-            )
-        if len(json.dumps(payload, ensure_ascii=False).encode()) > 150_000:
-            raise ModelError(
-                "Kontrolllauf-Anfrage überschreitet das vorab festgelegte Größenlimit."
-            )
-        try:
-            return client(instructions, payload, schema)
-        finally:
-            self.calls.append(client.calls[-1])
 
 
 def test_budgeted_reference_verdicts_and_bundled_analysis() -> None:

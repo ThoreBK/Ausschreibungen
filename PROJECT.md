@@ -121,20 +121,7 @@ Konfiguration erneut ausführen; gespeicherte Eingaben und Ergebnisse machen
 einzelne Läufe nachvollziehbar. Identische Treffer bei erneuten Live-Suchen oder
 identische KI-Ausgaben sind damit nicht zugesichert.
 
-### Reihenfolge bis zur vollständigen Demo
-
-Zuerst entsteht ein vollständiger Durchlauf mit einem echten Treffer:
-TASK-2 beschafft die Bekanntmachung, TASK-4 liefert Pflichtangaben und begründete
-Passung, TASK-6 erzeugt daraus den PDF-Bericht. TASK-6 hängt deshalb direkt von
-TASK-4 ab und wartet nicht auf TASK-5. Dieser erste Bericht ist ein
-Zwischenergebnis, noch keine vollständige Abnahme aller Anforderungen.
-
-TASK-5 ergänzt die verlässliche Auswahl, Zusammenführung und Sortierung mehrerer
-Treffer einschließlich der Behandlung von Losen und Berichtigungen. TASK-7 hängt
-von TASK-5 und TASK-6 ab und sichert ihren gemeinsamen Ablauf sowie alle
-Anforderungen und Nachweise ab. Die bevorzugte Arbeitsreihenfolge
-ist TASK-2, TASK-4, TASK-6, TASK-5, TASK-7; TASK-5 benötigt fachlich nur TASK-4.
-Qualitätsregeln zu Belegen und Unsicherheit gelten bereits beim ersten Treffer.
+Die Umsetzungsschritte, Abhängigkeiten und Nachweise zur Demo stehen im [Backlog](backlog/tasks/).
 
 ### Quellen und Erweiterungen
 
