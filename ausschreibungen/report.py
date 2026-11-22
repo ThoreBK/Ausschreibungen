@@ -12,7 +12,14 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.pdfgen.canvas import Canvas
-from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate, Table, TableStyle
+from reportlab.platypus import (
+    CondPageBreak,
+    PageBreak,
+    Paragraph,
+    SimpleDocTemplate,
+    Table,
+    TableStyle,
+)
 
 from ausschreibungen.analysis import CRITERIA_FIELDS, deadline_components
 from ausschreibungen.notices import PARTICIPATION_PERIODS
@@ -463,7 +470,6 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
         number = notice["publication_number"]
         doc = documents.get(number, {})
         source = notice.get("document", {})
-        story.append(PageBreak())
         paragraph("Steckbrief", "title")
         notice_heading(notice)
         if versions := source.get("metadata", {}).get("versions"):
@@ -869,11 +875,14 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
         if selection is not None
         else notices
     )
-    for notice in brief_notices:
+    section_start_space = 215 * mm
+    for index, notice in enumerate(brief_notices):
+        # Nach einer kurzen Fortsetzung passt der nächste Steckbrief auf dieselbe Seite.
+        story.append(CondPageBreak(section_start_space) if index else PageBreak())
         add_brief(notice)
 
     for number, sources, criteria_details, detail_blocks in appendices:
-        story.append(PageBreak())
+        story.append(CondPageBreak(section_start_space))
         paragraph(f"Belegverzeichnis · TED {number}", "heading")
         if " – " in notice_titles[number]:
             paragraph(notice_titles[number], "source", field=f"Titel · TED {number}")
@@ -908,7 +917,6 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                 original_quotes[quote] = index
 
     if rows:
-        story.append(PageBreak())
         research_details()
 
     def footer(canvas: Canvas, document: SimpleDocTemplate) -> None:

@@ -315,7 +315,11 @@ def test_report_includes_scoped_decisions_fields_and_sources(
         for annotation in page.get("/Annots", [])
         if "/Dest" in (ann := annotation.get_object())
     ]
-    assert reader.pages[-2].indirect_reference.idnum in destinations
+    appendix = next(
+        page for page in reader.pages if "Belegverzeichnis · TED 100-2026" in page.extract_text()
+    )
+    assert appendix.indirect_reference.idnum in destinations
+    assert "Suchprofil und Recherchegrenzen" in appendix.extract_text()
 
 
 @pytest.mark.parametrize(
@@ -555,7 +559,8 @@ def test_partial_download_keeps_success_and_failed_notice(tmp_path: Path, profil
     assert all(number in pages[0] for number in ["100-2026", "101-2026"])
     assert "Recherche unvollständig" in pages[0]
     assert "Gegenstand: KI-Beratung" in pages[1]
-    assert "Referenz über zwei KI-Schulungen" in pages[-2]
+    appendix = next(page for page in pages if "Belegverzeichnis · TED 100-2026" in page)
+    assert "Referenz über zwei KI-Schulungen" in appendix
     assert "TED-Download abgebrochen" in pages[2]
     assert "TED 101-2026" in pages[2]
 
