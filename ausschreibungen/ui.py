@@ -83,10 +83,16 @@ class Application:
         self.status = "idle"
         self.messages: list[str] = []
         self.pdf: str | None = None
+        self.analysis_progress: dict[str, int] | None = None
 
     def state(self) -> dict[str, Any]:
         with self.lock:
-            return {"status": self.status, "messages": self.messages.copy(), "pdf": self.pdf}
+            return {
+                "status": self.status,
+                "messages": self.messages.copy(),
+                "pdf": self.pdf,
+                "analysis_progress": self.analysis_progress,
+            }
 
     def submit(self, data: dict[str, Any], *, start: bool) -> None:
         with self.lock:
@@ -98,6 +104,7 @@ class Application:
                 settings = validate_settings(data["base"])
                 self.messages = []
                 self.pdf = None
+                self.analysis_progress = None
                 self.status = "running"
                 try:
                     threading.Thread(target=self.run, args=(settings,), daemon=True).start()
@@ -118,6 +125,10 @@ class Application:
         with self.lock:
             self.messages.append(text)
 
+    def update_analysis_progress(self, processed: int, total: int) -> None:
+        with self.lock:
+            self.analysis_progress = {"processed": processed, "total": total}
+
     def run(self, settings: dict[str, Any]) -> None:
         try:
             with TemporaryDirectory() as temp:
@@ -128,6 +139,7 @@ class Application:
                     self.root / "reports" / "ted-results.json",
                     self.message,
                     self.message,
+                    on_analysis_progress=self.update_analysis_progress,
                 )
             link = "/runs/" + quote(pdf.relative_to(self.root / "reports" / "runs").as_posix())
             with self.lock:

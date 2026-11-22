@@ -107,6 +107,46 @@ def test_ui_profile_rejects_invalid_and_stale_edits(site: str, tmp_path: Path) -
     assert api(site, "status")["status"] == "idle"
 
 
+def test_analysis_progress_survives_reload(site: str, monkeypatch: pytest.MonkeyPatch) -> None:
+    browser_api = pytest.importorskip("playwright.sync_api")
+    content = xml(lot())
+    network = Network(
+        [response(row(101, 16), row(100, 15)), response()],
+        {
+            "https://ted.europa.eu/en/notice/101-2026/xml": SearchError("Original fehlt"),
+            "https://ted.europa.eu/en/notice/100-2026/xml": content,
+        },
+    )
+    model = ControlledModel(proposal(extract(content, "100-2026", now=NOW)))
+    proceed = threading.Event()
+
+    def paused_model(instructions: str, payload: dict[str, Any], schema: dict[str, Any]) -> Any:
+        assert proceed.wait(30)
+        return model(instructions, payload, schema)
+
+    monkeypatch.setattr(main, "search", partial(search, transport=network.search))
+    monkeypatch.setattr(main, "collect", partial(main.collect, download=network.download))
+    monkeypatch.setattr(main, "analyze_run", partial(main.analyze_run, model=paused_model))
+    with browser_api.sync_playwright() as playwright:
+        browser = playwright.chromium.launch(channel="msedge" if sys.platform == "win32" else None)
+        page = browser.new_page()
+        page.goto(site)
+        page.get_by_role("button", name="Recherche starten").click()
+        bar = page.get_by_role("progressbar", name="1 von 2 Bekanntmachungen bearbeitet")
+        expect = browser_api.expect
+        try:
+            expect(bar).to_be_visible()
+            page.reload()
+            expect(bar).to_be_visible()
+            expect(bar).to_have_attribute("value", "1")
+            expect(bar).to_have_attribute("max", "2")
+        finally:
+            proceed.set()
+        expect(page.get_by_role("link", name="PDF öffnen")).to_be_visible()
+        expect(page.get_by_role("progressbar")).to_be_hidden()
+        assert api(site, "status")["analysis_progress"] == {"processed": 2, "total": 2}
+
+
 @pytest.mark.parametrize("partial_failure", [False, True])
 def test_ui_report_uses_settings_and_serves_pdf(
     site: str, monkeypatch: pytest.MonkeyPatch, partial_failure: bool
@@ -144,7 +184,9 @@ def test_ui_report_uses_settings_and_serves_pdf(
     api(site, "report", {"base": updated})
     try:
         assert entered.wait(5)
-        assert api(site, "status")["status"] == "running"
+        state = api(site, "status")
+        assert state["status"] == "running"
+        assert state["analysis_progress"] is None
         with pytest.raises(HTTPError) as duplicate:
             api(site, "report", {"base": updated})
         assert duplicate.value.code == 409
@@ -154,6 +196,7 @@ def test_ui_report_uses_settings_and_serves_pdf(
     while (state := api(site, "status"))["status"] == "running" and time.monotonic() < deadline:
         time.sleep(0.03)
     assert state["status"] == ("incomplete" if partial_failure else "complete"), state
+    assert state["analysis_progress"] == {"processed": 1, "total": 1}
     assert len(network.search_requests) == 2
     query = network.search_requests[0]["query"]
     assert "place-of-performance IN (AUT)" in query

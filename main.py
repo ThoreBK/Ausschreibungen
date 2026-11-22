@@ -209,6 +209,7 @@ def generate_report(
     *,
     as_of: date | None = None,
     structured_only: bool = False,
+    on_analysis_progress: Callable[[int, int], None] | None = None,
 ) -> tuple[Path, bool]:
     progress("Suche auf TED und lade Bekanntmachungen …")
     _, result, run_dir = research(config, output_file, as_of, report=True)
@@ -221,7 +222,12 @@ def generate_report(
     destination = run_dir
     if result["notices"]:
         progress("Werte die Bekanntmachungen aus …")
-        destination = analyze_run(run_dir, analysis_config, structured_only=structured_only)
+        destination = analyze_run(
+            run_dir,
+            analysis_config,
+            structured_only=structured_only,
+            on_progress=on_analysis_progress,
+        )
         analysis = json.loads((destination / "analysis.json").read_text("utf-8"))
         if analysis["status"] != "complete":
             warn("Auswertung unvollständig. Offene Punkte stehen im PDF.")

@@ -174,6 +174,15 @@ async function status() {
   el("result-title").textContent = titles[state.status] || "";
   el("latest").textContent = state.status === "incomplete" ? "Einzelne Schritte sind unvollständig. Hinweise stehen im PDF und in den Laufdetails." : busy || state.status === "failed" ? state.messages.at(-1) || "" : "";
   el("log").replaceChildren(...state.messages.map(line => node("li", line)));
+  const progress = state.analysis_progress;
+  el("analysis-progress").hidden = !busy || !progress;
+  if (busy && progress) {
+    const bar = el("notice-progress");
+    bar.max = progress.total;
+    bar.value = progress.processed;
+    const noun = progress.total === 1 ? "Bekanntmachung" : "Bekanntmachungen";
+    el("progress-label").textContent = `${progress.processed} von ${progress.total} ${noun} bearbeitet`;
+  }
   el("pdf").hidden = !state.pdf;
   if (state.pdf) el("pdf").href = state.pdf;
   if (busy) setTimeout(poll, 1000);

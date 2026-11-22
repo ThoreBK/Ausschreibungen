@@ -1064,6 +1064,7 @@ def analyze_run(
     model: Model | None = None,
     now: datetime | None = None,
     structured_only: bool = False,
+    on_progress: Callable[[int, int], None] | None = None,
 ) -> Path:
     run_dir = run_dir.resolve()
     profile = load_analysis_profile(profile_path)
@@ -1108,7 +1109,10 @@ def analyze_run(
 
     save()
     try:
-        for notice in selected:
+        total = len(selected)
+        if on_progress is not None:
+            on_progress(0, total)
+        for processed, notice in enumerate(selected, start=1):
             doc: dict[str, Any] = {
                 "publication_number": notice["publication_number"],
                 "status": "error",
@@ -1147,6 +1151,8 @@ def analyze_run(
             except (ValueError, OSError, KeyError) as error:
                 doc.update(status="error", error=str(error))
             save()
+            if on_progress is not None:
+                on_progress(processed, total)
         result["status"] = (
             "complete"
             if all(d["status"] == "complete" for d in result["documents"])
