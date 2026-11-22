@@ -14,7 +14,8 @@ from reportlab.lib.units import mm
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate, Table, TableStyle
 
-from ausschreibungen.analysis import CRITERIA_FIELDS, PARTICIPATION_PERIODS, deadline_components
+from ausschreibungen.analysis import CRITERIA_FIELDS, deadline_components
+from ausschreibungen.notices import PARTICIPATION_PERIODS
 from ausschreibungen.report_fonts import BOLD, REGULAR, apply_fonts, font_runs, register_fonts
 from ausschreibungen.research import link, text_value
 
@@ -155,6 +156,10 @@ def field_value(item: Data) -> str:
             ("cbc:ProcedureCode", "neg-w-call"): "Verhandlungsverfahren mit Teilnahmewettbewerb",
             ("cbc:SubmissionMethodCode", "required"): "Elektronische Abgabe vorgeschrieben",
             ("cbc:SubmissionMethodCode", "allowed"): "Elektronische Abgabe zulässig",
+            ("cbc:SubmissionMethodCode", "not-allowed"): "Elektronische Abgabe nicht zulässig",
+            ("cbc:Region", "anyw"): "Beliebiger Ort",
+            ("cbc:Region", "anyw-cou"): "Landesweit",
+            ("cbc:Region", "anyw-eea"): "Im gesamten Europäischen Wirtschaftsraum",
             ("cbc:ProcedureCode", "open"): "Offenes Verfahren",
             ("cbc:ProcedureCode", "restricted"): "Nichtoffenes Verfahren",
         }.get((leaf, value), value)
@@ -624,6 +629,13 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                 if key == "buyer" and not position:
                     first_buyer = field
                 items = field["values"]
+                if key == "place":
+                    # Ältere Analysen haben die Zusatzbeschreibung als Ortswert übernommen.
+                    items = [v for v in items if xml_leaf(v) != "cbc:Description"]
+                    if not items and not state:
+                        state = STATES["missing"]
+                if key == "submission":
+                    items = sorted(items, key=lambda v: v.get("method") != "ai_quote_verified")
                 extension_texts = []
                 if key == "duration":
                     extension_texts = [
@@ -652,7 +664,6 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                     ]
                 preferred = {
                     "subject": {"cbc:Name"},
-                    "place": {"cbc:CityName", "cbc:Description"},
                     "duration": {
                         "cbc:StartDate",
                         "cbc:EndDate",
@@ -661,7 +672,6 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                         "cbc:DescriptionCode",
                         "cbc:DurationTypeCode",
                     },
-                    "submission": {"cbc:SubmissionMethodCode", "cbc:EndpointID"},
                 }.get(key, set())
                 visible = [
                     v
@@ -675,6 +685,12 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                 values = []
                 for v in visible:
                     value = field_value(v)
+                    if (
+                        key == "submission"
+                        and field["status"] == "conflict"
+                        and xml_leaf(v) == "cbc:SubmissionMethodCode"
+                    ):
+                        value = "Strukturierte Angabe: " + value
                     if xml_leaf(v) in {"cbc:EndpointID", "cbc:URI"} and value.startswith(
                         ("https://", "http://")
                     ):
@@ -686,7 +702,7 @@ def write_report(research: Data, analysis: Data | None, directory: Path) -> Path
                     else:
                         display = escape(
                             value
-                            if key in {"duration", "tender_validity"}
+                            if key in {"duration", "tender_validity", "submission"}
                             else excerpt(value, FIELD_PREVIEW_LENGTH)
                         )
                     values.append(display + refs(v))

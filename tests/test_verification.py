@@ -525,11 +525,42 @@ def test_keyword_hit_stays_unfit_when_verification_removes_unsupported_detail() 
     assert evidence["quote"] in ref["quote"]
 
 
-def test_fit_correction_requires_service_evidence() -> None:
+@pytest.mark.parametrize("status", [CORRECTED_FIT, "bestätigt"])
+def test_fit_verdict_requires_its_own_service_evidence(status: str) -> None:
     doc = extract(xml(lot()), "100-2026", now=NOW)
-    answer = proposal(doc, status="unpassend")
-    verdict = decision("fit", answer["fit"], CORRECTED_FIT)
+    answer = proposal(doc)
+    verdict = decision("fit", answer["fit"], status)
     verdict["evidence"] = [citation(doc, "Referenz über zwei KI-Schulungen")]
     interpret(doc, load_analysis_profile(PROFILE), Answers(answer, {"claims": [verdict]}))
     assert doc["units"][0]["fit"]["status"] == "unklar"
     assert doc["units"][0]["claim_reviews"][0]["model_check"]["status"] == "nicht entscheidbar"
+
+
+def test_submission_rule_cannot_be_confirmed_by_the_xml_code_alone() -> None:
+    note = "Einreichung ausschließlich auf Papier."
+    content = xml(
+        lot().replace(
+            "<cac:TenderingProcess>",
+            "<cac:TenderingProcess><cbc:SubmissionMethodCode>allowed</cbc:SubmissionMethodCode>",
+        ),
+        extra=f"<cbc:Note>{note}</cbc:Note>",
+    )
+    doc = extract(content, "100-2026", now=NOW)
+    answer = proposal(doc)
+    claim = {
+        "field": "electronic_submission_prohibited",
+        "state": "present",
+        "value": note,
+        "evidence": [citation(doc, note)],
+    }
+    answer["facts"] = [claim]
+    verdict = decision("facts:0", claim, "bestätigt")
+    verdict["evidence"] = [citation(doc, "allowed")]
+    model = Answers(answer, {"claims": [verdict, decision("fit", answer["fit"], "bestätigt")]})
+    interpret(doc, load_analysis_profile(PROFILE), model)
+
+    unit = doc["units"][0]
+    assert unit["claim_reviews"][0]["model_check"]["status"] == "nicht entscheidbar"
+    submission = unit["fields"]["submission"]
+    assert submission["status"] == "uncertain"
+    assert [v["value"] for v in submission["values"]] == ["allowed"]

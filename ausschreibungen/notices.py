@@ -28,6 +28,11 @@ PUBLICATION_PATH = (
     "efext:EformsExtension/efac:Publication/efbc:NoticePublicationID"
 )
 MAX_DOCUMENT_BYTES = 20 * 1024 * 1024
+PARTICIPATION_PERIODS = (
+    "TenderSubmissionDeadlinePeriod",
+    "ParticipationRequestReceptionPeriod",
+    "InterestExpressionReceptionPeriod",
+)
 
 
 @dataclass(frozen=True)

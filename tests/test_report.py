@@ -15,7 +15,16 @@ from ausschreibungen.analysis import PROPOSAL, analyze_run, extract
 from ausschreibungen.report import write_report
 from ausschreibungen.selection import select_results
 from ausschreibungen.ted import Profile, Query, SearchError
-from tests.test_analysis import NOW, PROFILE, ControlledModel, citation, lot, proposal, xml
+from tests.test_analysis import (
+    FIXTURES,
+    NOW,
+    PROFILE,
+    ControlledModel,
+    citation,
+    lot,
+    proposal,
+    xml,
+)
 from tests.test_research import Network, execute, response, row
 
 
@@ -356,6 +365,127 @@ def test_conflicting_deadline_excerpt_in_pdf(
             "12:00:00Z",
             quote,
         }
+
+
+@pytest.mark.parametrize(
+    ("code", "confirmed", "expected"),
+    [("allowed", True, "conflict"), ("required", True, "present"), ("allowed", False, "uncertain")],
+)
+def test_confirmed_submission_rule_is_visible_and_compared_with_xml(
+    tmp_path: Path, profile: Profile, code: str, confirmed: bool, expected: str
+) -> None:
+    note = "Offers must be submitted exclusively through the electronic procurement portal."
+    content = xml(
+        lot().replace(
+            "<cac:TenderingProcess>",
+            f"<cac:TenderingProcess><cbc:SubmissionMethodCode>{code}</cbc:SubmissionMethodCode>",
+        ),
+        extra=f"<cbc:Note>{note}</cbc:Note>",
+    )
+    research, run = execute(
+        tmp_path,
+        profile,
+        Network(
+            [response(row(100, 14)), response()],
+            {"https://ted.europa.eu/en/notice/100-2026/xml": content},
+        ),
+    )
+    doc = extract(content, "100-2026", now=NOW)
+    answer = proposal(doc)
+    answer["facts"] = [
+        {
+            "field": "electronic_submission_required",
+            "value": note,
+            "state": "present",
+            "evidence": [citation(doc, note)],
+        }
+    ]
+    model = ControlledModel(answer, {"facts": [confirmed], "fit": True})
+    directory = analyze_run(run, PROFILE, model=model, now=NOW)
+    analysis = json.loads((directory / "analysis.json").read_bytes())
+    result = analysis["documents"][0]
+    unit = result["units"][0]
+    assert unit["fields"]["submission"]["status"] == expected
+    assert ("submission" in unit["information_quality"]["conflicts"]) == (expected == "conflict")
+    assert result["status"] == ("complete" if confirmed and code == "required" else "incomplete")
+    reader = PdfReader(write_report(research, analysis, directory))
+    brief = " ".join(reader.pages[1].extract_text().split())
+    field = brief.split("Abgabeform: ")[1].split("Quellenlink:")[0]
+    assert (note in field) == confirmed
+    if expected == "conflict":
+        assert field.startswith("Widerspruch · " + note)
+        assert "Strukturierte Angabe: Elektronische Abgabe zulässig" in field
+        assert [v["evidence"][0]["quote"] for v in unit["fields"]["submission"]["values"]] == [
+            "allowed",
+            note,
+        ]
+
+
+def test_performance_region_keeps_its_meaning_despite_unrelated_location_text(
+    tmp_path: Path, profile: Profile
+) -> None:
+    number = "773064-2026"
+    content = (FIXTURES / "real" / f"{number}.xml").read_bytes()
+    research, run = execute(
+        tmp_path,
+        profile,
+        Network(
+            [response(row(773064, 14)), response()],
+            {f"https://ted.europa.eu/en/notice/{number}/xml": content},
+        ),
+    )
+    directory = analyze_run(run, PROFILE, structured_only=True, now=NOW)
+    analysis = json.loads((directory / "analysis.json").read_bytes())
+    doc = analysis["documents"][0]
+    [place] = doc["units"][0]["fields"]["place"]["values"]
+    assert place["value"] == place["evidence"][0]["quote"] == "anyw"
+    assert place["evidence"][0]["path"].endswith("/cac:Address[1]/cbc:Region[1]")
+    assert any("in deutscher Sprache bedienbar" in r["value"] for r in doc["records"])
+    reader = PdfReader(write_report(research, analysis, directory))
+    brief = " ".join(reader.pages[1].extract_text().split())
+    assert re.search(r"Leistungsort: Beliebiger Ort \[\d+\] Verfahrensart:", brief)
+
+
+def test_freetext_deadline_type_does_not_resolve_conflicting_offsets(
+    tmp_path: Path, profile: Profile
+) -> None:
+    note = "Requests to participate must arrive by 07.01.2027, 10:00 Uhr."
+    content = xml(
+        lot(day="2027-01-07+01:00", clock="10:00:00+02:00").replace(
+            "TenderSubmissionDeadlinePeriod", "ParticipationRequestReceptionPeriod"
+        ),
+        extra=f"<cbc:Note>{note}</cbc:Note>",
+    )
+    research, run = execute(
+        tmp_path,
+        profile,
+        Network(
+            [response(row(100, 14)), response()],
+            {"https://ted.europa.eu/en/notice/100-2026/xml": content},
+        ),
+    )
+    doc = extract(content, "100-2026", now=NOW)
+    answer = proposal(doc)
+    answer["facts"] = [
+        {
+            "field": "participation_request_deadline",
+            "value": note,
+            "state": "uncertain",
+            "evidence": [citation(doc, note)],
+        }
+    ]
+    directory = analyze_run(run, PROFILE, model=ControlledModel(answer), now=NOW)
+    analysis = json.loads((directory / "analysis.json").read_bytes())
+    unit = analysis["documents"][0]["units"][0]
+    assert unit["participation"]["status"] == "ungeklärt"
+    field = unit["fields"]["deadlines"]
+    assert field["status"] == "conflict"
+    assert [v["berlin"] for v in field["values"]] == [None, None]
+    reader = PdfReader(write_report(research, analysis, directory))
+    brief = " ".join(reader.pages[1].extract_text().split())
+    assert f"Frist für Teilnahmeanträge: {note} · unsicher" in brief
+    assert "2027-01-07+01:00, 10:00:00+02:00" in brief
+    assert "Art ungeklärt" not in brief
 
 
 def test_award_with_historical_questions_stays_closed_in_pdf(

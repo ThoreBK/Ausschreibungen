@@ -572,6 +572,35 @@ def test_structured_extraction_leaves_freetext_for_model() -> None:
         assert fields[key] == {"status": "missing", "display": "nicht angegeben", "values": []}
 
 
+def test_mixed_location_description_contributes_only_verified_geography() -> None:
+    location = "Schulungen finden beim Auftraggeber in Lübeck statt."
+    non_geography = "Die Software muss auf Dänisch bedienbar sein."
+    content = xml(
+        lot().replace(
+            "</cac:ProcurementProject>",
+            f"<cac:RealizedLocation><cbc:Description>{location} {non_geography}</cbc:Description>"
+            "</cac:RealizedLocation></cac:ProcurementProject>",
+        )
+    )
+    doc = extract(content, "100-2026", now=NOW)
+    field = doc["units"][0]["fields"]["place"]
+    assert field["status"] == "missing"
+    answer = proposal(doc)
+    answer["facts"] = [
+        {
+            "field": "place",
+            "value": location,
+            "state": "present",
+            "evidence": [citation(doc, location)],
+        }
+    ]
+    interpret(doc, load_analysis_profile(PROFILE), ControlledModel(answer))
+    assert field["status"] == "present"
+    [value] = field["values"]
+    assert value["value"] == value["evidence"][0]["quote"] == location
+    assert any(r["value"] == f"{location} {non_geography}" for r in doc["records"])
+
+
 def test_real_labelled_freetext_deadline_needs_no_model_approval() -> None:
     doc = extract((FIXTURES / "real/788030-2026.xml").read_bytes(), "788030-2026", now=NOW)
     unit = doc["units"][0]

@@ -7,6 +7,8 @@ from datetime import UTC, datetime
 from html import escape
 from typing import Any
 
+from ausschreibungen.notices import PARTICIPATION_PERIODS
+
 Data = dict[str, Any]
 UnitRef = tuple[str, int]
 ORDER = "Offene Frist zuerst, dann belegte Passung und nächste eindeutige Einreichungsfrist."
@@ -162,7 +164,8 @@ def participation_deadlines(unit: Data) -> list[Data]:
     return [
         d
         for d in unit["fields"]["deadlines"]["values"]
-        if any(e["path"] in paths for e in d["evidence"])
+        if d["kind"] in (*PARTICIPATION_PERIODS, "Einreichungsfrist (Freitext)")
+        and any(e["path"] in paths for e in d["evidence"])
     ]
 
 
@@ -192,7 +195,7 @@ def conflicting_deadlines(deadlines: list[Data]) -> bool:
             instant = datetime.fromisoformat(deadline["berlin"])
             kinds.add(deadline["kind"])
             bounds.append((instant, instant))
-        elif deadline.get("period_path") or deadline["kind"] == "Einreichungsfrist (Freitext)":
+        else:
             for day in deadline.get("dates", [deadline.get("original_date")]):
                 if day and (window := calendar_day_bounds(day)):
                     bounds.append(window)
