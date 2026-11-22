@@ -3,6 +3,8 @@
 Das Tool sucht öffentliche TED-Bekanntmachungen zu einem einstellbaren Unternehmensprofil.
 Der PDF-Bericht zeigt passende Lose, Teilnahmefristen und die Belege aus dem Original.
 
+[Kurzdokumentation zum Recherche-Agenten](DOKU.md) mit Startanleitung, Aufbau, Entscheidungen, Grenzen und Kosten eines Beispiellaufs.
+
 ## Einrichten und den ersten Bericht erstellen
 
 Du brauchst [uv](https://docs.astral.sh/uv/getting-started/installation/), eine Internetverbindung
@@ -17,8 +19,8 @@ codex login
 
 Danach **Ausschreibungen starten.cmd** im Projektordner doppelklicken. Die lokale
 Oberfläche öffnet sich im Standardbrowser. Lass das Startfenster während der
-Recherche geöffnet. Unter **Einstellungen** kannst du Länder, Zeitraum, Suchbegriffe,
-Trefferlimits und Unternehmensprofil bearbeiten. **Bericht mit KI erstellen** beginnt
+Recherche geöffnet. Unter **Profil bearbeiten** kannst du Länder, Zeitraum, Suchbegriffe,
+Trefferlimits und Unternehmensprofil bearbeiten. **Recherche starten** beginnt
 den Lauf. Anschließend öffnet **PDF öffnen** das Ergebnis, auch bei Teilerfolgen.
 Laufdetails zeigen mögliche Fehler. Zum Beenden das Startfenster schließen.
 
